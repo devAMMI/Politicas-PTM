@@ -9,6 +9,14 @@ function parsePath(hash: string): Page {
   if (path === 'panel') return { name: 'admin-dashboard' };
   if (path === 'panel/nueva') return { name: 'admin-create' };
   if (path === 'panel/usuarios') return { name: 'admin-users' };
+  if (path === 'panel/evaluaciones') return { name: 'admin-evaluations' };
+  if (path === 'panel/evaluaciones/nueva') return { name: 'admin-evaluation-new' };
+
+  const evalEditMatch = path.match(/^panel\/evaluaciones\/editar\/(.+)$/);
+  if (evalEditMatch) return { name: 'admin-evaluation-edit', id: evalEditMatch[1] };
+
+  const evalViewMatch = path.match(/^panel\/evaluaciones\/ver\/(.+)$/);
+  if (evalViewMatch) return { name: 'admin-evaluation-view', id: evalViewMatch[1] };
 
   const editMatch = path.match(/^panel\/editar\/(.+)$/);
   if (editMatch) return { name: 'admin-edit', id: editMatch[1] };
