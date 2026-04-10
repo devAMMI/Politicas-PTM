@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
-  ArrowLeft, Save, Upload, X, FileText, Image, Loader2, CheckCircle, AlertCircle
+  ArrowLeft, Save, X, FileText, Image, Loader2, CheckCircle, AlertCircle, Zap, Clock
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { Policy, CATEGORIES } from '../types';
@@ -21,21 +21,27 @@ interface FormState {
   author_name: string;
 }
 
-const emptyForm = (): FormState => ({
-  title: '',
-  category: 'General',
-  summary: '',
-  content: '',
-  is_published: false,
-  published_at: new Date().toISOString().slice(0, 16),
-  author_name: 'Administrador',
-});
+function getNowGMT6Local(): string {
+  const now = new Date();
+  const gmt6 = new Date(now.getTime() - 6 * 60 * 60 * 1000);
+  return gmt6.toISOString().slice(0, 16);
+}
 
 function toLocalDatetime(iso: string): string {
   const date = new Date(iso);
   const pad = (n: number) => n.toString().padStart(2, '0');
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
+
+const emptyForm = (): FormState => ({
+  title: '',
+  category: 'General',
+  summary: '',
+  content: '',
+  is_published: false,
+  published_at: getNowGMT6Local(),
+  author_name: 'Administrador',
+});
 
 const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
   const { user } = useAuth();
@@ -52,9 +58,7 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
   const docRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (editId) {
-      loadPolicy(editId);
-    }
+    if (editId) loadPolicy(editId);
   }, [editId]);
 
   const loadPolicy = async (id: string) => {
@@ -90,9 +94,35 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
     return data.publicUrl;
   };
 
+  const handlePublishNow = () => {
+    setForm(p => ({
+      ...p,
+      is_published: true,
+      published_at: getNowGMT6Local(),
+    }));
+  };
+
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selected = e.target.value;
+    const minVal = getNowGMT6Local();
+    if (selected < minVal) {
+      showToast('error', 'La fecha de publicacion no puede ser en el pasado.');
+      setForm(p => ({ ...p, published_at: minVal }));
+      return;
+    }
+    setForm(p => ({ ...p, published_at: selected }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.title.trim()) { showToast('error', 'El titulo es requerido.'); return; }
+
+    const minVal = getNowGMT6Local();
+    if (form.published_at < minVal && !editId) {
+      showToast('error', 'La fecha de publicacion no puede ser en el pasado.');
+      return;
+    }
+
     setSaving(true);
 
     let cover_image_url = existingCoverUrl ?? null;
@@ -114,7 +144,7 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
       summary: form.summary.trim(),
       content: form.content,
       is_published: form.is_published,
-      published_at: new Date(form.published_at).toISOString(),
+      published_at: new Date(form.published_at + ':00').toISOString(),
       author_name: form.author_name.trim() || 'Administrador',
       author_id: user?.id ?? null,
       cover_image_url,
@@ -310,17 +340,39 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
 
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-5">
             <h2 className="font-semibold text-slate-700 text-sm uppercase tracking-wide">Publicacion</h2>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">Fecha y hora de publicacion</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                  <Clock size={13} className="inline mr-1.5 text-slate-400" />
+                  Programar publicacion
+                </label>
                 <input
                   type="datetime-local"
                   value={form.published_at}
-                  onChange={set('published_at')}
+                  min={getNowGMT6Local()}
+                  onChange={handleDateChange}
                   className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#0A2647]/20 focus:border-[#0A2647] transition-all"
                 />
+                <p className="text-xs text-slate-400 mt-1.5">Zona horaria GMT-6 (Guatemala)</p>
               </div>
-              <div className="flex items-end">
+
+              <div className="flex flex-col gap-3">
+                <label className="block text-sm font-medium text-slate-700">Estado de publicacion</label>
+
+                <button
+                  type="button"
+                  onClick={handlePublishNow}
+                  className={`inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold border-2 transition-all ${
+                    form.is_published && form.published_at === getNowGMT6Local()
+                      ? 'bg-emerald-600 border-emerald-600 text-white shadow-md'
+                      : 'bg-white border-emerald-500 text-emerald-600 hover:bg-emerald-50'
+                  }`}
+                >
+                  <Zap size={15} />
+                  Publicar ahora
+                </button>
+
                 <label className="flex items-center gap-3 cursor-pointer select-none group">
                   <div
                     onClick={() => setForm(p => ({ ...p, is_published: !p.is_published }))}
