@@ -9,21 +9,26 @@ import PolicyDetail from './pages/PolicyDetail';
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
 import PolicyForm from './pages/PolicyForm';
+import UserManagement from './pages/UserManagement';
 
 const AppContent: React.FC = () => {
   const { page, navigate } = useRouter();
-  const { session, loading } = useAuth();
+  const { session, loading, adminUser } = useAuth();
 
   const isAdminArea =
     page.name === 'admin-dashboard' ||
     page.name === 'admin-create' ||
-    page.name === 'admin-edit';
+    page.name === 'admin-edit' ||
+    page.name === 'admin-users';
 
   useEffect(() => {
     if (!loading && isAdminArea && !session) {
       navigate('/gestion');
     }
-  }, [loading, session, isAdminArea]);
+    if (!loading && page.name === 'admin-users' && session && adminUser && adminUser.role !== 'superadmin') {
+      navigate('/panel');
+    }
+  }, [loading, session, isAdminArea, adminUser]);
 
   if (loading) {
     return (
@@ -45,6 +50,7 @@ const AppContent: React.FC = () => {
         {page.name === 'admin-dashboard' && <AdminDashboard navigate={navigate} />}
         {page.name === 'admin-create' && <PolicyForm navigate={navigate} />}
         {page.name === 'admin-edit' && <PolicyForm editId={page.id} navigate={navigate} />}
+        {page.name === 'admin-users' && adminUser?.role === 'superadmin' && <UserManagement navigate={navigate} />}
       </>
     );
   }

@@ -8,6 +8,7 @@ function parsePath(hash: string): Page {
   if (path === 'gestion') return { name: 'admin-login' };
   if (path === 'panel') return { name: 'admin-dashboard' };
   if (path === 'panel/nueva') return { name: 'admin-create' };
+  if (path === 'panel/usuarios') return { name: 'admin-users' };
 
   const editMatch = path.match(/^panel\/editar\/(.+)$/);
   if (editMatch) return { name: 'admin-edit', id: editMatch[1] };

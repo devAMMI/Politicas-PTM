@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Users } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import PlihsaLogo from './PlihsaLogo';
 
@@ -8,7 +9,7 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ navigate, currentPage }) => {
-  const { user, signOut } = useAuth();
+  const { user, adminUser, signOut } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -35,8 +36,23 @@ const Header: React.FC<HeaderProps> = ({ navigate, currentPage }) => {
               <div className="h-6 w-px bg-gray-300" />
               <span className="text-sm font-semibold text-slate-600 uppercase tracking-widest">Panel de Administracion</span>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               <span className="text-sm text-slate-500 hidden sm:block">{user?.email}</span>
+              {adminUser?.role === 'superadmin' && (
+                <button
+                  onClick={() => navigate('/panel/usuarios')}
+                  className="inline-flex items-center gap-1.5 text-sm text-slate-600 hover:text-[#0A2647] transition-colors font-medium"
+                >
+                  <Users size={14} />
+                  <span className="hidden sm:inline">Usuarios</span>
+                </button>
+              )}
+              <button
+                onClick={() => navigate('/panel')}
+                className="text-sm text-slate-600 hover:text-slate-900 transition-colors"
+              >
+                Panel
+              </button>
               <button
                 onClick={() => navigate('/')}
                 className="text-sm text-slate-600 hover:text-slate-900 transition-colors"

@@ -38,4 +38,5 @@ export type Page =
   | { name: 'admin-login' }
   | { name: 'admin-dashboard' }
   | { name: 'admin-create' }
-  | { name: 'admin-edit'; id: string };
+  | { name: 'admin-edit'; id: string }
+  | { name: 'admin-users' };
