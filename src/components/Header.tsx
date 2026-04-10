@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Users, ClipboardList } from 'lucide-react';
+import { Users } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import PlihsaLogo from './PlihsaLogo';
 
@@ -38,13 +38,6 @@ const Header: React.FC<HeaderProps> = ({ navigate, currentPage }) => {
             </div>
             <div className="flex items-center gap-3">
               <span className="text-sm text-slate-500 hidden sm:block">{user?.email}</span>
-              <button
-                onClick={() => navigate('/panel/evaluaciones')}
-                className="inline-flex items-center gap-1.5 text-sm text-slate-600 hover:text-[#0A2647] transition-colors font-medium"
-              >
-                <ClipboardList size={14} />
-                <span className="hidden sm:inline">Evaluaciones</span>
-              </button>
               {adminUser?.role === 'superadmin' && (
                 <button
                   onClick={() => navigate('/panel/usuarios')}

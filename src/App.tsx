@@ -10,9 +10,6 @@ import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
 import PolicyForm from './pages/PolicyForm';
 import UserManagement from './pages/UserManagement';
-import EvaluationList from './pages/EvaluationList';
-import EvaluationForm from './pages/EvaluationForm';
-import EvaluationPrint from './pages/EvaluationPrint';
 
 const AppContent: React.FC = () => {
   const { page, navigate } = useRouter();
@@ -22,11 +19,7 @@ const AppContent: React.FC = () => {
     page.name === 'admin-dashboard' ||
     page.name === 'admin-create' ||
     page.name === 'admin-edit' ||
-    page.name === 'admin-users' ||
-    page.name === 'admin-evaluations' ||
-    page.name === 'admin-evaluation-new' ||
-    page.name === 'admin-evaluation-edit' ||
-    page.name === 'admin-evaluation-view';
+    page.name === 'admin-users';
 
   useEffect(() => {
     if (!loading && isAdminArea && !session) {
@@ -51,19 +44,13 @@ const AppContent: React.FC = () => {
 
   if (isAdminArea) {
     if (!session) return null;
-    const showHeader =
-      page.name !== 'admin-evaluation-view';
     return (
       <>
-        {showHeader && <Header navigate={navigate} currentPage="admin" />}
+        <Header navigate={navigate} currentPage="admin" />
         {page.name === 'admin-dashboard' && <AdminDashboard navigate={navigate} />}
         {page.name === 'admin-create' && <PolicyForm navigate={navigate} />}
         {page.name === 'admin-edit' && <PolicyForm editId={page.id} navigate={navigate} />}
         {page.name === 'admin-users' && adminUser?.role === 'superadmin' && <UserManagement navigate={navigate} />}
-        {page.name === 'admin-evaluations' && <EvaluationList navigate={navigate} />}
-        {page.name === 'admin-evaluation-new' && <EvaluationForm navigate={navigate} />}
-        {page.name === 'admin-evaluation-edit' && <EvaluationForm editId={page.id} navigate={navigate} />}
-        {page.name === 'admin-evaluation-view' && <EvaluationPrint id={page.id} navigate={navigate} />}
       </>
     );
   }
