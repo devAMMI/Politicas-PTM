@@ -5,7 +5,7 @@ import { Policy } from '../types';
 import LoadingSpinner from '../components/LoadingSpinner';
 
 interface PolicyDetailProps {
-  id: string;
+  slug: string;
   navigate: (to: string) => void;
 }
 
@@ -33,7 +33,7 @@ function formatTime(dateStr: string): string {
   return date.toLocaleTimeString('es-GT', { hour: '2-digit', minute: '2-digit' });
 }
 
-const PolicyDetail: React.FC<PolicyDetailProps> = ({ id, navigate }) => {
+const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
   const [policy, setPolicy] = useState<Policy | null>(null);
   const [loading, setLoading] = useState(true);
   const [pdfExpanded, setPdfExpanded] = useState(false);
@@ -45,7 +45,7 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ id, navigate }) => {
       const { data, error } = await supabase
         .from('policies')
         .select('*')
-        .eq('id', id)
+        .eq('slug', slug)
         .eq('is_published', true)
         .maybeSingle();
 
@@ -53,7 +53,7 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ id, navigate }) => {
       setLoading(false);
     };
     fetchPolicy();
-  }, [id]);
+  }, [slug]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {

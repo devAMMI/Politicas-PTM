@@ -66,7 +66,7 @@ const AppContent: React.FC = () => {
           </>
         )}
         {page.name === 'policy' && (
-          <PolicyDetail id={page.id} navigate={navigate} />
+          <PolicyDetail slug={page.slug} navigate={navigate} />
         )}
       </div>
       <Footer />

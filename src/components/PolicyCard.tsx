@@ -36,7 +36,7 @@ const PolicyCard: React.FC<PolicyCardProps> = ({ policy, navigate }) => {
   return (
     <article
       className="group bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden cursor-pointer"
-      onClick={() => navigate(`/politica/${policy.id}`)}
+      onClick={() => navigate(`/politica/${policy.slug}`)}
     >
       {policy.cover_image_url && (
         <div className="h-44 overflow-hidden bg-slate-100">

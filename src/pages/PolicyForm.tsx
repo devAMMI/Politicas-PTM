@@ -3,7 +3,7 @@ import {
   ArrowLeft, Save, X, FileText, Image, Loader2, CheckCircle, AlertCircle, Zap, Clock
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
-import { Policy, CATEGORIES } from '../types';
+import { Policy, CATEGORIES, generateSlug } from '../types';
 import { useAuth } from '../context/AuthContext';
 
 interface PolicyFormProps {
@@ -153,12 +153,15 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
     };
 
     if (editId) {
-      const { error } = await supabase.from('policies').update(payload).eq('id', editId);
+      const slugBase = generateSlug(form.title.trim(), editId);
+      const { error } = await supabase.from('policies').update({ ...payload, slug: slugBase }).eq('id', editId);
       if (error) { showToast('error', 'Error al actualizar la politica.'); setSaving(false); return; }
       showToast('success', 'Politica actualizada correctamente.');
     } else {
-      const { error } = await supabase.from('policies').insert(payload);
-      if (error) { showToast('error', 'Error al crear la politica.'); setSaving(false); return; }
+      const { data: inserted, error } = await supabase.from('policies').insert(payload).select('id').maybeSingle();
+      if (error || !inserted) { showToast('error', 'Error al crear la politica.'); setSaving(false); return; }
+      const slug = generateSlug(form.title.trim(), inserted.id);
+      await supabase.from('policies').update({ slug }).eq('id', inserted.id);
       showToast('success', 'Politica creada correctamente.');
     }
 

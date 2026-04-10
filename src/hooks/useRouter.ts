@@ -14,7 +14,7 @@ function parsePath(hash: string): Page {
   if (editMatch) return { name: 'admin-edit', id: editMatch[1] };
 
   const policyMatch = path.match(/^politica\/(.+)$/);
-  if (policyMatch) return { name: 'policy', id: policyMatch[1] };
+  if (policyMatch) return { name: 'policy', slug: policyMatch[1] };
 
   return { name: 'home' };
 }
