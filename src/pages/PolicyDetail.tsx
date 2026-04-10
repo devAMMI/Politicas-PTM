@@ -55,6 +55,16 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ id, navigate }) => {
     fetchPolicy();
   }, [id]);
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (lightboxOpen && e.key === 'Escape') {
+        setLightboxOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [lightboxOpen]);
+
   if (loading) {
     return (
       <main className="min-h-screen bg-[#F8F9FC] pt-6">
