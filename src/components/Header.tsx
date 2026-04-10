@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Users } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import PlihsaLogo from './PlihsaLogo';
-
 interface HeaderProps {
   navigate: (to: string) => void;
   currentPage: string;
@@ -81,11 +79,11 @@ const Header: React.FC<HeaderProps> = ({ navigate, currentPage }) => {
               <span className="text-xs text-blue-200 font-medium tracking-wide uppercase">Grupo AMMI</span>
               <div className="flex items-center gap-4 ml-2">
                 <img src="https://i.imgur.com/F0RKq8C.png" alt="AMMI" className="h-5 object-contain opacity-90" />
-                <PlihsaLogo height={22} />
+                <img src="/logo-06.png" alt="PLIHSA" className="h-5 object-contain opacity-90" />
                 <img src="https://i.imgur.com/kAzFS5n.png" alt="Millfoods" className="h-5 object-contain opacity-90" />
               </div>
             </div>
-            <span className="text-xs text-blue-200">Red Interna PTM</span>
+            <span className="text-xs text-blue-200">Politicas Internas PTM</span>
           </div>
         </div>
       </div>

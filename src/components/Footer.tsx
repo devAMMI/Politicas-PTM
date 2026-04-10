@@ -1,6 +1,4 @@
 import React from 'react';
-import PlihsaLogo from './PlihsaLogo';
-
 const Footer: React.FC = () => {
   const year = new Date().getFullYear();
 
@@ -23,7 +21,7 @@ const Footer: React.FC = () => {
                 <span className="text-slate-400 text-sm">AMMI</span>
               </div>
               <div className="flex items-center gap-3">
-                <PlihsaLogo height={22} />
+                <img src="/logo-06.png" alt="PLIHSA" className="h-5 object-contain brightness-0 invert opacity-70" />
                 <span className="text-slate-400 text-sm">PLIHSA</span>
               </div>
               <div className="flex items-center gap-3">
@@ -55,7 +53,7 @@ const Footer: React.FC = () => {
             &copy; {year} PTM &mdash; Grupo AMMI. Todos los derechos reservados.
           </p>
           <p className="text-slate-600 text-xs">
-            Uso exclusivo de red interna &mdash; 192.168.20.20
+            Uso exclusivo para PTM &mdash; Politicas Internas
           </p>
         </div>
       </div>
