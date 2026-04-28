@@ -158,10 +158,10 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
       if (error) { showToast('error', 'Error al actualizar la politica.'); setSaving(false); return; }
       showToast('success', 'Politica actualizada correctamente.');
     } else {
-      const { data: inserted, error } = await supabase.from('policies').insert(payload).select('id').maybeSingle();
-      if (error || !inserted) { showToast('error', 'Error al crear la politica.'); setSaving(false); return; }
-      const slug = generateSlug(form.title.trim(), inserted.id);
-      await supabase.from('policies').update({ slug }).eq('id', inserted.id);
+      const tempId = crypto.randomUUID();
+      const slug = generateSlug(form.title.trim(), tempId);
+      const { error } = await supabase.from('policies').insert({ ...payload, id: tempId, slug });
+      if (error) { showToast('error', 'Error al crear la politica.'); setSaving(false); return; }
       showToast('success', 'Politica creada correctamente.');
     }
 
