@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, Trash2, UserCheck, UserX, Users, Shield, ShieldCheck, AlertCircle, CheckCircle, X, Eye, EyeOff } from 'lucide-react';
+import { Plus, Trash2, UserCheck, UserX, Users, Shield, ShieldCheck, AlertCircle, CheckCircle, X, Eye, EyeOff, Pencil, KeyRound } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth, AdminUser } from '../context/AuthContext';
 
@@ -14,7 +14,15 @@ interface NewUserForm {
   role: 'admin' | 'superadmin';
 }
 
+interface EditUserForm {
+  id: string;
+  full_name: string;
+  role: 'admin' | 'superadmin';
+  password: string;
+}
+
 const EMPTY_FORM: NewUserForm = { email: '', password: '', full_name: '', role: 'admin' };
+const EMPTY_EDIT: EditUserForm = { id: '', full_name: '', role: 'admin', password: '' };
 
 const UserManagement: React.FC<UserManagementProps> = () => {
   const { session, adminUser: currentAdmin } = useAuth();
@@ -26,6 +34,9 @@ const UserManagement: React.FC<UserManagementProps> = () => {
   const [submitting, setSubmitting] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [editUser, setEditUser] = useState<EditUserForm | null>(null);
+  const [showEditPassword, setShowEditPassword] = useState(false);
+  const [editSubmitting, setEditSubmitting] = useState(false);
 
   const edgeFnUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/manage-users`;
 
@@ -101,6 +112,44 @@ const UserManagement: React.FC<UserManagementProps> = () => {
     }
   };
 
+  const openEdit = (user: AdminUser) => {
+    setEditUser({ id: user.id, full_name: user.full_name || '', role: user.role as 'admin' | 'superadmin', password: '' });
+    setShowEditPassword(false);
+  };
+
+  const handleEdit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editUser) return;
+    setEditSubmitting(true);
+
+    const payload: Record<string, unknown> = {
+      id: editUser.id,
+      full_name: editUser.full_name,
+      role: editUser.role,
+    };
+    if (editUser.password) payload.password = editUser.password;
+
+    const res = await fetch(edgeFnUrl, {
+      method: 'PUT',
+      headers: authHeaders(),
+      body: JSON.stringify(payload),
+    });
+    const json = await res.json();
+    setEditSubmitting(false);
+
+    if (!res.ok) {
+      showToast('error', json.error || 'Error al actualizar usuario');
+    } else {
+      showToast('success', 'Usuario actualizado correctamente.');
+      setUsers(prev => prev.map(u =>
+        u.id === editUser.id
+          ? { ...u, full_name: editUser.full_name, role: editUser.role }
+          : u
+      ));
+      setEditUser(null);
+    }
+  };
+
   const roleLabel = (role: string) => role === 'superadmin' ? 'Super Admin' : 'Admin';
   const roleBadge = (role: string) =>
     role === 'superadmin'
@@ -138,6 +187,85 @@ const UserManagement: React.FC<UserManagementProps> = () => {
                 Eliminar
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {editUser && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-md w-full">
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="text-lg font-bold text-slate-800">Editar Usuario</h3>
+              <button onClick={() => setEditUser(null)} className="text-slate-400 hover:text-slate-600 transition-colors">
+                <X size={18} />
+              </button>
+            </div>
+            <form onSubmit={handleEdit} className="space-y-4">
+              <div>
+                <label className="block text-xs font-medium text-slate-600 mb-1">Nombre completo</label>
+                <input
+                  type="text"
+                  required
+                  value={editUser.full_name}
+                  onChange={e => setEditUser(f => f ? { ...f, full_name: e.target.value } : f)}
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#0A2647]/20 focus:border-[#0A2647] transition-all"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-600 mb-1">Rol</label>
+                <select
+                  value={editUser.role}
+                  onChange={e => setEditUser(f => f ? { ...f, role: e.target.value as 'admin' | 'superadmin' } : f)}
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#0A2647]/20 focus:border-[#0A2647] transition-all bg-white"
+                >
+                  <option value="admin">Admin</option>
+                  <option value="superadmin">Super Admin</option>
+                </select>
+              </div>
+
+              <div className="border border-dashed border-gray-200 rounded-xl p-4">
+                <button
+                  type="button"
+                  onClick={() => setShowEditPassword(s => !s)}
+                  className="flex items-center gap-2 text-sm font-medium text-[#0A2647] hover:text-[#144272] transition-colors w-full"
+                >
+                  <KeyRound size={14} />
+                  {showEditPassword ? 'Cancelar cambio de contrasena' : 'Cambiar contrasena'}
+                </button>
+                {showEditPassword && (
+                  <div className="mt-3">
+                    <div className="relative">
+                      <input
+                        type={showEditPassword ? 'text' : 'password'}
+                        minLength={6}
+                        value={editUser.password}
+                        onChange={e => setEditUser(f => f ? { ...f, password: e.target.value } : f)}
+                        placeholder="Nueva contrasena (min. 6 caracteres)"
+                        className="w-full px-4 pr-10 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#0A2647]/20 focus:border-[#0A2647] transition-all"
+                      />
+                    </div>
+                    <p className="text-xs text-slate-400 mt-1.5">Dejar vacio para no cambiar la contrasena.</p>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex gap-3 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setEditUser(null)}
+                  className="flex-1 py-2.5 rounded-xl border border-gray-200 text-slate-600 text-sm font-medium hover:bg-slate-50 transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={editSubmitting}
+                  className="flex-1 py-2.5 rounded-xl bg-[#0A2647] text-white text-sm font-semibold hover:bg-[#144272] transition-all disabled:opacity-60"
+                >
+                  {editSubmitting ? 'Guardando...' : 'Guardar cambios'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
@@ -279,24 +407,33 @@ const UserManagement: React.FC<UserManagementProps> = () => {
                     <p className="text-xs text-slate-400 mt-0.5">{u.email}</p>
                   </div>
 
-                  {u.id !== currentAdmin?.id && (
-                    <div className="flex items-center gap-1.5 flex-shrink-0">
-                      <button
-                        onClick={() => handleToggleActive(u)}
-                        title={u.is_active ? 'Desactivar' : 'Activar'}
-                        className={`p-2 rounded-lg transition-colors ${u.is_active ? 'text-emerald-600 hover:bg-emerald-50' : 'text-slate-400 hover:bg-slate-100'}`}
-                      >
-                        {u.is_active ? <UserCheck size={15} /> : <UserX size={15} />}
-                      </button>
-                      <button
-                        onClick={() => setConfirmDelete(u.id)}
-                        title="Eliminar"
-                        className="p-2 rounded-lg text-red-400 hover:bg-red-50 transition-colors"
-                      >
-                        <Trash2 size={15} />
-                      </button>
-                    </div>
-                  )}
+                  <div className="flex items-center gap-1.5 flex-shrink-0">
+                    <button
+                      onClick={() => openEdit(u)}
+                      title="Editar"
+                      className="p-2 rounded-lg text-slate-400 hover:text-[#0A2647] hover:bg-blue-50 transition-colors"
+                    >
+                      <Pencil size={15} />
+                    </button>
+                    {u.id !== currentAdmin?.id && (
+                      <>
+                        <button
+                          onClick={() => handleToggleActive(u)}
+                          title={u.is_active ? 'Desactivar' : 'Activar'}
+                          className={`p-2 rounded-lg transition-colors ${u.is_active ? 'text-emerald-600 hover:bg-emerald-50' : 'text-slate-400 hover:bg-slate-100'}`}
+                        >
+                          {u.is_active ? <UserCheck size={15} /> : <UserX size={15} />}
+                        </button>
+                        <button
+                          onClick={() => setConfirmDelete(u.id)}
+                          title="Eliminar"
+                          className="p-2 rounded-lg text-red-400 hover:bg-red-50 transition-colors"
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
