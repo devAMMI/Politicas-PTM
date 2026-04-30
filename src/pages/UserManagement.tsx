@@ -35,7 +35,8 @@ const UserManagement: React.FC<UserManagementProps> = () => {
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [editUser, setEditUser] = useState<EditUserForm | null>(null);
-  const [showEditPassword, setShowEditPassword] = useState(false);
+  const [showEditPasswordSection, setShowEditPasswordSection] = useState(false);
+  const [showEditPasswordText, setShowEditPasswordText] = useState(false);
   const [editSubmitting, setEditSubmitting] = useState(false);
 
   const edgeFnUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/manage-users`;
@@ -114,7 +115,8 @@ const UserManagement: React.FC<UserManagementProps> = () => {
 
   const openEdit = (user: AdminUser) => {
     setEditUser({ id: user.id, full_name: user.full_name || '', role: user.role as 'admin' | 'superadmin', password: '' });
-    setShowEditPassword(false);
+    setShowEditPasswordSection(false);
+    setShowEditPasswordText(false);
   };
 
   const handleEdit = async (e: React.FormEvent) => {
@@ -226,23 +228,30 @@ const UserManagement: React.FC<UserManagementProps> = () => {
               <div className="border border-dashed border-gray-200 rounded-xl p-4">
                 <button
                   type="button"
-                  onClick={() => setShowEditPassword(s => !s)}
+                  onClick={() => { setShowEditPasswordSection(s => !s); setShowEditPasswordText(false); }}
                   className="flex items-center gap-2 text-sm font-medium text-[#0A2647] hover:text-[#144272] transition-colors w-full"
                 >
                   <KeyRound size={14} />
-                  {showEditPassword ? 'Cancelar cambio de contrasena' : 'Cambiar contrasena'}
+                  {showEditPasswordSection ? 'Cancelar cambio de contrasena' : 'Cambiar contrasena'}
                 </button>
-                {showEditPassword && (
+                {showEditPasswordSection && (
                   <div className="mt-3">
                     <div className="relative">
                       <input
-                        type={showEditPassword ? 'text' : 'password'}
+                        type={showEditPasswordText ? 'text' : 'password'}
                         minLength={6}
                         value={editUser.password}
                         onChange={e => setEditUser(f => f ? { ...f, password: e.target.value } : f)}
                         placeholder="Nueva contrasena (min. 6 caracteres)"
                         className="w-full px-4 pr-10 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#0A2647]/20 focus:border-[#0A2647] transition-all"
                       />
+                      <button
+                        type="button"
+                        onClick={() => setShowEditPasswordText(s => !s)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                      >
+                        {showEditPasswordText ? <EyeOff size={14} /> : <Eye size={14} />}
+                      </button>
                     </div>
                     <p className="text-xs text-slate-400 mt-1.5">Dejar vacio para no cambiar la contrasena.</p>
                   </div>

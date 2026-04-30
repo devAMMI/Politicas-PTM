@@ -103,24 +103,19 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
   };
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selected = e.target.value;
-    const minVal = getNowGMT6Local();
-    if (selected < minVal) {
-      showToast('error', 'La fecha de publicacion no puede ser en el pasado.');
-      setForm(p => ({ ...p, published_at: minVal }));
-      return;
-    }
-    setForm(p => ({ ...p, published_at: selected }));
+    setForm(p => ({ ...p, published_at: e.target.value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.title.trim()) { showToast('error', 'El titulo es requerido.'); return; }
 
-    const minVal = getNowGMT6Local();
-    if (form.published_at < minVal && !editId) {
-      showToast('error', 'La fecha de publicacion no puede ser en el pasado.');
-      return;
+    if (!editId && !form.is_published) {
+      const minVal = getNowGMT6Local();
+      if (form.published_at < minVal) {
+        showToast('error', 'La fecha de publicacion no puede ser en el pasado.');
+        return;
+      }
     }
 
     setSaving(true);
@@ -138,18 +133,21 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
       if (url) { document_url = url; document_name = docFile.name; }
     }
 
+    const publishedAt = new Date(form.published_at).toISOString();
+
     const payload = {
       title: form.title.trim(),
       category: form.category,
       summary: form.summary.trim(),
       content: form.content,
       is_published: form.is_published,
-      published_at: new Date(form.published_at + ':00').toISOString(),
+      published_at: publishedAt,
       author_name: form.author_name.trim() || 'Administrador',
       author_id: user?.id ?? null,
       cover_image_url,
       document_url,
       document_name,
+      updated_at: new Date().toISOString(),
     };
 
     if (editId) {
@@ -353,7 +351,6 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
                 <input
                   type="datetime-local"
                   value={form.published_at}
-                  min={getNowGMT6Local()}
                   onChange={handleDateChange}
                   className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#0A2647]/20 focus:border-[#0A2647] transition-all"
                 />
