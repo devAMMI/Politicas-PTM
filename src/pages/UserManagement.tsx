@@ -91,7 +91,7 @@ const UserManagement: React.FC<UserManagementProps> = () => {
     });
     const json = await res.json();
     if (!res.ok) {
-      showToast('error', json.error || 'Error al actualizar usuario');
+      showToast('error', json.error || 'Error al cambiar estado del usuario');
     } else {
       showToast('success', user.is_active ? 'Usuario desactivado.' : 'Usuario activado.');
       setUsers(prev => prev.map(u => u.id === user.id ? { ...u, is_active: !u.is_active } : u));
