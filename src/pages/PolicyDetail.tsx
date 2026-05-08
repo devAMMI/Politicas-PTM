@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowLeft, Calendar, User, Tag, Download, FileText, Clock, Maximize2, Minimize2 } from 'lucide-react';
+import { ArrowLeft, Calendar, User, Tag, Download, FileText, Clock, Maximize2, Minimize2, Printer, ExternalLink, X } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { Policy } from '../types';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -37,6 +37,7 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
   const [policy, setPolicy] = useState<Policy | null>(null);
   const [loading, setLoading] = useState(true);
   const [pdfExpanded, setPdfExpanded] = useState(false);
+  const [pdfFullscreen, setPdfFullscreen] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
 
   useEffect(() => {
@@ -57,13 +58,21 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (lightboxOpen && e.key === 'Escape') {
-        setLightboxOpen(false);
+      if (e.key === 'Escape') {
+        if (pdfFullscreen) setPdfFullscreen(false);
+        else if (lightboxOpen) setLightboxOpen(false);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [lightboxOpen]);
+  }, [lightboxOpen, pdfFullscreen]);
+
+  const handlePrint = (url: string) => {
+    const win = window.open(url, '_blank');
+    if (win) {
+      win.addEventListener('load', () => win.print());
+    }
+  };
 
   if (loading) {
     return (
@@ -187,10 +196,11 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
 
           {policy.document_url && (
             <div className="px-8 md:px-10 pb-10">
-              <div className="border border-gray-200 rounded-2xl overflow-hidden">
+              <div className="border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
+                {/* Toolbar */}
                 <div className="flex items-center justify-between px-5 py-3.5 bg-slate-50 border-b border-gray-200">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
+                    <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
                       <FileText size={15} className="text-red-600" />
                     </div>
                     <div>
@@ -200,32 +210,118 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
                       )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5">
                     <button
-                      onClick={() => setPdfExpanded(p => !p)}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 border border-gray-200 hover:bg-white transition-colors"
+                      onClick={() => handlePrint(policy.document_url!)}
+                      title="Imprimir"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 border border-gray-200 hover:bg-white hover:text-slate-800 transition-colors"
                     >
-                      {pdfExpanded ? <Minimize2 size={13} /> : <Maximize2 size={13} />}
-                      {pdfExpanded ? 'Compactar' : 'Expandir'}
+                      <Printer size={13} />
+                      <span className="hidden sm:inline">Imprimir</span>
                     </button>
                     <a
                       href={policy.document_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 bg-[#0A2647] text-white text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-[#144272] transition-all"
+                      title="Abrir en nueva pestaña"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 border border-gray-200 hover:bg-white hover:text-slate-800 transition-colors"
+                    >
+                      <ExternalLink size={13} />
+                      <span className="hidden sm:inline">Abrir</span>
+                    </a>
+                    <a
+                      href={policy.document_url}
+                      download={policy.document_name ?? 'documento.pdf'}
+                      title="Descargar"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 border border-gray-200 hover:bg-white hover:text-slate-800 transition-colors"
                     >
                       <Download size={13} />
-                      Descargar
+                      <span className="hidden sm:inline">Guardar</span>
                     </a>
+                    <button
+                      onClick={() => setPdfExpanded(p => !p)}
+                      title={pdfExpanded ? 'Compactar' : 'Expandir'}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 border border-gray-200 hover:bg-white hover:text-slate-800 transition-colors"
+                    >
+                      {pdfExpanded ? <Minimize2 size={13} /> : <Maximize2 size={13} />}
+                      <span className="hidden sm:inline">{pdfExpanded ? 'Compactar' : 'Expandir'}</span>
+                    </button>
+                    <button
+                      onClick={() => setPdfFullscreen(true)}
+                      title="Pantalla completa"
+                      className="inline-flex items-center gap-1.5 bg-[#0A2647] text-white text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-[#144272] transition-all"
+                    >
+                      <Maximize2 size={13} />
+                      <span className="hidden sm:inline">Pantalla completa</span>
+                    </button>
                   </div>
                 </div>
+                {/* Inline viewer */}
                 <div className={`transition-all duration-300 ${pdfExpanded ? 'h-[80vh]' : 'h-[500px]'}`}>
                   <iframe
-                    src={`${policy.document_url}#toolbar=1&navpanes=0&scrollbar=1`}
+                    src={`${policy.document_url}#toolbar=1&navpanes=1&scrollbar=1&view=FitH`}
                     className="w-full h-full border-0"
                     title={policy.document_name ?? 'Documento PDF'}
                   />
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* PDF Fullscreen modal */}
+          {pdfFullscreen && policy.document_url && (
+            <div className="fixed inset-0 z-50 bg-black/95 flex flex-col">
+              <div className="flex items-center justify-between px-5 py-3 bg-[#0A2647] flex-shrink-0">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 bg-red-500/20 rounded-lg flex items-center justify-center">
+                    <FileText size={13} className="text-red-400" />
+                  </div>
+                  <span className="text-white text-sm font-medium truncate max-w-xs">
+                    {policy.document_name ?? 'Documento PDF'}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => handlePrint(policy.document_url!)}
+                    title="Imprimir"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white/80 border border-white/20 hover:bg-white/10 transition-colors"
+                  >
+                    <Printer size={13} />
+                    Imprimir
+                  </button>
+                  <a
+                    href={policy.document_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white/80 border border-white/20 hover:bg-white/10 transition-colors"
+                  >
+                    <ExternalLink size={13} />
+                    Abrir
+                  </a>
+                  <a
+                    href={policy.document_url}
+                    download={policy.document_name ?? 'documento.pdf'}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white/80 border border-white/20 hover:bg-white/10 transition-colors"
+                  >
+                    <Download size={13} />
+                    Guardar
+                  </a>
+                  <button
+                    onClick={() => setPdfFullscreen(false)}
+                    title="Cerrar (Esc)"
+                    className="inline-flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-all ml-2"
+                  >
+                    <X size={14} />
+                    Cerrar
+                  </button>
+                </div>
+              </div>
+              <div className="flex-1 overflow-hidden">
+                <iframe
+                  src={`${policy.document_url}#toolbar=1&navpanes=1&scrollbar=1&view=FitH`}
+                  className="w-full h-full border-0"
+                  title={policy.document_name ?? 'Documento PDF'}
+                />
               </div>
             </div>
           )}
