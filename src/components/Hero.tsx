@@ -32,13 +32,13 @@ const Hero: React.FC<HeroProps> = ({ navigate }) => {
               Accede a todas las pol&iacute;ticas, normativas y procedimientos internos de PTM. Documentaci&oacute;n actualizada para todos los colaboradores del grupo.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
-              <a
-                href="#politicas"
+              <button
+                onClick={() => navigate('/categoria/Todas')}
                 className="inline-flex items-center justify-center gap-2 bg-white text-[#0A2647] font-semibold px-6 py-3 rounded-xl hover:bg-blue-50 transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5"
               >
                 <BookOpen size={18} />
                 Ver Pol&iacute;ticas
-              </a>
+              </button>
             </div>
           </div>
 
