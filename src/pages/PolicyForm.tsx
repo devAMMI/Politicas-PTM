@@ -216,7 +216,7 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
     }
 
     setSaving(false);
-    setTimeout(() => navigate('/panel'), 1500);
+    setTimeout(() => navigate('/admin'), 1500);
   };
 
   const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -250,7 +250,7 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex items-center gap-4 mb-8">
           <button
-            onClick={() => navigate('/panel')}
+            onClick={() => navigate('/admin')}
             className="p-2 rounded-xl hover:bg-white hover:shadow-sm text-slate-500 hover:text-slate-800 transition-all"
           >
             <ArrowLeft size={20} />
@@ -489,7 +489,7 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
           <div className="flex gap-3 justify-end pb-8">
             <button
               type="button"
-              onClick={() => navigate('/panel')}
+              onClick={() => navigate('/admin')}
               className="px-5 py-2.5 rounded-xl border border-gray-200 text-slate-600 text-sm font-medium hover:bg-slate-50 transition-colors"
             >
               Cancelar

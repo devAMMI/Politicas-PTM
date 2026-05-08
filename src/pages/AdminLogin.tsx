@@ -23,7 +23,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ navigate }) => {
     if (error) {
       setError('Credenciales incorrectas. Verifique su email y contrasena.');
     } else {
-      navigate('/panel');
+      navigate('/admin');
     }
   };
 

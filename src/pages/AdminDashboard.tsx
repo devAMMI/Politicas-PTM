@@ -142,14 +142,14 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ navigate }) => {
           </div>
           <div className="flex items-center gap-2">
             <button
-              onClick={() => navigate('/panel/archivo')}
+              onClick={() => navigate('/admin/archivo')}
               className="inline-flex items-center gap-2 border border-gray-200 bg-white text-slate-700 px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-slate-50 transition-all"
             >
               <FolderOpen size={15} />
               Archivo
             </button>
             <button
-              onClick={() => navigate('/panel/nueva')}
+              onClick={() => navigate('/admin/nueva')}
               className="inline-flex items-center gap-2 bg-[#0A2647] text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-[#144272] transition-all hover:shadow-lg"
             >
               <Plus size={16} />
@@ -319,7 +319,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ navigate }) => {
                             <Archive size={14} />
                           </button>
                           <button
-                            onClick={() => navigate(`/panel/editar/${policy.id}`)}
+                            onClick={() => navigate(`/admin/editar/${policy.id}`)}
                             disabled={isBusy}
                             title="Editar"
                             className="p-2 rounded-lg text-slate-500 hover:bg-slate-100 disabled:opacity-40 transition-colors"
@@ -347,7 +347,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ navigate }) => {
             <div className="px-4 py-3 border-t border-gray-100 bg-slate-50/50 flex items-center justify-between">
               <span className="text-xs text-slate-400">{filtered.length} de {policies.length} politicas</span>
               <button
-                onClick={() => navigate('/panel/archivo')}
+                onClick={() => navigate('/admin/archivo')}
                 className="inline-flex items-center gap-1.5 text-xs text-[#0A2647] hover:underline font-medium"
               >
                 <FolderOpen size={12} />

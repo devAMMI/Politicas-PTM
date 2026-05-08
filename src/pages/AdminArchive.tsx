@@ -189,7 +189,7 @@ const AdminArchive: React.FC<AdminArchiveProps> = ({ navigate }) => {
               </button>
             )}
             <button
-              onClick={() => navigate(`/panel/editar/${policy.id}`)}
+              onClick={() => navigate(`/admin/editar/${policy.id}`)}
               disabled={isBusy}
               title="Editar"
               className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 disabled:opacity-40 transition-colors"
@@ -268,7 +268,7 @@ const AdminArchive: React.FC<AdminArchiveProps> = ({ navigate }) => {
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
           <button
-            onClick={() => navigate('/panel')}
+            onClick={() => navigate('/admin')}
             className="p-2 rounded-xl hover:bg-white hover:shadow-sm text-slate-500 hover:text-slate-800 transition-all"
           >
             <ArrowLeft size={20} />

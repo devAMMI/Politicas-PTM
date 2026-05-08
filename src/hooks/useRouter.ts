@@ -1,20 +1,20 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Page } from '../types';
 
-function parsePath(hash: string): Page {
-  const path = hash.replace(/^#\/?/, '') || '';
+function parsePath(pathname: string): Page {
+  const path = pathname.replace(/^\//, '').replace(/\/$/, '') || '';
 
   if (path === '') return { name: 'home' };
-  if (path === 'gestion') return { name: 'admin-login' };
-  if (path === 'panel') return { name: 'admin-dashboard' };
-  if (path === 'panel/nueva') return { name: 'admin-create' };
-  if (path === 'panel/usuarios') return { name: 'admin-users' };
-  if (path === 'panel/archivo') return { name: 'admin-archive' };
+  if (path === 'login') return { name: 'admin-login' };
+  if (path === 'admin') return { name: 'admin-dashboard' };
+  if (path === 'admin/nueva') return { name: 'admin-create' };
+  if (path === 'admin/usuarios') return { name: 'admin-users' };
+  if (path === 'admin/archivo') return { name: 'admin-archive' };
 
-  const editMatch = path.match(/^panel\/editar\/(.+)$/);
+  const editMatch = path.match(/^admin\/editar\/(.+)$/);
   if (editMatch) return { name: 'admin-edit', id: editMatch[1] };
 
-  const policyMatch = path.match(/^politica\/(.+)$/);
+  const policyMatch = path.match(/^politicas\/(.+)$/);
   if (policyMatch) return { name: 'policy', slug: policyMatch[1] };
 
   const categoryMatch = path.match(/^categoria\/(.+)$/);
@@ -24,19 +24,21 @@ function parsePath(hash: string): Page {
 }
 
 export function useRouter() {
-  const [page, setPage] = useState<Page>(() => parsePath(window.location.hash));
+  const [page, setPage] = useState<Page>(() => parsePath(window.location.pathname));
 
   useEffect(() => {
-    const handleHashChange = () => {
-      setPage(parsePath(window.location.hash));
+    const handlePopState = () => {
+      setPage(parsePath(window.location.pathname));
       window.scrollTo({ top: 0, behavior: 'smooth' });
     };
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
   const navigate = useCallback((to: string) => {
-    window.location.hash = to;
+    window.history.pushState(null, '', to);
+    setPage(parsePath(to));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
   return { page, navigate };

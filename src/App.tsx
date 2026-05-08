@@ -25,10 +25,10 @@ const AppContent: React.FC = () => {
 
   useEffect(() => {
     if (!loading && isAdminArea && !session) {
-      navigate('/gestion');
+      navigate('/login');
     }
     if (!loading && page.name === 'admin-users' && session && adminUser && adminUser.role !== 'superadmin') {
-      navigate('/panel');
+      navigate('/admin');
     }
   }, [loading, session, isAdminArea, adminUser]);
 

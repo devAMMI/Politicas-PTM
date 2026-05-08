@@ -29,7 +29,7 @@ const Header: React.FC<HeaderProps> = ({ navigate, currentPage }) => {
               <span className="text-sm text-slate-500 hidden sm:block">{user?.email}</span>
               {adminUser?.role === 'superadmin' && (
                 <button
-                  onClick={() => navigate('/panel/usuarios')}
+                  onClick={() => navigate('/admin/usuarios')}
                   className="inline-flex items-center gap-1.5 text-sm text-slate-600 hover:text-[#0A2647] transition-colors font-medium"
                 >
                   <Users size={14} />
@@ -37,7 +37,7 @@ const Header: React.FC<HeaderProps> = ({ navigate, currentPage }) => {
                 </button>
               )}
               <button
-                onClick={() => navigate('/panel')}
+                onClick={() => navigate('/admin')}
                 className="text-sm text-slate-600 hover:text-slate-900 transition-colors"
               >
                 Panel
