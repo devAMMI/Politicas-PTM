@@ -68,7 +68,7 @@ const AppContent: React.FC = () => {
         {page.name === 'home' && (
           <>
             <Hero navigate={navigate} />
-            <Home navigate={navigate} initialCategory="Todas" />
+            <Home navigate={navigate} initialCategory="Todas" showBackButton={false} />
           </>
         )}
         {page.name === 'category' && (

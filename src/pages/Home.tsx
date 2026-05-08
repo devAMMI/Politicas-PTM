@@ -9,9 +9,10 @@ import ScrollToTop from '../components/ScrollToTop';
 interface HomeProps {
   navigate: (to: string) => void;
   initialCategory?: string;
+  showBackButton?: boolean;
 }
 
-const Home: React.FC<HomeProps> = ({ navigate, initialCategory = 'Todas' }) => {
+const Home: React.FC<HomeProps> = ({ navigate, initialCategory = 'Todas', showBackButton = true }) => {
   const [policies, setPolicies] = useState<Policy[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -51,13 +52,15 @@ const Home: React.FC<HomeProps> = ({ navigate, initialCategory = 'Todas' }) => {
       <ScrollToTop />
       <div id="politicas" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
         <div className="mb-10">
-          <button
-            onClick={() => navigate('/')}
-            className="inline-flex items-center gap-2 text-slate-500 hover:text-[#0A2647] text-sm font-medium mb-5 transition-colors group"
-          >
-            <ArrowLeft size={15} className="group-hover:-translate-x-1 transition-transform" />
-            Volver al inicio
-          </button>
+          {showBackButton && (
+            <button
+              onClick={() => navigate('/')}
+              className="inline-flex items-center gap-2 text-slate-500 hover:text-[#0A2647] text-sm font-medium mb-5 transition-colors group"
+            >
+              <ArrowLeft size={15} className="group-hover:-translate-x-1 transition-transform" />
+              Volver al inicio
+            </button>
+          )}
           <h2 className="text-2xl font-bold text-[#0A2647] mb-1">
             {initialCategory !== 'Todas' ? initialCategory : 'Politicas Publicadas'}
           </h2>
