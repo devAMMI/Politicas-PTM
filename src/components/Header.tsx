@@ -73,10 +73,7 @@ const Header: React.FC<HeaderProps> = ({ navigate, currentPage }) => {
               <div className="h-6 w-px bg-white/20" />
               <img src="https://i.imgur.com/kAzFS5n.png" alt="Millfoods" className="h-7 object-contain opacity-90" />
             </div>
-            <div className="flex flex-col items-end gap-1">
-              <span className="text-xs text-blue-200 tracking-wide">Gobierno Corporativo</span>
-              <img src="https://i.imgur.com/FpiAvCx.png" alt="PTM" className="h-6 object-contain opacity-90" />
-            </div>
+            <span className="text-xs text-blue-200 tracking-wide">Gobierno Corporativo</span>
           </div>
         </div>
       </div>
