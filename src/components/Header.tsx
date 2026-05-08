@@ -9,7 +9,6 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ navigate, currentPage }) => {
   const { user, adminUser, signOut } = useAuth();
   const [scrolled, setScrolled] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -83,7 +82,7 @@ const Header: React.FC<HeaderProps> = ({ navigate, currentPage }) => {
                 <img src="https://i.imgur.com/kAzFS5n.png" alt="Millfoods" className="h-5 object-contain opacity-90" />
               </div>
             </div>
-            <span className="text-xs text-blue-200">Politicas Internas PTM</span>
+            <span className="text-xs text-blue-200">Gobierno Corporativo</span>
           </div>
         </div>
       </div>
@@ -95,50 +94,9 @@ const Header: React.FC<HeaderProps> = ({ navigate, currentPage }) => {
               <img src="https://i.imgur.com/FpiAvCx.png" alt="PTM" className="h-11 object-contain transition-transform group-hover:scale-105" />
             </button>
 
-            <nav className="hidden md:flex items-center gap-1">
-              <button
-                onClick={() => navigate('/')}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${currentPage === 'home' ? 'bg-[#0A2647] text-white' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'}`}
-              >
-                Inicio
-              </button>
-              <button
-                onClick={() => navigate('/#politicas')}
-                className="px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-all duration-200"
-              >
-                Politicas
-              </button>
-            </nav>
-
-            <button
-              className="md:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100"
-              onClick={() => setMenuOpen(!menuOpen)}
-            >
-              <div className={`w-5 h-0.5 bg-current mb-1 transition-all ${menuOpen ? 'rotate-45 translate-y-1.5' : ''}`} />
-              <div className={`w-5 h-0.5 bg-current mb-1 transition-all ${menuOpen ? 'opacity-0' : ''}`} />
-              <div className={`w-5 h-0.5 bg-current transition-all ${menuOpen ? '-rotate-45 -translate-y-1.5' : ''}`} />
-            </button>
           </div>
         </div>
 
-        {menuOpen && (
-          <div className="md:hidden border-t border-gray-100 bg-white">
-            <div className="px-4 py-3 space-y-1">
-              <button
-                onClick={() => { navigate('/'); setMenuOpen(false); }}
-                className="block w-full text-left px-4 py-2 rounded-lg text-sm text-slate-600 hover:bg-slate-100"
-              >
-                Inicio
-              </button>
-              <button
-                onClick={() => { navigate('/#politicas'); setMenuOpen(false); }}
-                className="block w-full text-left px-4 py-2 rounded-lg text-sm text-slate-600 hover:bg-slate-100"
-              >
-                Politicas
-              </button>
-            </div>
-          </div>
-        )}
       </div>
     </header>
   );
