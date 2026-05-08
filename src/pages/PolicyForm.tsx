@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
-  ArrowLeft, Save, X, FileText, Image, Loader2, CheckCircle, AlertCircle, Zap, Clock
+  ArrowLeft, Save, X, FileText, Image, Loader2, CheckCircle, AlertCircle, Zap, Clock,
+  Lock, Globe
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { Policy, CATEGORIES, generateSlug, buildStoragePath, buildFolderPath, buildDocCleanPath } from '../types';
@@ -19,6 +20,7 @@ interface FormState {
   summary: string;
   content: string;
   is_published: boolean;
+  is_internal: boolean;
   published_at: string;
   author_name: string;
 }
@@ -43,6 +45,7 @@ const emptyForm = (): FormState => ({
   summary: '',
   content: '',
   is_published: false,
+  is_internal: true,
   published_at: getNowGMT6Local(),
   author_name: 'Administrador',
 });
@@ -93,6 +96,7 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
         summary: p.summary ?? '',
         content: p.content ?? '',
         is_published: p.is_published,
+        is_internal: p.is_internal ?? true,
         published_at: toLocalDatetime(p.published_at),
         author_name: p.author_name,
       });
@@ -201,6 +205,7 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
       content: form.content,
       status: newStatus,
       is_published: form.is_published,
+      is_internal: form.is_internal,
       folder_path: buildFolderPath(form.category, form.published_at),
       published_at: publishedAt,
       author_name: form.author_name.trim() || 'Administrador',
@@ -438,6 +443,61 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
                 </div>
                 <input ref={docRef} type="file" accept="application/pdf" className="hidden" onChange={handleDocChange} />
               </div>
+            </div>
+          </div>
+
+          {/* Clasificacion de acceso */}
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-4">
+            <div>
+              <h2 className="font-semibold text-slate-700 text-sm uppercase tracking-wide">Clasificacion de acceso</h2>
+              <p className="text-xs text-slate-400 mt-1">Define si los colaboradores pueden descargar e imprimir el documento.</p>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => setForm(p => ({ ...p, is_internal: true }))}
+                className={`flex flex-col items-center gap-2.5 px-4 py-5 rounded-2xl border-2 transition-all text-left ${
+                  form.is_internal
+                    ? 'bg-[#0A2647] border-[#0A2647] text-white shadow-lg scale-[1.01]'
+                    : 'bg-white border-gray-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50'
+                }`}
+              >
+                <Lock size={22} className={form.is_internal ? 'text-white' : 'text-slate-400'} />
+                <div>
+                  <p className={`text-sm font-bold ${form.is_internal ? 'text-white' : 'text-slate-700'}`}>Politica Interna</p>
+                  <p className={`text-xs mt-0.5 leading-relaxed ${form.is_internal ? 'text-blue-200' : 'text-slate-400'}`}>
+                    Solo visualizacion en pantalla.<br />Sin descarga ni impresion.
+                  </p>
+                </div>
+                {form.is_internal && (
+                  <span className="mt-auto self-start inline-flex items-center gap-1 bg-white/20 text-white text-xs font-semibold px-2.5 py-1 rounded-full">
+                    Seleccionado
+                  </span>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setForm(p => ({ ...p, is_internal: false }))}
+                className={`flex flex-col items-center gap-2.5 px-4 py-5 rounded-2xl border-2 transition-all text-left ${
+                  !form.is_internal
+                    ? 'bg-emerald-600 border-emerald-600 text-white shadow-lg scale-[1.01]'
+                    : 'bg-white border-gray-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50'
+                }`}
+              >
+                <Globe size={22} className={!form.is_internal ? 'text-white' : 'text-slate-400'} />
+                <div>
+                  <p className={`text-sm font-bold ${!form.is_internal ? 'text-white' : 'text-slate-700'}`}>Politica Externa</p>
+                  <p className={`text-xs mt-0.5 leading-relaxed ${!form.is_internal ? 'text-emerald-100' : 'text-slate-400'}`}>
+                    Visualizacion completa.<br />Permite descarga e impresion.
+                  </p>
+                </div>
+                {!form.is_internal && (
+                  <span className="mt-auto self-start inline-flex items-center gap-1 bg-white/20 text-white text-xs font-semibold px-2.5 py-1 rounded-full">
+                    Seleccionado
+                  </span>
+                )}
+              </button>
             </div>
           </div>
 

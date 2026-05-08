@@ -14,6 +14,7 @@ export interface Policy {
   document_name: string | null;
   document_clean_path: string | null;
   cover_image_url: string | null;
+  is_internal: boolean;
   status: PolicyStatus;
   is_published: boolean;
   folder_path: string;

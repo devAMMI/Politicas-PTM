@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowLeft, Calendar, User, Tag, Download, FileText, Clock, Maximize2, Minimize2, Printer, ExternalLink, X } from 'lucide-react';
+import { ArrowLeft, Calendar, User, Tag, Download, FileText, Clock, Maximize2, Minimize2, Printer, ExternalLink, X, Lock, Globe } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { Policy, buildDocCleanUrl } from '../types';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -135,6 +135,8 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
     ? policy.document_clean_path.split('/').pop()!
     : (policy.document_name ?? 'documento.pdf');
 
+  const isInternal = policy.is_internal === true;
+
   return (
     <main className="min-h-screen bg-[#F8F9FC]">
       {lightboxOpen && policy.cover_image_url && (
@@ -251,7 +253,20 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
                       <FileText size={15} className="text-red-600" />
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-slate-700">Documento adjunto</p>
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-semibold text-slate-700">Documento adjunto</p>
+                        {isInternal ? (
+                          <span className="inline-flex items-center gap-1 bg-slate-100 text-slate-600 text-xs font-semibold px-2 py-0.5 rounded-full border border-slate-200">
+                            <Lock size={9} />
+                            Uso interno
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 text-xs font-semibold px-2 py-0.5 rounded-full border border-emerald-200">
+                            <Globe size={9} />
+                            Uso externo
+                          </span>
+                        )}
+                      </div>
                       {policy.document_clean_path ? (
                         <p className="text-xs text-slate-400 font-mono">/docs/{policy.document_clean_path}</p>
                       ) : policy.document_name ? (
@@ -260,32 +275,36 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
                     </div>
                   </div>
                   <div className="flex items-center gap-1.5 flex-wrap">
-                    <button
-                      onClick={() => handlePrint(false)}
-                      title="Imprimir"
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 border border-gray-200 hover:bg-white hover:text-slate-800 transition-colors"
-                    >
-                      <Printer size={13} />
-                      <span className="hidden sm:inline">Imprimir</span>
-                    </button>
-                    <a
-                      href={docUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      title="Abrir en nueva pestaña"
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 border border-gray-200 hover:bg-white hover:text-slate-800 transition-colors"
-                    >
-                      <ExternalLink size={13} />
-                      <span className="hidden sm:inline">Abrir</span>
-                    </a>
-                    <button
-                      onClick={() => handleDownload(docUrl, docDisplayName)}
-                      title="Guardar PDF"
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 border border-gray-200 hover:bg-white hover:text-slate-800 transition-colors"
-                    >
-                      <Download size={13} />
-                      <span className="hidden sm:inline">Guardar</span>
-                    </button>
+                    {!isInternal && (
+                      <>
+                        <button
+                          onClick={() => handlePrint(false)}
+                          title="Imprimir"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 border border-gray-200 hover:bg-white hover:text-slate-800 transition-colors"
+                        >
+                          <Printer size={13} />
+                          <span className="hidden sm:inline">Imprimir</span>
+                        </button>
+                        <a
+                          href={docUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          title="Abrir en nueva pestaña"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 border border-gray-200 hover:bg-white hover:text-slate-800 transition-colors"
+                        >
+                          <ExternalLink size={13} />
+                          <span className="hidden sm:inline">Abrir</span>
+                        </a>
+                        <button
+                          onClick={() => handleDownload(docUrl, docDisplayName)}
+                          title="Guardar PDF"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 border border-gray-200 hover:bg-white hover:text-slate-800 transition-colors"
+                        >
+                          <Download size={13} />
+                          <span className="hidden sm:inline">Guardar</span>
+                        </button>
+                      </>
+                    )}
                     <button
                       onClick={() => setPdfExpanded(p => !p)}
                       title={pdfExpanded ? 'Compactar' : 'Expandir'}
@@ -305,13 +324,23 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
                   </div>
                 </div>
                 {/* Inline viewer */}
-                <div className={`transition-all duration-300 ${pdfExpanded ? 'h-[80vh]' : 'h-[500px]'}`}>
+                <div className={`relative transition-all duration-300 ${pdfExpanded ? 'h-[80vh]' : 'h-[500px]'}`}>
                   <iframe
                     ref={inlineIframeRef}
-                    src={`${docUrl}#toolbar=1&navpanes=1&scrollbar=1&view=FitH`}
+                    src={isInternal
+                      ? `${docUrl}#toolbar=0&navpanes=0&scrollbar=1&view=FitH`
+                      : `${docUrl}#toolbar=1&navpanes=1&scrollbar=1&view=FitH`}
                     className="w-full h-full border-0"
                     title={docDisplayName}
                   />
+                  {/* Transparent overlay for internal policies: blocks right-click context menu */}
+                  {isInternal && (
+                    <div
+                      className="absolute inset-0 z-10"
+                      onContextMenu={e => e.preventDefault()}
+                      style={{ background: 'transparent', userSelect: 'none' }}
+                    />
+                  )}
                 </div>
               </div>
             </div>
@@ -328,32 +357,42 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
                   <span className="text-white text-sm font-medium truncate max-w-xs">
                     {docDisplayName}
                   </span>
+                  {isInternal && (
+                    <span className="inline-flex items-center gap-1 bg-white/10 text-white/80 text-xs font-semibold px-2 py-0.5 rounded-full border border-white/20">
+                      <Lock size={9} />
+                      Uso interno
+                    </span>
+                  )}
                 </div>
                 <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => handlePrint(true)}
-                    title="Imprimir"
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white/80 border border-white/20 hover:bg-white/10 transition-colors"
-                  >
-                    <Printer size={13} />
-                    Imprimir
-                  </button>
-                  <a
-                    href={docUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white/80 border border-white/20 hover:bg-white/10 transition-colors"
-                  >
-                    <ExternalLink size={13} />
-                    Abrir
-                  </a>
-                  <button
-                    onClick={() => handleDownload(docUrl, docDisplayName)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white/80 border border-white/20 hover:bg-white/10 transition-colors"
-                  >
-                    <Download size={13} />
-                    Guardar
-                  </button>
+                  {!isInternal && (
+                    <>
+                      <button
+                        onClick={() => handlePrint(true)}
+                        title="Imprimir"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white/80 border border-white/20 hover:bg-white/10 transition-colors"
+                      >
+                        <Printer size={13} />
+                        Imprimir
+                      </button>
+                      <a
+                        href={docUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white/80 border border-white/20 hover:bg-white/10 transition-colors"
+                      >
+                        <ExternalLink size={13} />
+                        Abrir
+                      </a>
+                      <button
+                        onClick={() => handleDownload(docUrl, docDisplayName)}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white/80 border border-white/20 hover:bg-white/10 transition-colors"
+                      >
+                        <Download size={13} />
+                        Guardar
+                      </button>
+                    </>
+                  )}
                   <button
                     onClick={() => setPdfFullscreen(false)}
                     title="Cerrar (Esc)"
@@ -364,13 +403,22 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
                   </button>
                 </div>
               </div>
-              <div className="flex-1 overflow-hidden">
+              <div className="relative flex-1 overflow-hidden">
                 <iframe
                   ref={fullscreenIframeRef}
-                  src={`${docUrl}#toolbar=1&navpanes=1&scrollbar=1&view=FitH`}
+                  src={isInternal
+                    ? `${docUrl}#toolbar=0&navpanes=0&scrollbar=1&view=FitH`
+                    : `${docUrl}#toolbar=1&navpanes=1&scrollbar=1&view=FitH`}
                   className="w-full h-full border-0"
                   title={docDisplayName}
                 />
+                {isInternal && (
+                  <div
+                    className="absolute inset-0 z-10"
+                    onContextMenu={e => e.preventDefault()}
+                    style={{ background: 'transparent', userSelect: 'none' }}
+                  />
+                )}
               </div>
             </div>
           )}
