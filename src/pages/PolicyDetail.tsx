@@ -49,7 +49,7 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
         .from('policies')
         .select('*')
         .eq('slug', slug)
-        .eq('is_published', true)
+        .eq('status', 'published')
         .maybeSingle();
 
       if (!error && data) setPolicy(data as Policy);

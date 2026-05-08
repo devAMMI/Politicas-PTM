@@ -3,7 +3,7 @@ import {
   ArrowLeft, Save, X, FileText, Image, Loader2, CheckCircle, AlertCircle, Zap, Clock
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
-import { Policy, CATEGORIES, generateSlug, buildStoragePath } from '../types';
+import { Policy, CATEGORIES, generateSlug, buildStoragePath, buildFolderPath } from '../types';
 import { useAuth } from '../context/AuthContext';
 
 interface PolicyFormProps {
@@ -182,6 +182,7 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
 
     const publishedAt = new Date(form.published_at).toISOString();
 
+    const newStatus = form.is_published ? 'published' : 'hidden';
     const payload = {
       title: form.title.trim(),
       category: form.category,
@@ -189,7 +190,9 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
       version: form.version.trim() || '1.0',
       summary: form.summary.trim(),
       content: form.content,
+      status: newStatus,
       is_published: form.is_published,
+      folder_path: buildFolderPath(form.category, form.published_at),
       published_at: publishedAt,
       author_name: form.author_name.trim() || 'Administrador',
       author_id: user?.id ?? null,

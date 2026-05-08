@@ -29,8 +29,8 @@ const Home: React.FC<HomeProps> = ({ navigate, initialCategory = 'Todas' }) => {
     const { data, error } = await supabase
       .from('policies')
       .select('*')
-      .eq('is_published', true)
-      .order('published_at', { ascending: false });
+      .eq('status', 'published')
+      .order('policy_number', { ascending: true });
 
     if (!error && data) setPolicies(data as Policy[]);
     setLoading(false);
