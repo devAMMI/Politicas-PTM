@@ -40,11 +40,14 @@ const Hero: React.FC = () => {
 
           {/* Right: PTM logo + category cards */}
           <div className="flex-1 flex flex-col items-center lg:items-end gap-4 w-full">
-            <div className="rounded-2xl bg-white/10 backdrop-blur-sm border border-white/15 px-8 py-5">
+            <div className="relative flex items-center justify-center">
+              <div className="absolute inset-0 rounded-3xl bg-blue-400/20 blur-2xl scale-110" />
+              <div className="absolute inset-0 rounded-3xl bg-white/10 blur-xl scale-105" />
               <img
                 src="https://i.imgur.com/FpiAvCx.png"
                 alt="PTM"
-                className="h-24 lg:h-32 object-contain drop-shadow-[0_8px_24px_rgba(0,0,0,0.5)]"
+                className="relative h-24 lg:h-32 object-contain"
+                style={{ filter: 'drop-shadow(0 0 18px rgba(147,197,253,0.6)) drop-shadow(0 0 40px rgba(96,165,250,0.35))' }}
               />
             </div>
             <div className="grid grid-cols-2 gap-3 w-full max-w-sm">
