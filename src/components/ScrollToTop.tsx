@@ -5,7 +5,7 @@ interface ScrollToTopProps {
   threshold?: number;
 }
 
-const ScrollToTop: React.FC<ScrollToTopProps> = ({ threshold = 400 }) => {
+const ScrollToTop: React.FC<ScrollToTopProps> = ({ threshold = 200 }) => {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
