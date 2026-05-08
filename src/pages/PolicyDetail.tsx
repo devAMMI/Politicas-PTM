@@ -39,6 +39,8 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
   const [pdfExpanded, setPdfExpanded] = useState(false);
   const [pdfFullscreen, setPdfFullscreen] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  const inlineIframeRef = React.useRef<HTMLIFrameElement>(null);
+  const fullscreenIframeRef = React.useRef<HTMLIFrameElement>(null);
 
   useEffect(() => {
     const fetchPolicy = async () => {
@@ -67,10 +69,28 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [lightboxOpen, pdfFullscreen]);
 
-  const handlePrint = (url: string) => {
-    const win = window.open(url, '_blank');
-    if (win) {
-      win.addEventListener('load', () => win.print());
+  const handlePrint = (fromFullscreen: boolean) => {
+    const iframe = fromFullscreen ? fullscreenIframeRef.current : inlineIframeRef.current;
+    if (iframe?.contentWindow) {
+      iframe.contentWindow.focus();
+      iframe.contentWindow.print();
+    }
+  };
+
+  const handleDownload = async (url: string, filename: string) => {
+    try {
+      const res = await fetch(url);
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(blobUrl);
+    } catch {
+      window.open(url, '_blank');
     }
   };
 
@@ -198,7 +218,7 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
             <div className="px-8 md:px-10 pb-10">
               <div className="border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
                 {/* Toolbar */}
-                <div className="flex items-center justify-between px-5 py-3.5 bg-slate-50 border-b border-gray-200">
+                <div className="flex items-center justify-between px-5 py-3.5 bg-slate-50 border-b border-gray-200 flex-wrap gap-2">
                   <div className="flex items-center gap-2.5">
                     <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
                       <FileText size={15} className="text-red-600" />
@@ -210,9 +230,9 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
                       )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1.5 flex-wrap">
                     <button
-                      onClick={() => handlePrint(policy.document_url!)}
+                      onClick={() => handlePrint(false)}
                       title="Imprimir"
                       className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 border border-gray-200 hover:bg-white hover:text-slate-800 transition-colors"
                     >
@@ -229,15 +249,14 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
                       <ExternalLink size={13} />
                       <span className="hidden sm:inline">Abrir</span>
                     </a>
-                    <a
-                      href={policy.document_url}
-                      download={policy.document_name ?? 'documento.pdf'}
-                      title="Descargar"
+                    <button
+                      onClick={() => handleDownload(policy.document_url!, policy.document_name ?? 'documento.pdf')}
+                      title="Guardar PDF"
                       className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 border border-gray-200 hover:bg-white hover:text-slate-800 transition-colors"
                     >
                       <Download size={13} />
                       <span className="hidden sm:inline">Guardar</span>
-                    </a>
+                    </button>
                     <button
                       onClick={() => setPdfExpanded(p => !p)}
                       title={pdfExpanded ? 'Compactar' : 'Expandir'}
@@ -259,6 +278,7 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
                 {/* Inline viewer */}
                 <div className={`transition-all duration-300 ${pdfExpanded ? 'h-[80vh]' : 'h-[500px]'}`}>
                   <iframe
+                    ref={inlineIframeRef}
                     src={`${policy.document_url}#toolbar=1&navpanes=1&scrollbar=1&view=FitH`}
                     className="w-full h-full border-0"
                     title={policy.document_name ?? 'Documento PDF'}
@@ -271,7 +291,7 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
           {/* PDF Fullscreen modal */}
           {pdfFullscreen && policy.document_url && (
             <div className="fixed inset-0 z-50 bg-black/95 flex flex-col">
-              <div className="flex items-center justify-between px-5 py-3 bg-[#0A2647] flex-shrink-0">
+              <div className="flex items-center justify-between px-5 py-3 bg-[#0A2647] flex-shrink-0 flex-wrap gap-2">
                 <div className="flex items-center gap-2.5">
                   <div className="w-7 h-7 bg-red-500/20 rounded-lg flex items-center justify-center">
                     <FileText size={13} className="text-red-400" />
@@ -282,7 +302,7 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
                 </div>
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={() => handlePrint(policy.document_url!)}
+                    onClick={() => handlePrint(true)}
                     title="Imprimir"
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white/80 border border-white/20 hover:bg-white/10 transition-colors"
                   >
@@ -298,14 +318,13 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
                     <ExternalLink size={13} />
                     Abrir
                   </a>
-                  <a
-                    href={policy.document_url}
-                    download={policy.document_name ?? 'documento.pdf'}
+                  <button
+                    onClick={() => handleDownload(policy.document_url!, policy.document_name ?? 'documento.pdf')}
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white/80 border border-white/20 hover:bg-white/10 transition-colors"
                   >
                     <Download size={13} />
                     Guardar
-                  </a>
+                  </button>
                   <button
                     onClick={() => setPdfFullscreen(false)}
                     title="Cerrar (Esc)"
@@ -318,6 +337,7 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
               </div>
               <div className="flex-1 overflow-hidden">
                 <iframe
+                  ref={fullscreenIframeRef}
                   src={`${policy.document_url}#toolbar=1&navpanes=1&scrollbar=1&view=FitH`}
                   className="w-full h-full border-0"
                   title={policy.document_name ?? 'Documento PDF'}

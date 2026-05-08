@@ -85,9 +85,12 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
     setTimeout(() => setToast(null), 4000);
   };
 
-  const uploadFile = async (file: File, folder: string): Promise<string | null> => {
-    const ext = file.name.split('.').pop();
-    const path = `${folder}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+  const uploadFile = async (file: File, folder: string, label?: string): Promise<string | null> => {
+    const ext = file.name.split('.').pop()?.toLowerCase() ?? 'bin';
+    const safeName = label
+      ? label.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60)
+      : `${Date.now()}`;
+    const path = `${folder}/${safeName}.${ext}`;
     const { error } = await supabase.storage.from('ptm-media').upload(path, file, { upsert: true });
     if (error) return null;
     const { data } = supabase.storage.from('ptm-media').getPublicUrl(path);
@@ -124,12 +127,15 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
     let document_url = existingDocUrl ?? null;
     let document_name = existingDocName ?? null;
 
+    const categorySlug = form.category.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    const titleSlug = form.title.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 50);
+
     if (coverFile) {
-      const url = await uploadFile(coverFile, 'covers');
+      const url = await uploadFile(coverFile, `covers/${categorySlug}`, titleSlug);
       if (url) cover_image_url = url;
     }
     if (docFile) {
-      const url = await uploadFile(docFile, 'documents');
+      const url = await uploadFile(docFile, `documents/${categorySlug}`, titleSlug);
       if (url) { document_url = url; document_name = docFile.name; }
     }
 
