@@ -78,7 +78,7 @@ const AppContent: React.FC = () => {
           <PolicyDetail slug={page.slug} navigate={navigate} />
         )}
       </div>
-      <Footer />
+      <Footer navigate={navigate} />
     </>
   );
 };
