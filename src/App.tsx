@@ -61,9 +61,12 @@ const AppContent: React.FC = () => {
       <div className="pt-14">
         {page.name === 'home' && (
           <>
-            <Hero />
-            <Home navigate={navigate} />
+            <Hero navigate={navigate} />
+            <Home navigate={navigate} initialCategory="Todas" />
           </>
+        )}
+        {page.name === 'category' && (
+          <Home navigate={navigate} initialCategory={page.category} />
         )}
         {page.name === 'policy' && (
           <PolicyDetail slug={page.slug} navigate={navigate} />

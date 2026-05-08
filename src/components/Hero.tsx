@@ -1,7 +1,11 @@
 import React from 'react';
-import { BookOpen, Shield, Award } from 'lucide-react';
+import { BookOpen, Shield, Award, Leaf, Settings } from 'lucide-react';
 
-const Hero: React.FC = () => {
+interface HeroProps {
+  navigate: (to: string) => void;
+}
+
+const Hero: React.FC<HeroProps> = ({ navigate }) => {
   return (
     <section className="relative bg-gradient-to-br from-[#0A2647] via-[#144272] to-[#205295] overflow-hidden">
       <div className="absolute inset-0 opacity-10">
@@ -55,15 +59,18 @@ const Hero: React.FC = () => {
                 { icon: <Shield size={20} />, label: 'Seguridad Industrial', color: 'from-blue-500/20 to-blue-600/20' },
                 { icon: <Award size={20} />, label: 'Calidad e Inocuidad', color: 'from-emerald-500/20 to-emerald-600/20' },
                 { icon: <BookOpen size={20} />, label: 'Recursos Humanos', color: 'from-amber-500/20 to-amber-600/20' },
-                { icon: <Shield size={20} />, label: 'Operaciones', color: 'from-sky-500/20 to-sky-600/20' },
+                { icon: <Settings size={20} />, label: 'Operaciones', color: 'from-sky-500/20 to-sky-600/20' },
+                { icon: <Leaf size={20} />, label: 'Medio Ambiente', color: 'from-green-500/20 to-green-600/20' },
+                { icon: <BookOpen size={20} />, label: 'General', color: 'from-slate-500/20 to-slate-600/20' },
               ].map((item, i) => (
-                <div
+                <button
                   key={i}
-                  className={`bg-gradient-to-br ${item.color} border border-white/15 rounded-2xl p-4 flex flex-col items-center text-center gap-2 backdrop-blur-sm hover:border-white/30 transition-all duration-300`}
+                  onClick={() => navigate(`/categoria/${encodeURIComponent(item.label)}`)}
+                  className={`bg-gradient-to-br ${item.color} border border-white/15 rounded-2xl p-4 flex flex-col items-center text-center gap-2 backdrop-blur-sm hover:border-white/30 hover:scale-105 hover:brightness-110 transition-all duration-300 cursor-pointer`}
                 >
                   <div className="text-white/80">{item.icon}</div>
                   <span className="text-white/80 text-xs font-medium leading-snug">{item.label}</span>
-                </div>
+                </button>
               ))}
             </div>
           </div>

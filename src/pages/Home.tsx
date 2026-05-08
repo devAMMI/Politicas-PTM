@@ -7,13 +7,18 @@ import LoadingSpinner from '../components/LoadingSpinner';
 
 interface HomeProps {
   navigate: (to: string) => void;
+  initialCategory?: string;
 }
 
-const Home: React.FC<HomeProps> = ({ navigate }) => {
+const Home: React.FC<HomeProps> = ({ navigate, initialCategory = 'Todas' }) => {
   const [policies, setPolicies] = useState<Policy[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [activeCategory, setActiveCategory] = useState<string>('Todas');
+  const [activeCategory, setActiveCategory] = useState<string>(initialCategory);
+
+  useEffect(() => {
+    setActiveCategory(initialCategory);
+  }, [initialCategory]);
 
   useEffect(() => {
     fetchPolicies();
@@ -44,8 +49,14 @@ const Home: React.FC<HomeProps> = ({ navigate }) => {
     <main className="min-h-screen bg-[#F8F9FC]">
       <div id="politicas" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
         <div className="mb-10">
-          <h2 className="text-2xl font-bold text-[#0A2647] mb-1">Politicas Publicadas</h2>
-          <p className="text-slate-500 text-sm">Consulta la normativa interna vigente de PTM</p>
+          <h2 className="text-2xl font-bold text-[#0A2647] mb-1">
+            {initialCategory !== 'Todas' ? initialCategory : 'Politicas Publicadas'}
+          </h2>
+          <p className="text-slate-500 text-sm">
+            {initialCategory !== 'Todas'
+              ? 'Politicas de la categoria seleccionada'
+              : 'Consulta la normativa interna vigente de PTM'}
+          </p>
         </div>
 
         <div className="flex flex-col md:flex-row gap-4 mb-8">

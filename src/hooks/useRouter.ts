@@ -16,6 +16,9 @@ function parsePath(hash: string): Page {
   const policyMatch = path.match(/^politica\/(.+)$/);
   if (policyMatch) return { name: 'policy', slug: policyMatch[1] };
 
+  const categoryMatch = path.match(/^categoria\/(.+)$/);
+  if (categoryMatch) return { name: 'category', category: decodeURIComponent(categoryMatch[1]) };
+
   return { name: 'home' };
 }
 

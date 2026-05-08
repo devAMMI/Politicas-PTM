@@ -35,6 +35,7 @@ export const CATEGORIES: PolicyCategory[] = [
 
 export type Page =
   | { name: 'home' }
+  | { name: 'category'; category: string }
   | { name: 'policy'; slug: string }
   | { name: 'admin-login' }
   | { name: 'admin-dashboard' }
