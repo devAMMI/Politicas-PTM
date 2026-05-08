@@ -13,11 +13,6 @@ const Hero: React.FC = () => {
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28">
         <div className="flex flex-col lg:flex-row items-center gap-12">
           <div className="flex-1 text-center lg:text-left">
-            <img
-              src="https://i.imgur.com/FpiAvCx.png"
-              alt="PTM"
-              className="h-20 lg:h-24 object-contain mb-6 mx-auto lg:mx-0 drop-shadow-[0_4px_16px_rgba(0,0,0,0.4)]"
-            />
             <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-1.5 mb-6">
               <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               <span className="text-white/90 text-xs font-medium uppercase tracking-widest">Portal Interno PTM</span>
@@ -40,8 +35,15 @@ const Hero: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex-1 flex justify-center lg:justify-end">
-            <div className="grid grid-cols-2 gap-4 max-w-sm">
+          <div className="flex-1 flex flex-col items-center lg:items-end gap-6">
+            <div className="flex justify-center lg:justify-end w-full">
+              <img
+                src="https://i.imgur.com/FpiAvCx.png"
+                alt="PTM"
+                className="h-28 lg:h-36 object-contain drop-shadow-[0_8px_24px_rgba(0,0,0,0.5)]"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4 max-w-sm w-full">
               {[
                 { icon: <Shield size={22} />, label: 'Seguridad Industrial', color: 'from-blue-500/20 to-blue-600/20' },
                 { icon: <Award size={22} />, label: 'Calidad e Inocuidad', color: 'from-emerald-500/20 to-emerald-600/20' },
