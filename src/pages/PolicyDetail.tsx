@@ -316,14 +316,6 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
                     className="w-full h-full border-0"
                     title={docDisplayName}
                   />
-                  {/* Transparent overlay for internal policies: blocks right-click context menu */}
-                  {isInternal && (
-                    <div
-                      className="absolute inset-0 z-10"
-                      onContextMenu={e => e.preventDefault()}
-                      style={{ background: 'transparent', userSelect: 'none' }}
-                    />
-                  )}
                 </div>
               </div>
             </div>
