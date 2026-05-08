@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowLeft, Calendar, User, Tag, Download, FileText, Clock, Maximize2, Printer, ExternalLink, X } from 'lucide-react';
+import { ArrowLeft, Calendar, User, Tag, Download, FileText, Clock, Maximize2, Minimize2, Lock, Printer, ExternalLink, X } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { Policy, buildDocCleanUrl } from '../types';
 import LoadingSpinner from '../components/LoadingSpinner';
