@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase';
 import { Policy, CATEGORIES } from '../types';
 import PolicyCard from '../components/PolicyCard';
 import LoadingSpinner from '../components/LoadingSpinner';
+import ScrollToTop from '../components/ScrollToTop';
 
 interface HomeProps {
   navigate: (to: string) => void;
@@ -47,6 +48,7 @@ const Home: React.FC<HomeProps> = ({ navigate, initialCategory = 'Todas' }) => {
 
   return (
     <main className="min-h-screen bg-[#F8F9FC]">
+      <ScrollToTop />
       <div id="politicas" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
         <div className="mb-10">
           <h2 className="text-2xl font-bold text-[#0A2647] mb-1">

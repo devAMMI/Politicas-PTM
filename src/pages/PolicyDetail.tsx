@@ -3,6 +3,7 @@ import { ArrowLeft, Calendar, User, Tag, Download, FileText, Clock, Maximize2, P
 import { supabase } from '../lib/supabase';
 import { Policy, buildDocCleanUrl } from '../types';
 import LoadingSpinner from '../components/LoadingSpinner';
+import ScrollToTop from '../components/ScrollToTop';
 
 interface PolicyDetailProps {
   slug: string;
@@ -142,6 +143,7 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
 
   return (
     <main className="min-h-screen bg-[#F8F9FC]">
+      <ScrollToTop />
       {lightboxOpen && policy.cover_image_url && (
         <div
           className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
