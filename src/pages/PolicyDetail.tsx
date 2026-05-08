@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowLeft, Calendar, User, Tag, Download, FileText, Clock, Maximize2, Printer, ExternalLink, X, Lock, Globe } from 'lucide-react';
+import { ArrowLeft, Calendar, User, Tag, Download, FileText, Clock, Maximize2, Printer, ExternalLink, X } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { Policy, buildDocCleanUrl } from '../types';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -261,18 +261,9 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
               <div className="border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
                 {/* Toolbar */}
                 <div className="flex items-center justify-between px-4 py-3 bg-slate-50 border-b border-gray-200 gap-2">
-                  <div className="flex items-center gap-2">
-                    {isInternal ? (
-                      <span className="inline-flex items-center gap-1.5 bg-slate-100 text-slate-600 text-xs font-semibold px-2.5 py-1 rounded-full border border-slate-200">
-                        <Lock size={10} />
-                        Uso interno
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 text-xs font-semibold px-2.5 py-1 rounded-full border border-emerald-200">
-                        <Globe size={10} />
-                        Uso externo
-                      </span>
-                    )}
+                  <div className="flex items-center gap-2 min-w-0">
+                    <FileText size={14} className="text-slate-400 flex-shrink-0" />
+                    <p className="text-sm font-semibold text-slate-700 truncate">{policy.title}</p>
                   </div>
                   <div className="flex items-center gap-1.5">
                     {!isInternal && (
