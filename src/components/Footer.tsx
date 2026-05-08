@@ -1,43 +1,39 @@
 import React from 'react';
+
 const Footer: React.FC = () => {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="bg-[#0A2647] text-white">
+    <footer className="bg-[#071d38] text-white">
+      {/* Logos band */}
+      <div className="bg-white border-t border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-5 text-center">Grupo Empresarial</p>
+          <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-12">
+            <img src="https://i.imgur.com/nwFGGgf.png" alt="AMMI" className="h-8 object-contain" />
+            <div className="w-px h-8 bg-gray-200" />
+            <img src="/logo-06.png" alt="PLIHSA" className="h-8 object-contain" />
+            <div className="w-px h-8 bg-gray-200" />
+            <img src="https://i.imgur.com/FpiAvCx.png" alt="PTM" className="h-8 object-contain" />
+            <div className="w-px h-8 bg-gray-200" />
+            <img src="https://i.imgur.com/kAzFS5n.png" alt="MillFoods" className="h-8 object-contain" />
+          </div>
+        </div>
+      </div>
+
+      {/* Main footer */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="py-12 grid grid-cols-1 md:grid-cols-3 gap-10">
+        <div className="py-10 grid grid-cols-1 md:grid-cols-2 gap-10">
           <div>
-            <img src="https://i.imgur.com/FpiAvCx.png" alt="PTM" className="h-12 object-contain mb-4 brightness-0 invert opacity-90" />
-            <p className="text-slate-300 text-sm leading-relaxed">
-              Portal de Politicas Internas de PTM. Consulta y gestion de documentos normativos para todos los colaboradores.
+            <img src="https://i.imgur.com/FpiAvCx.png" alt="PTM" className="h-10 object-contain mb-4 brightness-0 invert opacity-80" />
+            <p className="text-slate-400 text-sm leading-relaxed max-w-xs">
+              Portal de Politicas Internas de PTM. Consulta y gestion de documentos normativos para todos los colaboradores del grupo.
             </p>
           </div>
 
           <div>
-            <h3 className="text-xs font-semibold uppercase tracking-widest text-blue-300 mb-4">Grupo Empresarial</h3>
-            <div className="flex flex-col gap-3">
-              <div className="flex items-center gap-3">
-                <img src="https://i.imgur.com/nwFGGgf.png" alt="AMMI" className="h-6 object-contain opacity-90" />
-                <span className="text-slate-400 text-sm">AMMI</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <img src="/logo-06.png" alt="PLIHSA" className="h-5 object-contain brightness-0 invert opacity-70" />
-                <span className="text-slate-400 text-sm">PLIHSA</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <img src="https://i.imgur.com/FpiAvCx.png" alt="PTM" className="h-5 object-contain brightness-0 invert opacity-70" />
-                <span className="text-slate-400 text-sm">PTM</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <img src="https://i.imgur.com/kAzFS5n.png" alt="Millfoods" className="h-5 object-contain brightness-0 invert opacity-70" />
-                <span className="text-slate-400 text-sm">MillFoods</span>
-              </div>
-            </div>
-          </div>
-
-          <div>
             <h3 className="text-xs font-semibold uppercase tracking-widest text-blue-300 mb-4">Categorias</h3>
-            <ul className="space-y-2 text-sm text-slate-400">
+            <ul className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm text-slate-400">
               <li>Calidad e Inocuidad</li>
               <li>Seguridad Industrial</li>
               <li>Recursos Humanos</li>
