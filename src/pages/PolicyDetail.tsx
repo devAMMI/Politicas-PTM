@@ -323,84 +323,85 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
             </div>
           )}
 
-          {/* PDF Fullscreen modal */}
-          {pdfFullscreen && docUrl && (
-            <div className="fixed inset-0 z-50 bg-black/95 flex flex-col">
-              <div className="flex items-center justify-between px-5 py-3 bg-[#0A2647] flex-shrink-0 flex-wrap gap-2">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-7 h-7 bg-red-500/20 rounded-lg flex items-center justify-center">
-                    <FileText size={13} className="text-red-400" />
-                  </div>
-                  <span className="text-white text-sm font-medium truncate max-w-xs">
-                    {docDisplayName}
-                  </span>
-                  {isInternal && (
-                    <span className="inline-flex items-center gap-1 bg-white/10 text-white/80 text-xs font-semibold px-2 py-0.5 rounded-full border border-white/20">
-                      <Lock size={9} />
-                      Uso interno
-                    </span>
-                  )}
-                </div>
-                <div className="flex items-center gap-2">
-                  {!isInternal && (
-                    <>
-                      <button
-                        onClick={() => handlePrint(true)}
-                        title="Imprimir"
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white/80 border border-white/20 hover:bg-white/10 transition-colors"
-                      >
-                        <Printer size={13} />
-                        Imprimir
-                      </button>
-                      <a
-                        href={docUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white/80 border border-white/20 hover:bg-white/10 transition-colors"
-                      >
-                        <ExternalLink size={13} />
-                        Abrir
-                      </a>
-                      <button
-                        onClick={() => handleDownload(docUrl, docDisplayName)}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white/80 border border-white/20 hover:bg-white/10 transition-colors"
-                      >
-                        <Download size={13} />
-                        Guardar
-                      </button>
-                    </>
-                  )}
-                  <button
-                    onClick={() => setPdfFullscreen(false)}
-                    title="Cerrar (Esc)"
-                    className="inline-flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-all ml-2"
-                  >
-                    <X size={14} />
-                    Cerrar
-                  </button>
-                </div>
-              </div>
-              <div className="relative flex-1 overflow-hidden">
-                <iframe
-                  ref={fullscreenIframeRef}
-                  src={isInternal
-                    ? `${docUrl}#toolbar=0&navpanes=0&scrollbar=1&view=FitH`
-                    : `${docUrl}#toolbar=1&navpanes=1&scrollbar=1&view=FitH`}
-                  className="w-full h-full border-0"
-                  title={docDisplayName}
-                />
-                {isInternal && (
-                  <div
-                    className="absolute inset-0 z-10"
-                    onContextMenu={e => e.preventDefault()}
-                    style={{ background: 'transparent', userSelect: 'none' }}
-                  />
-                )}
-              </div>
-            </div>
-          )}
         </div>
       </div>
+
+      {/* PDF Fullscreen modal — outside overflow-hidden container so fixed positioning works */}
+      {pdfFullscreen && docUrl && (
+        <div className="fixed inset-0 z-50 bg-black/95 flex flex-col">
+          <div className="flex items-center justify-between px-5 py-3 bg-[#0A2647] flex-shrink-0 flex-wrap gap-2">
+            <div className="flex items-center gap-2.5">
+              <div className="w-7 h-7 bg-red-500/20 rounded-lg flex items-center justify-center">
+                <FileText size={13} className="text-red-400" />
+              </div>
+              <span className="text-white text-sm font-medium truncate max-w-xs">
+                {docDisplayName}
+              </span>
+              {isInternal && (
+                <span className="inline-flex items-center gap-1 bg-white/10 text-white/80 text-xs font-semibold px-2 py-0.5 rounded-full border border-white/20">
+                  <Lock size={9} />
+                  Uso interno
+                </span>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              {!isInternal && (
+                <>
+                  <button
+                    onClick={() => handlePrint(true)}
+                    title="Imprimir"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white/80 border border-white/20 hover:bg-white/10 transition-colors"
+                  >
+                    <Printer size={13} />
+                    Imprimir
+                  </button>
+                  <a
+                    href={docUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white/80 border border-white/20 hover:bg-white/10 transition-colors"
+                  >
+                    <ExternalLink size={13} />
+                    Abrir
+                  </a>
+                  <button
+                    onClick={() => handleDownload(docUrl, docDisplayName)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white/80 border border-white/20 hover:bg-white/10 transition-colors"
+                  >
+                    <Download size={13} />
+                    Guardar
+                  </button>
+                </>
+              )}
+              <button
+                onClick={() => setPdfFullscreen(false)}
+                title="Cerrar (Esc)"
+                className="inline-flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-all ml-2"
+              >
+                <X size={14} />
+                Cerrar
+              </button>
+            </div>
+          </div>
+          <div className="relative flex-1 overflow-hidden">
+            <iframe
+              ref={fullscreenIframeRef}
+              src={isInternal
+                ? `${docUrl}#toolbar=0&navpanes=0&scrollbar=1&view=FitH`
+                : `${docUrl}#toolbar=1&navpanes=1&scrollbar=1&view=FitH`}
+              className="w-full h-full border-0"
+              title={docDisplayName}
+            />
+            {isInternal && (
+              <div
+                className="absolute inset-0 z-10"
+                onContextMenu={e => e.preventDefault()}
+                style={{ background: 'transparent', userSelect: 'none' }}
+              />
+            )}
+          </div>
+        </div>
+      )}
     </main>
   );
 };
