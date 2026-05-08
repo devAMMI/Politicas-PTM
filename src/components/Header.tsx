@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Users } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 interface HeaderProps {
@@ -8,13 +8,7 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ navigate, currentPage }) => {
   const { user, adminUser, signOut } = useAuth();
-  const [scrolled, setScrolled] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  useEffect(() => {}, []);
 
   const isAdmin = currentPage.startsWith('admin');
 
@@ -70,34 +64,23 @@ const Header: React.FC<HeaderProps> = ({ navigate, currentPage }) => {
   }
 
   return (
-    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-white shadow-md' : 'bg-white/95 backdrop-blur-sm'}`}>
+    <header className="fixed top-0 left-0 right-0 z-50">
       <div className="bg-[#0A2647] text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-9">
             <div className="flex items-center gap-4">
-              <span className="text-xs text-blue-200 font-medium tracking-wide uppercase">Grupo AMMI</span>
-              <div className="flex items-center gap-4 ml-2">
-                <img src="https://i.imgur.com/nwFGGgf.png" alt="AMMI" className="h-5 object-contain opacity-90" />
-                <img src="/logo-06.png" alt="PLIHSA" className="h-5 object-contain opacity-90" />
-                <img src="https://i.imgur.com/kAzFS5n.png" alt="Millfoods" className="h-5 object-contain opacity-90" />
-              </div>
+              <img src="https://i.imgur.com/nwFGGgf.png" alt="AMMI" className="h-5 object-contain opacity-90" />
+              <img src="/logo-06.png" alt="PLIHSA" className="h-5 object-contain opacity-90" />
+              <img src="https://i.imgur.com/kAzFS5n.png" alt="Millfoods" className="h-5 object-contain opacity-90" />
             </div>
-            <span className="text-xs text-blue-200">Gobierno Corporativo</span>
+            <div className="flex flex-col items-end">
+              <span className="text-xs text-blue-200">Gobierno Corporativo</span>
+              <img src="https://i.imgur.com/FpiAvCx.png" alt="PTM" className="h-4 object-contain opacity-80 mt-0.5" />
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="bg-white border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <button onClick={() => navigate('/')} className="flex items-center gap-3 group">
-              <img src="https://i.imgur.com/FpiAvCx.png" alt="PTM" className="h-11 object-contain transition-transform group-hover:scale-105" />
-            </button>
-
-          </div>
-        </div>
-
-      </div>
     </header>
   );
 };
