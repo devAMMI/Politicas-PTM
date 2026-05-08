@@ -133,8 +133,8 @@ export type Page =
   | { name: 'admin-users' }
   | { name: 'admin-archive' };
 
-export function generateSlug(title: string, id: string): string {
-  const base = title
+export function generateSlug(title: string, _id?: string): string {
+  return title
     .toLowerCase()
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
@@ -142,5 +142,4 @@ export function generateSlug(title: string, id: string): string {
     .trim()
     .replace(/\s+/g, '-')
     .replace(/-+/g, '-');
-  return `${base}-${id.replace(/-/g, '').slice(0, 6)}`;
 }

@@ -130,6 +130,11 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
     ? buildDocCleanUrl(policy.document_clean_path)
     : policy.document_url;
 
+  // Derive display filename from clean path (last segment) or fall back to stored name
+  const docDisplayName = policy.document_clean_path
+    ? policy.document_clean_path.split('/').pop()!
+    : (policy.document_name ?? 'documento.pdf');
+
   return (
     <main className="min-h-screen bg-[#F8F9FC]">
       {lightboxOpen && policy.cover_image_url && (
@@ -274,7 +279,7 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
                       <span className="hidden sm:inline">Abrir</span>
                     </a>
                     <button
-                      onClick={() => handleDownload(docUrl, policy.document_name ?? 'documento.pdf')}
+                      onClick={() => handleDownload(docUrl, docDisplayName)}
                       title="Guardar PDF"
                       className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 border border-gray-200 hover:bg-white hover:text-slate-800 transition-colors"
                     >
@@ -305,7 +310,7 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
                     ref={inlineIframeRef}
                     src={`${docUrl}#toolbar=1&navpanes=1&scrollbar=1&view=FitH`}
                     className="w-full h-full border-0"
-                    title={policy.document_name ?? 'Documento PDF'}
+                    title={docDisplayName}
                   />
                 </div>
               </div>
@@ -321,7 +326,7 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
                     <FileText size={13} className="text-red-400" />
                   </div>
                   <span className="text-white text-sm font-medium truncate max-w-xs">
-                    {policy.document_name ?? 'Documento PDF'}
+                    {docDisplayName}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -343,7 +348,7 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
                     Abrir
                   </a>
                   <button
-                    onClick={() => handleDownload(docUrl, policy.document_name ?? 'documento.pdf')}
+                    onClick={() => handleDownload(docUrl, docDisplayName)}
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white/80 border border-white/20 hover:bg-white/10 transition-colors"
                   >
                     <Download size={13} />
@@ -364,7 +369,7 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
                   ref={fullscreenIframeRef}
                   src={`${docUrl}#toolbar=1&navpanes=1&scrollbar=1&view=FitH`}
                   className="w-full h-full border-0"
-                  title={policy.document_name ?? 'Documento PDF'}
+                  title={docDisplayName}
                 />
               </div>
             </div>
