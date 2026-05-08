@@ -58,7 +58,7 @@ const AppContent: React.FC = () => {
   return (
     <>
       <Header navigate={navigate} currentPage={page.name} />
-      <div className="pt-[101px]">
+      <div className="pt-14">
         {page.name === 'home' && (
           <>
             <Hero />

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Users } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 interface HeaderProps {
@@ -8,8 +8,6 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ navigate, currentPage }) => {
   const { user, adminUser, signOut } = useAuth();
-  useEffect(() => {}, []);
-
   const isAdmin = currentPage.startsWith('admin');
 
   const handleSignOut = async () => {
@@ -67,15 +65,17 @@ const Header: React.FC<HeaderProps> = ({ navigate, currentPage }) => {
     <header className="fixed top-0 left-0 right-0 z-50">
       <div className="bg-[#0A2647] text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-9">
-            <div className="flex items-center gap-4">
-              <img src="https://i.imgur.com/nwFGGgf.png" alt="AMMI" className="h-5 object-contain opacity-90" />
-              <img src="/logo-06.png" alt="PLIHSA" className="h-5 object-contain opacity-90" />
-              <img src="https://i.imgur.com/kAzFS5n.png" alt="Millfoods" className="h-5 object-contain opacity-90" />
+          <div className="flex items-center justify-between h-14">
+            <div className="flex items-center gap-6">
+              <img src="https://i.imgur.com/nwFGGgf.png" alt="AMMI" className="h-8 object-contain opacity-90" />
+              <div className="h-6 w-px bg-white/20" />
+              <img src="/logo-06.png" alt="PLIHSA" className="h-7 object-contain opacity-90" />
+              <div className="h-6 w-px bg-white/20" />
+              <img src="https://i.imgur.com/kAzFS5n.png" alt="Millfoods" className="h-7 object-contain opacity-90" />
             </div>
-            <div className="flex flex-col items-end">
-              <span className="text-xs text-blue-200">Gobierno Corporativo</span>
-              <img src="https://i.imgur.com/FpiAvCx.png" alt="PTM" className="h-4 object-contain opacity-80 mt-0.5" />
+            <div className="flex flex-col items-end gap-1">
+              <span className="text-xs text-blue-200 tracking-wide">Gobierno Corporativo</span>
+              <img src="https://i.imgur.com/FpiAvCx.png" alt="PTM" className="h-6 object-contain opacity-90" />
             </div>
           </div>
         </div>
