@@ -10,19 +10,21 @@ const Hero: React.FC = () => {
       </div>
       <div className="absolute inset-0" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.03\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")' }} />
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28">
-        <div className="flex flex-col lg:flex-row items-center gap-12">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-10 lg:pt-10 lg:pb-12">
+        <div className="flex flex-col lg:flex-row items-start gap-8">
+
+          {/* Left: text content */}
           <div className="flex-1 text-center lg:text-left">
-            <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-1.5 mb-6">
+            <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-1.5 mb-4">
               <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               <span className="text-white/90 text-xs font-medium uppercase tracking-widest">Portal Interno PTM</span>
             </div>
-            <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-tight mb-5">
-              Politicas Internas
-              <span className="block text-blue-300 mt-1">Corporativas</span>
+            <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-tight mb-4">
+              Pol&iacute;ticas Internas
+              <span className="block text-blue-300 mt-1">Corporativas /</span>
             </h1>
-            <p className="text-blue-100 text-lg max-w-xl leading-relaxed mb-8 mx-auto lg:mx-0">
-              Accede a todas las politicas, normativas y procedimientos internos de PTM. Documentacion actualizada para todos los colaboradores del grupo.
+            <p className="text-blue-100 text-base lg:text-lg max-w-lg leading-relaxed mb-6 mx-auto lg:mx-0">
+              Accede a todas las pol&iacute;ticas, normativas y procedimientos internos de PTM. Documentaci&oacute;n actualizada para todos los colaboradores del grupo.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
               <a
@@ -30,29 +32,28 @@ const Hero: React.FC = () => {
                 className="inline-flex items-center justify-center gap-2 bg-white text-[#0A2647] font-semibold px-6 py-3 rounded-xl hover:bg-blue-50 transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5"
               >
                 <BookOpen size={18} />
-                Ver Politicas
+                Ver Pol&iacute;ticas
               </a>
             </div>
           </div>
 
-          <div className="flex-1 flex flex-col items-center lg:items-end gap-6">
-            <div className="flex justify-center lg:justify-end w-full">
-              <img
-                src="https://i.imgur.com/FpiAvCx.png"
-                alt="PTM"
-                className="h-28 lg:h-36 object-contain drop-shadow-[0_8px_24px_rgba(0,0,0,0.5)]"
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4 max-w-sm w-full">
+          {/* Right: PTM logo + category cards */}
+          <div className="flex-1 flex flex-col items-center lg:items-end gap-4 w-full">
+            <img
+              src="https://i.imgur.com/FpiAvCx.png"
+              alt="PTM"
+              className="h-24 lg:h-32 object-contain drop-shadow-[0_8px_24px_rgba(0,0,0,0.5)]"
+            />
+            <div className="grid grid-cols-2 gap-3 w-full max-w-sm">
               {[
-                { icon: <Shield size={22} />, label: 'Seguridad Industrial', color: 'from-blue-500/20 to-blue-600/20' },
-                { icon: <Award size={22} />, label: 'Calidad e Inocuidad', color: 'from-emerald-500/20 to-emerald-600/20' },
-                { icon: <BookOpen size={22} />, label: 'Recursos Humanos', color: 'from-amber-500/20 to-amber-600/20' },
-                { icon: <Shield size={22} />, label: 'Operaciones', color: 'from-rose-500/20 to-rose-600/20' },
+                { icon: <Shield size={20} />, label: 'Seguridad Industrial', color: 'from-blue-500/20 to-blue-600/20' },
+                { icon: <Award size={20} />, label: 'Calidad e Inocuidad', color: 'from-emerald-500/20 to-emerald-600/20' },
+                { icon: <BookOpen size={20} />, label: 'Recursos Humanos', color: 'from-amber-500/20 to-amber-600/20' },
+                { icon: <Shield size={20} />, label: 'Operaciones', color: 'from-sky-500/20 to-sky-600/20' },
               ].map((item, i) => (
                 <div
                   key={i}
-                  className={`bg-gradient-to-br ${item.color} border border-white/15 rounded-2xl p-5 flex flex-col items-center text-center gap-3 backdrop-blur-sm hover:border-white/30 transition-all duration-300`}
+                  className={`bg-gradient-to-br ${item.color} border border-white/15 rounded-2xl p-4 flex flex-col items-center text-center gap-2 backdrop-blur-sm hover:border-white/30 transition-all duration-300`}
                 >
                   <div className="text-white/80">{item.icon}</div>
                   <span className="text-white/80 text-xs font-medium leading-snug">{item.label}</span>
@@ -60,10 +61,11 @@ const Hero: React.FC = () => {
               ))}
             </div>
           </div>
+
         </div>
       </div>
 
-      <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-[#F8F9FC] to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-[#F8F9FC] to-transparent" />
     </section>
   );
 };
