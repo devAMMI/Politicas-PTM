@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowLeft, Calendar, User, Tag, Download, FileText, Clock, Maximize2, Minimize2, Printer, ExternalLink, X, Lock, Globe } from 'lucide-react';
+import { ArrowLeft, Calendar, User, Tag, Download, FileText, Clock, Maximize2, Printer, ExternalLink, X, Lock, Globe } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { Policy, buildDocCleanUrl } from '../types';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -260,34 +260,21 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
             <div className="px-8 md:px-10 pb-10">
               <div className="border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
                 {/* Toolbar */}
-                <div className="flex items-center justify-between px-5 py-3.5 bg-slate-50 border-b border-gray-200 flex-wrap gap-2">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <FileText size={15} className="text-red-600" />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <p className="text-sm font-semibold text-slate-700">Documento adjunto</p>
-                        {isInternal ? (
-                          <span className="inline-flex items-center gap-1 bg-slate-100 text-slate-600 text-xs font-semibold px-2 py-0.5 rounded-full border border-slate-200">
-                            <Lock size={9} />
-                            Uso interno
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 text-xs font-semibold px-2 py-0.5 rounded-full border border-emerald-200">
-                            <Globe size={9} />
-                            Uso externo
-                          </span>
-                        )}
-                      </div>
-                      {policy.document_clean_path ? (
-                        <p className="text-xs text-slate-400 font-mono">/docs/{policy.document_clean_path}</p>
-                      ) : policy.document_name ? (
-                        <p className="text-xs text-slate-400">{policy.document_name}</p>
-                      ) : null}
-                    </div>
+                <div className="flex items-center justify-between px-4 py-3 bg-slate-50 border-b border-gray-200 gap-2">
+                  <div className="flex items-center gap-2">
+                    {isInternal ? (
+                      <span className="inline-flex items-center gap-1.5 bg-slate-100 text-slate-600 text-xs font-semibold px-2.5 py-1 rounded-full border border-slate-200">
+                        <Lock size={10} />
+                        Uso interno
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 text-xs font-semibold px-2.5 py-1 rounded-full border border-emerald-200">
+                        <Globe size={10} />
+                        Uso externo
+                      </span>
+                    )}
                   </div>
-                  <div className="flex items-center gap-1.5 flex-wrap">
+                  <div className="flex items-center gap-1.5">
                     {!isInternal && (
                       <>
                         <button
@@ -319,14 +306,6 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
                       </>
                     )}
                     <button
-                      onClick={() => setPdfExpanded(p => !p)}
-                      title={pdfExpanded ? 'Compactar' : 'Expandir'}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 border border-gray-200 hover:bg-white hover:text-slate-800 transition-colors"
-                    >
-                      {pdfExpanded ? <Minimize2 size={13} /> : <Maximize2 size={13} />}
-                      <span className="hidden sm:inline">{pdfExpanded ? 'Compactar' : 'Expandir'}</span>
-                    </button>
-                    <button
                       onClick={() => setPdfFullscreen(true)}
                       title="Pantalla completa"
                       className="inline-flex items-center gap-1.5 bg-[#0A2647] text-white text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-[#144272] transition-all"
@@ -337,7 +316,7 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
                   </div>
                 </div>
                 {/* Inline viewer */}
-                <div className={`relative transition-all duration-300 ${pdfExpanded ? 'h-[90vh]' : 'h-[680px]'}`}>
+                <div className="relative h-[680px]">
                   <iframe
                     ref={inlineIframeRef}
                     src={isInternal
