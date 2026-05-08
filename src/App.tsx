@@ -11,6 +11,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import PolicyForm from './pages/PolicyForm';
 import UserManagement from './pages/UserManagement';
 import AdminArchive from './pages/AdminArchive';
+import CategoriesManager from './pages/CategoriesManager';
 
 const AppContent: React.FC = () => {
   const { page, navigate } = useRouter();
@@ -21,7 +22,8 @@ const AppContent: React.FC = () => {
     page.name === 'admin-create' ||
     page.name === 'admin-edit' ||
     page.name === 'admin-users' ||
-    page.name === 'admin-archive';
+    page.name === 'admin-archive' ||
+    page.name === 'admin-categories';
 
   useEffect(() => {
     if (!loading && isAdminArea && !session) {
@@ -54,6 +56,7 @@ const AppContent: React.FC = () => {
         {page.name === 'admin-edit' && <PolicyForm editId={page.id} navigate={navigate} />}
         {page.name === 'admin-users' && adminUser?.role === 'superadmin' && <UserManagement navigate={navigate} />}
         {page.name === 'admin-archive' && <AdminArchive navigate={navigate} />}
+        {page.name === 'admin-categories' && <CategoriesManager navigate={navigate} />}
       </>
     );
   }

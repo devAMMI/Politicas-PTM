@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   Plus, Search, Pencil, Trash2, Eye, EyeOff, FileText, Calendar,
-  CheckCircle, Clock, AlertCircle, Tag, Archive, FolderOpen, RotateCcw,
+  CheckCircle, Clock, AlertCircle, Tag, Archive, FolderOpen, RotateCcw, Settings,
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { Policy, PolicyStatus } from '../types';
@@ -141,6 +141,13 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ navigate }) => {
             <p className="text-slate-500 text-sm mt-0.5">Gestiona las politicas del portal</p>
           </div>
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => navigate('/admin/categorias')}
+              className="inline-flex items-center gap-2 border border-gray-200 bg-white text-slate-700 px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-slate-50 transition-all"
+            >
+              <Settings size={15} />
+              Categorias
+            </button>
             <button
               onClick={() => navigate('/admin/archivo')}
               className="inline-flex items-center gap-2 border border-gray-200 bg-white text-slate-700 px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-slate-50 transition-all"

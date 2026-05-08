@@ -4,7 +4,7 @@ import {
   Lock, Globe
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
-import { Policy, CATEGORIES, generateSlug, buildStoragePath, buildFolderPath, buildDocCleanPath } from '../types';
+import { Policy, generateSlug, buildStoragePath, buildFolderPath, buildDocCleanPath } from '../types';
 import { useAuth } from '../context/AuthContext';
 
 interface PolicyFormProps {
@@ -54,6 +54,7 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
   const { user } = useAuth();
   const [form, setForm] = useState<FormState>(emptyForm());
   const [policyNumber, setPolicyNumber] = useState<number | null>(null);
+  const [dbCategories, setDbCategories] = useState<string[]>([]);
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [docFile, setDocFile] = useState<File | null>(null);
@@ -66,12 +67,24 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
   const docRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    fetchCategories();
     if (editId) {
       loadPolicy(editId);
     } else {
       fetchNextPolicyNumber();
     }
   }, [editId]);
+
+  const fetchCategories = async () => {
+    const { data } = await supabase
+      .from('categories')
+      .select('name')
+      .eq('is_active', true)
+      .order('order_num', { ascending: true });
+    if (data && data.length > 0) {
+      setDbCategories(data.map((c: { name: string }) => c.name));
+    }
+  };
 
   const fetchNextPolicyNumber = async () => {
     const { data } = await supabase
@@ -304,7 +317,7 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
                   onChange={set('category')}
                   className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#0A2647]/20 focus:border-[#0A2647] transition-all bg-white"
                 >
-                  {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                  {(dbCategories.length > 0 ? dbCategories : ['General']).map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
               </div>
               <div>
