@@ -33,12 +33,15 @@ function formatTime(dateStr: string): string {
   return date.toLocaleTimeString('es-GT', { hour: '2-digit', minute: '2-digit' });
 }
 
+const CONTENT_LINE_CLAMP = 6;
+
 const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
   const [policy, setPolicy] = useState<Policy | null>(null);
   const [loading, setLoading] = useState(true);
   const [pdfExpanded, setPdfExpanded] = useState(false);
   const [pdfFullscreen, setPdfFullscreen] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [contentExpanded, setContentExpanded] = useState(false);
   const inlineIframeRef = React.useRef<HTMLIFrameElement>(null);
   const fullscreenIframeRef = React.useRef<HTMLIFrameElement>(null);
 
@@ -191,11 +194,11 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
                 </span>
               )}
             </div>
-            <h1 className="text-2xl md:text-3xl font-bold text-white leading-tight mb-4">
+            <h1 className="text-lg md:text-xl font-bold text-white leading-snug mb-4 max-w-2xl">
               {policy.title}
             </h1>
             {policy.summary && (
-              <p className="text-blue-200 text-base leading-relaxed">{policy.summary}</p>
+              <p className="text-blue-200 text-sm leading-relaxed max-w-2xl">{policy.summary}</p>
             )}
           </div>
 
@@ -232,16 +235,26 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
             </div>
           )}
 
-          <div className="px-8 md:px-10 py-8">
-            {policy.content ? (
-              <div
-                className="prose prose-slate max-w-none prose-headings:text-[#0A2647] prose-headings:font-bold prose-p:text-slate-600 prose-p:leading-relaxed prose-li:text-slate-600 prose-strong:text-slate-800"
-                dangerouslySetInnerHTML={{ __html: policy.content }}
-              />
-            ) : (
-              <p className="text-slate-400 italic text-sm">Sin contenido adicional.</p>
-            )}
-          </div>
+          {policy.content && (
+            <div className="px-8 md:px-10 py-8">
+              <div className="relative">
+                <div
+                  className={`prose prose-slate max-w-none prose-headings:text-[#0A2647] prose-headings:font-bold prose-p:text-slate-600 prose-p:leading-relaxed prose-li:text-slate-600 prose-strong:text-slate-800 prose-sm overflow-hidden transition-all duration-300`}
+                  style={contentExpanded ? undefined : { display: '-webkit-box', WebkitLineClamp: CONTENT_LINE_CLAMP, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
+                  dangerouslySetInnerHTML={{ __html: policy.content }}
+                />
+                {!contentExpanded && (
+                  <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-white to-transparent pointer-events-none" />
+                )}
+              </div>
+              <button
+                onClick={() => setContentExpanded(p => !p)}
+                className="mt-3 text-sm font-semibold text-[#0A2647] hover:text-[#144272] transition-colors flex items-center gap-1.5"
+              >
+                {contentExpanded ? 'Ver menos' : 'Ver mas...'}
+              </button>
+            </div>
+          )}
 
           {docUrl && (
             <div className="px-8 md:px-10 pb-10">
@@ -324,7 +337,7 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
                   </div>
                 </div>
                 {/* Inline viewer */}
-                <div className={`relative transition-all duration-300 ${pdfExpanded ? 'h-[80vh]' : 'h-[500px]'}`}>
+                <div className={`relative transition-all duration-300 ${pdfExpanded ? 'h-[90vh]' : 'h-[680px]'}`}>
                   <iframe
                     ref={inlineIframeRef}
                     src={isInternal
