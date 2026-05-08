@@ -78,7 +78,7 @@ const Header: React.FC<HeaderProps> = ({ navigate, currentPage }) => {
             <div className="flex items-center gap-4">
               <span className="text-xs text-blue-200 font-medium tracking-wide uppercase">Grupo AMMI</span>
               <div className="flex items-center gap-4 ml-2">
-                <img src="https://i.imgur.com/F0RKq8C.png" alt="AMMI" className="h-5 object-contain opacity-90" />
+                <img src="https://i.imgur.com/nwFGGgf.png" alt="AMMI" className="h-5 object-contain opacity-90" />
                 <img src="/logo-06.png" alt="PLIHSA" className="h-5 object-contain opacity-90" />
                 <img src="https://i.imgur.com/kAzFS5n.png" alt="Millfoods" className="h-5 object-contain opacity-90" />
               </div>

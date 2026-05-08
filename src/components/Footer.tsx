@@ -17,7 +17,7 @@ const Footer: React.FC = () => {
             <h3 className="text-xs font-semibold uppercase tracking-widest text-blue-300 mb-4">Grupo Empresarial</h3>
             <div className="flex flex-col gap-3">
               <div className="flex items-center gap-3">
-                <img src="https://i.imgur.com/F0RKq8C.png" alt="AMMI" className="h-6 object-contain brightness-0 invert opacity-70" />
+                <img src="https://i.imgur.com/nwFGGgf.png" alt="AMMI" className="h-6 object-contain opacity-90" />
                 <span className="text-slate-400 text-sm">AMMI</span>
               </div>
               <div className="flex items-center gap-3">
