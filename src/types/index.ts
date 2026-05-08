@@ -12,6 +12,7 @@ export interface Policy {
   content: string;
   document_url: string | null;
   document_name: string | null;
+  document_clean_path: string | null;
   cover_image_url: string | null;
   status: PolicyStatus;
   is_published: boolean;
@@ -80,6 +81,45 @@ export function buildStoragePath(
 export function buildFolderPath(category: string, publishedAt: string): string {
   const year = new Date(publishedAt).getFullYear();
   return `${category}/${year}`;
+}
+
+/**
+ * Builds the clean human-readable path used in app URLs.
+ * Pattern: politicas/{CATEGORY_ABBR}/{dept}/{titleSlug}-{day}-{month}-{year}.pdf
+ * Example: politicas/RRHH/PTM/politica-conflicto-de-interes-8-mayo-2026.pdf
+ * Full URL: /docs/politicas/RRHH/PTM/politica-conflicto-de-interes-8-mayo-2026.pdf
+ */
+export function buildDocCleanPath(
+  category: string,
+  department: string,
+  title: string,
+  publishedAt: string,
+  ext: string,
+): string {
+  const CATEGORY_ABBR: Record<string, string> = {
+    'Calidad e Inocuidad':  'Calidad',
+    'Seguridad Industrial': 'Seguridad',
+    'Recursos Humanos':     'RRHH',
+    'Operaciones':          'Operaciones',
+    'Medio Ambiente':       'MedioAmbiente',
+    'General':              'General',
+  };
+  const MONTHS = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  const d = new Date(publishedAt);
+  const dateSuffix = `${d.getDate()}-${MONTHS[d.getMonth()]}-${d.getFullYear()}`;
+  const catAbbr = CATEGORY_ABBR[category] ?? category.replace(/\s+/g, '');
+  const deptSlug = (department || 'PTM')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 30) || 'PTM';
+  const titleSlug = title
+    .toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60);
+  return `politicas/${catAbbr}/${deptSlug}/${titleSlug}-${dateSuffix}.${ext.toLowerCase()}`;
+}
+
+/** Resolves the full in-app clean URL for a document */
+export function buildDocCleanUrl(cleanPath: string): string {
+  return `/docs/${cleanPath}`;
 }
 
 export type Page =

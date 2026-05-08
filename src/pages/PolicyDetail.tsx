@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ArrowLeft, Calendar, User, Tag, Download, FileText, Clock, Maximize2, Minimize2, Printer, ExternalLink, X } from 'lucide-react';
 import { supabase } from '../lib/supabase';
-import { Policy } from '../types';
+import { Policy, buildDocCleanUrl } from '../types';
 import LoadingSpinner from '../components/LoadingSpinner';
 
 interface PolicyDetailProps {
@@ -125,6 +125,11 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
 
   const colors = CATEGORY_COLORS[policy.category] ?? CATEGORY_COLORS['General'];
 
+  // Use clean in-app URL when available, fall back to raw storage URL
+  const docUrl = policy.document_clean_path
+    ? buildDocCleanUrl(policy.document_clean_path)
+    : policy.document_url;
+
   return (
     <main className="min-h-screen bg-[#F8F9FC]">
       {lightboxOpen && policy.cover_image_url && (
@@ -231,7 +236,7 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
             )}
           </div>
 
-          {policy.document_url && (
+          {docUrl && (
             <div className="px-8 md:px-10 pb-10">
               <div className="border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
                 {/* Toolbar */}
@@ -242,9 +247,11 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-slate-700">Documento adjunto</p>
-                      {policy.document_name && (
+                      {policy.document_clean_path ? (
+                        <p className="text-xs text-slate-400 font-mono">/docs/{policy.document_clean_path}</p>
+                      ) : policy.document_name ? (
                         <p className="text-xs text-slate-400">{policy.document_name}</p>
-                      )}
+                      ) : null}
                     </div>
                   </div>
                   <div className="flex items-center gap-1.5 flex-wrap">
@@ -257,7 +264,7 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
                       <span className="hidden sm:inline">Imprimir</span>
                     </button>
                     <a
-                      href={policy.document_url}
+                      href={docUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       title="Abrir en nueva pestaña"
@@ -267,7 +274,7 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
                       <span className="hidden sm:inline">Abrir</span>
                     </a>
                     <button
-                      onClick={() => handleDownload(policy.document_url!, policy.document_name ?? 'documento.pdf')}
+                      onClick={() => handleDownload(docUrl, policy.document_name ?? 'documento.pdf')}
                       title="Guardar PDF"
                       className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 border border-gray-200 hover:bg-white hover:text-slate-800 transition-colors"
                     >
@@ -296,7 +303,7 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
                 <div className={`transition-all duration-300 ${pdfExpanded ? 'h-[80vh]' : 'h-[500px]'}`}>
                   <iframe
                     ref={inlineIframeRef}
-                    src={`${policy.document_url}#toolbar=1&navpanes=1&scrollbar=1&view=FitH`}
+                    src={`${docUrl}#toolbar=1&navpanes=1&scrollbar=1&view=FitH`}
                     className="w-full h-full border-0"
                     title={policy.document_name ?? 'Documento PDF'}
                   />
@@ -306,7 +313,7 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
           )}
 
           {/* PDF Fullscreen modal */}
-          {pdfFullscreen && policy.document_url && (
+          {pdfFullscreen && docUrl && (
             <div className="fixed inset-0 z-50 bg-black/95 flex flex-col">
               <div className="flex items-center justify-between px-5 py-3 bg-[#0A2647] flex-shrink-0 flex-wrap gap-2">
                 <div className="flex items-center gap-2.5">
@@ -327,7 +334,7 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
                     Imprimir
                   </button>
                   <a
-                    href={policy.document_url}
+                    href={docUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white/80 border border-white/20 hover:bg-white/10 transition-colors"
@@ -336,7 +343,7 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
                     Abrir
                   </a>
                   <button
-                    onClick={() => handleDownload(policy.document_url!, policy.document_name ?? 'documento.pdf')}
+                    onClick={() => handleDownload(docUrl, policy.document_name ?? 'documento.pdf')}
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white/80 border border-white/20 hover:bg-white/10 transition-colors"
                   >
                     <Download size={13} />
@@ -355,7 +362,7 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
               <div className="flex-1 overflow-hidden">
                 <iframe
                   ref={fullscreenIframeRef}
-                  src={`${policy.document_url}#toolbar=1&navpanes=1&scrollbar=1&view=FitH`}
+                  src={`${docUrl}#toolbar=1&navpanes=1&scrollbar=1&view=FitH`}
                   className="w-full h-full border-0"
                   title={policy.document_name ?? 'Documento PDF'}
                 />

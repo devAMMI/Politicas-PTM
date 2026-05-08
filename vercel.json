@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/docs/:path*",
+      "destination": "https://cssfpgrobcgjsuosuuwe.supabase.co/functions/v1/doc-proxy/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

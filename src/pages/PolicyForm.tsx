@@ -3,7 +3,7 @@ import {
   ArrowLeft, Save, X, FileText, Image, Loader2, CheckCircle, AlertCircle, Zap, Clock
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
-import { Policy, CATEGORIES, generateSlug, buildStoragePath, buildFolderPath } from '../types';
+import { Policy, CATEGORIES, generateSlug, buildStoragePath, buildFolderPath, buildDocCleanPath } from '../types';
 import { useAuth } from '../context/AuthContext';
 
 interface PolicyFormProps {
@@ -155,6 +155,7 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
     let cover_image_url = existingCoverUrl ?? null;
     let document_url = existingDocUrl ?? null;
     let document_name = existingDocName ?? null;
+    let document_clean_path: string | null = null;
 
     // Resolve policy number: existing for edits, next available for new
     let resolvedNumber = policyNumber;
@@ -177,6 +178,14 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
       if (url) {
         document_url = url;
         document_name = docFile.name;
+        const ext = docFile.name.split('.').pop() ?? 'pdf';
+        document_clean_path = buildDocCleanPath(
+          form.category,
+          form.department.trim(),
+          form.title.trim(),
+          form.published_at,
+          ext,
+        );
       }
     }
 
@@ -199,6 +208,7 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
       cover_image_url,
       document_url,
       document_name,
+      ...(document_clean_path !== null ? { document_clean_path } : {}),
       updated_at: new Date().toISOString(),
     };
 
