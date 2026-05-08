@@ -40,11 +40,13 @@ const Hero: React.FC = () => {
 
           {/* Right: PTM logo + category cards */}
           <div className="flex-1 flex flex-col items-center lg:items-end gap-4 w-full">
-            <img
-              src="https://i.imgur.com/FpiAvCx.png"
-              alt="PTM"
-              className="h-24 lg:h-32 object-contain drop-shadow-[0_8px_24px_rgba(0,0,0,0.5)]"
-            />
+            <div className="rounded-2xl bg-white/10 backdrop-blur-sm border border-white/15 px-8 py-5">
+              <img
+                src="https://i.imgur.com/FpiAvCx.png"
+                alt="PTM"
+                className="h-24 lg:h-32 object-contain drop-shadow-[0_8px_24px_rgba(0,0,0,0.5)]"
+              />
+            </div>
             <div className="grid grid-cols-2 gap-3 w-full max-w-sm">
               {[
                 { icon: <Shield size={20} />, label: 'Seguridad Industrial', color: 'from-blue-500/20 to-blue-600/20' },
