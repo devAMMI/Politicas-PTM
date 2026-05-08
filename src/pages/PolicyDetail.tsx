@@ -158,10 +158,27 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
 
         <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="bg-gradient-to-r from-[#0A2647] to-[#205295] p-8 md:p-10">
-            <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ${colors.bg} ${colors.text} mb-4`}>
-              <Tag size={10} />
-              {policy.category}
-            </span>
+            <div className="flex flex-wrap items-center gap-2 mb-4">
+              <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ${colors.bg} ${colors.text}`}>
+                <Tag size={10} />
+                {policy.category}
+              </span>
+              {policy.policy_number && (
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-white/15 text-white font-mono">
+                  POL-{String(policy.policy_number).padStart(4, '0')}
+                </span>
+              )}
+              {policy.version && (
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-white/10 text-blue-200">
+                  v{policy.version}
+                </span>
+              )}
+              {policy.department && (
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-white/10 text-blue-200">
+                  {policy.department}
+                </span>
+              )}
+            </div>
             <h1 className="text-2xl md:text-3xl font-bold text-white leading-tight mb-4">
               {policy.title}
             </h1>

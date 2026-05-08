@@ -189,6 +189,11 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ navigate }) => {
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start gap-2 flex-wrap">
+                      {policy.policy_number && (
+                        <span className="flex-shrink-0 inline-flex items-center px-2 py-0.5 rounded-md text-xs font-bold font-mono bg-slate-100 text-slate-600">
+                          POL-{String(policy.policy_number).padStart(4, '0')}
+                        </span>
+                      )}
                       <h3 className="text-sm font-semibold text-slate-800 leading-snug line-clamp-1">{policy.title}</h3>
                       <span className={`flex-shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${policy.is_published ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
                         {policy.is_published ? <><CheckCircle size={9} /> Publicada</> : <><Clock size={9} /> Borrador</>}

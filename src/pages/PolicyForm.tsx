@@ -3,7 +3,7 @@ import {
   ArrowLeft, Save, X, FileText, Image, Loader2, CheckCircle, AlertCircle, Zap, Clock
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
-import { Policy, CATEGORIES, generateSlug } from '../types';
+import { Policy, CATEGORIES, generateSlug, buildStoragePath } from '../types';
 import { useAuth } from '../context/AuthContext';
 
 interface PolicyFormProps {
@@ -14,6 +14,8 @@ interface PolicyFormProps {
 interface FormState {
   title: string;
   category: string;
+  department: string;
+  version: string;
   summary: string;
   content: string;
   is_published: boolean;
@@ -36,6 +38,8 @@ function toLocalDatetime(iso: string): string {
 const emptyForm = (): FormState => ({
   title: '',
   category: 'General',
+  department: '',
+  version: '1.0',
   summary: '',
   content: '',
   is_published: false,
@@ -46,6 +50,7 @@ const emptyForm = (): FormState => ({
 const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
   const { user } = useAuth();
   const [form, setForm] = useState<FormState>(emptyForm());
+  const [policyNumber, setPolicyNumber] = useState<number | null>(null);
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [docFile, setDocFile] = useState<File | null>(null);
@@ -58,16 +63,33 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
   const docRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (editId) loadPolicy(editId);
+    if (editId) {
+      loadPolicy(editId);
+    } else {
+      fetchNextPolicyNumber();
+    }
   }, [editId]);
+
+  const fetchNextPolicyNumber = async () => {
+    const { data } = await supabase
+      .from('policies')
+      .select('policy_number')
+      .order('policy_number', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    setPolicyNumber((data?.policy_number ?? 0) + 1);
+  };
 
   const loadPolicy = async (id: string) => {
     const { data } = await supabase.from('policies').select('*').eq('id', id).maybeSingle();
     if (data) {
       const p = data as Policy;
+      setPolicyNumber(p.policy_number);
       setForm({
         title: p.title,
         category: p.category,
+        department: p.department ?? '',
+        version: p.version ?? '1.0',
         summary: p.summary ?? '',
         content: p.content ?? '',
         is_published: p.is_published,
@@ -85,12 +107,19 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
     setTimeout(() => setToast(null), 4000);
   };
 
-  const uploadFile = async (file: File, folder: string, label?: string): Promise<string | null> => {
-    const ext = file.name.split('.').pop()?.toLowerCase() ?? 'bin';
-    const safeName = label
-      ? label.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60)
-      : `${Date.now()}`;
-    const path = `${folder}/${safeName}.${ext}`;
+  const uploadFile = async (
+    file: File,
+    folder: 'documents' | 'covers',
+    num: number,
+  ): Promise<string | null> => {
+    const path = buildStoragePath(
+      folder,
+      form.category,
+      num,
+      form.title.trim(),
+      file.name,
+      form.published_at,
+    );
     const { error } = await supabase.storage.from('ptm-media').upload(path, file, { upsert: true });
     if (error) return null;
     const { data } = supabase.storage.from('ptm-media').getPublicUrl(path);
@@ -127,16 +156,28 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
     let document_url = existingDocUrl ?? null;
     let document_name = existingDocName ?? null;
 
-    const categorySlug = form.category.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-    const titleSlug = form.title.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 50);
+    // Resolve policy number: existing for edits, next available for new
+    let resolvedNumber = policyNumber;
+    if (!resolvedNumber) {
+      const { data } = await supabase
+        .from('policies')
+        .select('policy_number')
+        .order('policy_number', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      resolvedNumber = (data?.policy_number ?? 0) + 1;
+    }
 
     if (coverFile) {
-      const url = await uploadFile(coverFile, `covers/${categorySlug}`, titleSlug);
+      const url = await uploadFile(coverFile, 'covers', resolvedNumber);
       if (url) cover_image_url = url;
     }
     if (docFile) {
-      const url = await uploadFile(docFile, `documents/${categorySlug}`, titleSlug);
-      if (url) { document_url = url; document_name = docFile.name; }
+      const url = await uploadFile(docFile, 'documents', resolvedNumber);
+      if (url) {
+        document_url = url;
+        document_name = docFile.name;
+      }
     }
 
     const publishedAt = new Date(form.published_at).toISOString();
@@ -144,6 +185,8 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
     const payload = {
       title: form.title.trim(),
       category: form.category,
+      department: form.department.trim(),
+      version: form.version.trim() || '1.0',
       summary: form.summary.trim(),
       content: form.content,
       is_published: form.is_published,
@@ -190,6 +233,8 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
     setForm(prev => ({ ...prev, [field]: e.target.value }));
   };
 
+  const numLabel = policyNumber ? `POL-${String(policyNumber).padStart(4, '0')}` : '—';
+
   return (
     <div className="min-h-screen bg-slate-50">
       {toast && (
@@ -208,12 +253,16 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
             <ArrowLeft size={20} />
           </button>
           <div>
-            <h1 className="text-xl font-bold text-slate-800">{editId ? 'Editar Politica' : 'Nueva Politica'}</h1>
+            <div className="flex items-center gap-3">
+              <h1 className="text-xl font-bold text-slate-800">{editId ? 'Editar Politica' : 'Nueva Politica'}</h1>
+              <span className="px-2.5 py-0.5 bg-[#0A2647]/10 text-[#0A2647] text-xs font-bold rounded-lg font-mono">{numLabel}</span>
+            </div>
             <p className="text-sm text-slate-500">{editId ? 'Modifica los datos de la politica' : 'Completa los datos para publicar una nueva politica'}</p>
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Informacion principal */}
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-5">
             <h2 className="font-semibold text-slate-700 text-sm uppercase tracking-wide">Informacion principal</h2>
 
@@ -241,12 +290,35 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">Autor / Departamento</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">Departamento / Area</label>
+                <input
+                  type="text"
+                  value={form.department}
+                  onChange={set('department')}
+                  placeholder="Ej: Planta de Produccion"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#0A2647]/20 focus:border-[#0A2647] transition-all"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">Autor responsable</label>
                 <input
                   type="text"
                   value={form.author_name}
                   onChange={set('author_name')}
                   placeholder="Ej: Departamento de Calidad"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#0A2647]/20 focus:border-[#0A2647] transition-all"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">Version</label>
+                <input
+                  type="text"
+                  value={form.version}
+                  onChange={set('version')}
+                  placeholder="Ej: 1.0"
                   className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#0A2647]/20 focus:border-[#0A2647] transition-all"
                 />
               </div>
@@ -258,7 +330,7 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
                 value={form.summary}
                 onChange={set('summary')}
                 rows={2}
-                placeholder="Descripcion corta visible en las tarjetas del blog..."
+                placeholder="Descripcion corta visible en las tarjetas..."
                 className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#0A2647]/20 focus:border-[#0A2647] transition-all resize-none"
               />
             </div>
@@ -276,8 +348,19 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
             </div>
           </div>
 
+          {/* Archivos adjuntos */}
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-5">
-            <h2 className="font-semibold text-slate-700 text-sm uppercase tracking-wide">Archivos adjuntos</h2>
+            <div className="flex items-start justify-between">
+              <h2 className="font-semibold text-slate-700 text-sm uppercase tracking-wide">Archivos adjuntos</h2>
+              {policyNumber && form.title && (
+                <div className="text-right">
+                  <p className="text-xs text-slate-400">Ruta de almacenamiento:</p>
+                  <p className="text-xs font-mono text-slate-500 mt-0.5 break-all">
+                    documents/{form.category.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')}/{new Date(form.published_at).getFullYear()}/POL-{String(policyNumber).padStart(4,'0')}_{form.title.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,30)}/
+                  </p>
+                </div>
+              )}
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div>
@@ -345,6 +428,7 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
             </div>
           </div>
 
+          {/* Publicacion */}
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-5">
             <h2 className="font-semibold text-slate-700 text-sm uppercase tracking-wide">Publicacion</h2>
 

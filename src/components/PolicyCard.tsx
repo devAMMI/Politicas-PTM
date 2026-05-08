@@ -59,12 +59,19 @@ const PolicyCard: React.FC<PolicyCardProps> = ({ policy, navigate }) => {
             <Tag size={10} />
             {policy.category}
           </span>
-          {policy.document_url && (
-            <span className="inline-flex items-center gap-1 text-xs text-slate-400">
-              <FileText size={12} />
-              PDF
-            </span>
-          )}
+          <div className="flex items-center gap-1.5">
+            {policy.policy_number && (
+              <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-bold font-mono bg-slate-100 text-slate-500">
+                POL-{String(policy.policy_number).padStart(4, '0')}
+              </span>
+            )}
+            {policy.document_url && (
+              <span className="inline-flex items-center gap-1 text-xs text-slate-400">
+                <FileText size={12} />
+                PDF
+              </span>
+            )}
+          </div>
         </div>
 
         <h3 className="text-[#0A2647] font-bold text-lg leading-snug mb-3 group-hover:text-[#205295] transition-colors line-clamp-2">
