@@ -21,6 +21,7 @@ const Hero: React.FC = () => {
             </div>
             <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-tight mb-4">
               Pol&iacute;ticas Internas
+              <div className="h-px my-2 bg-gradient-to-r from-blue-400/80 via-blue-300/40 to-transparent rounded-full" />
               <span className="block text-blue-300 mt-1">Corporativas /</span>
             </h1>
             <p className="text-blue-100 text-base lg:text-lg max-w-lg leading-relaxed mb-6 mx-auto lg:mx-0">
