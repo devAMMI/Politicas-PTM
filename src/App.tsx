@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { useRouter } from './hooks/useRouter';
 import Header from './components/Header';
+import AdminLayout from './components/AdminLayout';
 import Footer from './components/Footer';
 import Hero from './components/Hero';
 import Home from './pages/Home';
@@ -49,15 +50,14 @@ const AppContent: React.FC = () => {
   if (isAdminArea) {
     if (!session) return null;
     return (
-      <>
-        <Header navigate={navigate} currentPage="admin" />
+      <AdminLayout navigate={navigate} currentPage={page.name}>
         {page.name === 'admin-dashboard' && <AdminDashboard navigate={navigate} />}
         {page.name === 'admin-create' && <PolicyForm navigate={navigate} />}
         {page.name === 'admin-edit' && <PolicyForm editId={page.id} navigate={navigate} />}
         {page.name === 'admin-users' && adminUser?.role === 'superadmin' && <UserManagement navigate={navigate} />}
         {page.name === 'admin-archive' && <AdminArchive navigate={navigate} />}
         {page.name === 'admin-categories' && <CategoriesManager navigate={navigate} />}
-      </>
+      </AdminLayout>
     );
   }
 
