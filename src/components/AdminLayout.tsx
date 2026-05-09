@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-  LayoutDashboard, FileText, FolderOpen, Settings, Users,
-  LogOut, ExternalLink, ChevronRight, X, Menu, User,
+  FileText, FolderOpen, Settings, Users,
+  LogOut, ExternalLink, ChevronRight, X, Menu,
+  Eye, EyeOff, Archive, Trash2, Plus,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { supabase } from '../lib/supabase';
 
 interface AdminLayoutProps {
   navigate: (to: string) => void;
@@ -15,6 +17,19 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ navigate, currentPage, childr
   const { user, adminUser, signOut } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [stats, setStats] = useState({ published: 0, hidden: 0, archived: 0, deleted: 0 });
+
+  useEffect(() => {
+    supabase.from('policies').select('status').then(({ data }) => {
+      if (!data) return;
+      setStats({
+        published: data.filter(p => p.status === 'published').length,
+        hidden:    data.filter(p => p.status === 'hidden').length,
+        archived:  data.filter(p => p.status === 'archived').length,
+        deleted:   data.filter(p => p.status === 'deleted').length,
+      });
+    });
+  }, [currentPage]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -82,6 +97,36 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ navigate, currentPage, childr
             );
           })}
         </nav>
+
+        {/* Stats block */}
+        <div className="px-3 pb-1">
+          <p className="text-[10px] font-semibold text-blue-300/50 uppercase tracking-widest px-1 mb-2">Resumen</p>
+          <div className="grid grid-cols-2 gap-1.5">
+            {[
+              { label: 'Publicadas', value: stats.published, icon: <Eye size={12} />, color: 'text-emerald-400' },
+              { label: 'Ocultas',    value: stats.hidden,    icon: <EyeOff size={12} />, color: 'text-amber-400' },
+              { label: 'Archivadas', value: stats.archived,  icon: <Archive size={12} />, color: 'text-sky-400' },
+              { label: 'Papelera',   value: stats.deleted,   icon: <Trash2 size={12} />, color: 'text-red-400' },
+            ].map(s => (
+              <div key={s.label} className="bg-white/5 rounded-xl px-2.5 py-2">
+                <div className={`mb-0.5 ${s.color}`}>{s.icon}</div>
+                <p className="text-white text-base font-bold leading-none">{s.value}</p>
+                <p className="text-blue-300/60 text-[10px] mt-0.5">{s.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Quick action */}
+        <div className="px-3 pb-3 mt-3">
+          <button
+            onClick={() => navigate('/admin/nueva')}
+            className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-semibold transition-all border border-white/10"
+          >
+            <Plus size={13} />
+            Nueva politica
+          </button>
+        </div>
 
         {/* Ver sitio */}
         <div className="px-3 pb-3">
