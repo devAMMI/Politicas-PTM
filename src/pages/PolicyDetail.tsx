@@ -383,13 +383,14 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
               </button>
             </div>
           </div>
-          <div className="relative flex-1 overflow-hidden">
+          <div className="relative flex-1" style={{ minHeight: 0 }}>
             <iframe
               ref={fullscreenIframeRef}
               src={isInternal
-                ? `${docUrl}#toolbar=0&navpanes=0&scrollbar=1&view=FitH`
-                : `${docUrl}#toolbar=1&navpanes=1&scrollbar=1&view=FitH`}
-              className="w-full h-full border-0"
+                ? `${docUrl}#toolbar=0&navpanes=0&scrollbar=1`
+                : `${docUrl}#toolbar=1&navpanes=1&scrollbar=1`}
+              className="w-full border-0"
+              style={{ height: '100%', display: 'block' }}
               title={docDisplayName}
             />
             {isInternal && (
