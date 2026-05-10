@@ -134,7 +134,8 @@ export type Page =
   | { name: 'admin-users' }
   | { name: 'admin-archive' }
   | { name: 'admin-categories' }
-  | { name: 'admin-profile' };
+  | { name: 'admin-profile' }
+  | { name: 'admin-recipients' };
 
 export function generateSlug(title: string, _id?: string): string {
   return title

@@ -22,6 +22,8 @@ interface NotificationPayload {
   documentName?: string;
   isInternal?: boolean;
   version?: string;
+  // Optional: list of recipients to send to. If omitted, falls back to default list.
+  recipients?: { email: string; full_name?: string }[];
 }
 
 async function getMsAccessToken(): Promise<string> {
@@ -426,10 +428,12 @@ Deno.serve(async (req: Request) => {
       if (b64) attachments.push({ name: payload.documentName, contentBytes: b64, contentType: "application/pdf" });
     }
 
-    const recipients = ["kenneth@plihsa.com", "dev@ammi.com"];
+    const recipientList = payload.recipients && payload.recipients.length > 0
+      ? payload.recipients.map(r => r.email)
+      : ["kenneth@plihsa.com", "dev@ammi.com"];
 
     const results = await Promise.allSettled(
-      recipients.map(email => sendMail(token, email, subject, html, attachments))
+      recipientList.map(email => sendMail(token, email, subject, html, attachments))
     );
 
     const errors = results
@@ -444,7 +448,7 @@ Deno.serve(async (req: Request) => {
     }
 
     return new Response(
-      JSON.stringify({ success: true, sent: recipients.length - errors.length, errors }),
+      JSON.stringify({ success: true, sent: recipientList.length - errors.length, errors }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
 

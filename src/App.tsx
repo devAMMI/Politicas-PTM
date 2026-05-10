@@ -14,6 +14,7 @@ import UserManagement from './pages/UserManagement';
 import AdminArchive from './pages/AdminArchive';
 import CategoriesManager from './pages/CategoriesManager';
 import MyProfile from './pages/MyProfile';
+import EmailRecipients from './pages/EmailRecipients';
 
 const AppContent: React.FC = () => {
   const { page, navigate } = useRouter();
@@ -26,7 +27,8 @@ const AppContent: React.FC = () => {
     page.name === 'admin-users' ||
     page.name === 'admin-archive' ||
     page.name === 'admin-categories' ||
-    page.name === 'admin-profile';
+    page.name === 'admin-profile' ||
+    page.name === 'admin-recipients';
 
   useEffect(() => {
     if (!loading && isAdminArea && !session) {
@@ -58,6 +60,7 @@ const AppContent: React.FC = () => {
         {page.name === 'admin-archive' && <AdminArchive navigate={navigate} />}
         {page.name === 'admin-categories' && <CategoriesManager navigate={navigate} />}
         {page.name === 'admin-profile' && <MyProfile navigate={navigate} />}
+        {page.name === 'admin-recipients' && <EmailRecipients navigate={navigate} />}
       </AdminLayout>
     );
   }

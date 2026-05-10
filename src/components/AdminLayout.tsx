@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FolderOpen, Settings, Users, LogOut, ExternalLink, X, Menu, Plus, LayoutGrid, CircleUser as UserCircle } from 'lucide-react';
+import { FolderOpen, Settings, Users, LogOut, ExternalLink, X, Menu, Plus, LayoutGrid, CircleUser as UserCircle, Send } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 interface AdminLayoutProps {
@@ -18,20 +18,22 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ navigate, currentPage, childr
   };
 
   const navItems = [
-    { key: 'admin-dashboard',  label: 'Politicas',   icon: <LayoutGrid size={16} />, path: '/admin' },
-    { key: 'admin-archive',    label: 'Archivo',      icon: <FolderOpen size={16} />, path: '/admin/archivo' },
-    { key: 'admin-categories', label: 'Categorias',   icon: <Settings size={16} />,  path: '/admin/categorias' },
-    { key: 'admin-users',      label: 'Usuarios',     icon: <Users size={16} />,     path: '/admin/usuarios' },
+    { key: 'admin-dashboard',   label: 'Politicas',     icon: <LayoutGrid size={16} />, path: '/admin' },
+    { key: 'admin-archive',     label: 'Archivo',       icon: <FolderOpen size={16} />, path: '/admin/archivo' },
+    { key: 'admin-categories',  label: 'Categorias',    icon: <Settings size={16} />,   path: '/admin/categorias' },
+    { key: 'admin-users',       label: 'Usuarios',      icon: <Users size={16} />,      path: '/admin/usuarios' },
+    { key: 'admin-recipients',  label: 'Lista de Envio', icon: <Send size={16} />,      path: '/admin/lista-envio' },
   ];
 
   const allPageLabels: Record<string, string> = {
-    'admin-dashboard':  'Politicas',
-    'admin-archive':    'Archivo',
-    'admin-categories': 'Categorias',
-    'admin-users':      'Usuarios',
-    'admin-profile':    'Mi Perfil',
-    'admin-create':     'Nueva Politica',
-    'admin-edit':       'Editar Politica',
+    'admin-dashboard':   'Politicas',
+    'admin-archive':     'Archivo',
+    'admin-categories':  'Categorias',
+    'admin-users':       'Usuarios',
+    'admin-recipients':  'Lista de Envio',
+    'admin-profile':     'Mi Perfil',
+    'admin-create':      'Nueva Politica',
+    'admin-edit':        'Editar Politica',
   };
 
   const displayName = adminUser?.full_name || user?.email?.split('@')[0] || 'Admin';

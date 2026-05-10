@@ -12,6 +12,7 @@ function parsePath(pathname: string): Page {
   if (path === 'admin/archivo') return { name: 'admin-archive' };
   if (path === 'admin/categorias') return { name: 'admin-categories' };
   if (path === 'admin/perfil') return { name: 'admin-profile' };
+  if (path === 'admin/lista-envio') return { name: 'admin-recipients' };
 
   const editMatch = path.match(/^admin\/editar\/(.+)$/);
   if (editMatch) return { name: 'admin-edit', id: editMatch[1] };
