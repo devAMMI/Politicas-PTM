@@ -2,9 +2,11 @@ import React, { useEffect, useMemo, useState } from 'react';
 import {
   Plus, Search, Pencil, Trash2, Eye, EyeOff, FileText, Calendar,
   CheckCircle, AlertCircle, Tag, Archive, FolderOpen, RotateCcw, Settings,
+  LayoutGrid, List, ChevronLeft, ChevronRight,
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { Policy, PolicyStatus } from '../types';
+import PolicyCard from '../components/PolicyCard';
 
 interface AdminDashboardProps {
   navigate: (to: string) => void;
@@ -12,15 +14,17 @@ interface AdminDashboardProps {
 
 type StatusFilter = 'all' | 'published' | 'hidden' | 'archived' | 'deleted';
 
+const PAGE_SIZE = 6;
+
 function formatDate(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString('es-GT', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
 const STATUS_META: Record<PolicyStatus, { label: string; color: string; dot: string }> = {
   published: { label: 'Publicada', color: 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200', dot: 'bg-emerald-500' },
-  hidden:    { label: 'Oculta',    color: 'bg-amber-50 text-amber-700 ring-1 ring-amber-200',   dot: 'bg-amber-400' },
-  archived:  { label: 'Archivada', color: 'bg-sky-50 text-sky-700 ring-1 ring-sky-200',          dot: 'bg-sky-500' },
-  deleted:   { label: 'Papelera',  color: 'bg-red-50 text-red-600 ring-1 ring-red-200',          dot: 'bg-red-400' },
+  hidden:    { label: 'Oculta',    color: 'bg-amber-50 text-amber-700 ring-1 ring-amber-200',       dot: 'bg-amber-400' },
+  archived:  { label: 'Archivada', color: 'bg-sky-50 text-sky-700 ring-1 ring-sky-200',             dot: 'bg-sky-500' },
+  deleted:   { label: 'Papelera',  color: 'bg-red-50 text-red-600 ring-1 ring-red-200',             dot: 'bg-red-400' },
 };
 
 const STAT_CARDS = [
@@ -31,15 +35,18 @@ const STAT_CARDS = [
 ];
 
 const AdminDashboard: React.FC<AdminDashboardProps> = ({ navigate }) => {
-  const [policies, setPolicies] = useState<Policy[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
-  const [filter, setFilter] = useState<StatusFilter>('all');
-  const [busy, setBusy] = useState<string | null>(null);
+  const [policies, setPolicies]     = useState<Policy[]>([]);
+  const [loading, setLoading]       = useState(true);
+  const [search, setSearch]         = useState('');
+  const [filter, setFilter]         = useState<StatusFilter>('all');
+  const [busy, setBusy]             = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
-  const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [toast, setToast]           = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [viewMode, setViewMode]     = useState<'list' | 'grid'>('list');
+  const [page, setPage]             = useState(1);
 
   useEffect(() => { fetchPolicies(); }, []);
+  useEffect(() => { setPage(1); }, [search, filter]);
 
   const fetchPolicies = async () => {
     setLoading(true);
@@ -103,6 +110,21 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ navigate }) => {
     }
     return true;
   }), [policies, filter, search]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const safePage   = Math.min(page, totalPages);
+  const paginated  = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+
+  const pageNumbers: (number | '…')[] = [];
+  if (totalPages <= 7) {
+    for (let i = 1; i <= totalPages; i++) pageNumbers.push(i);
+  } else {
+    pageNumbers.push(1);
+    if (safePage > 3) pageNumbers.push('…');
+    for (let i = Math.max(2, safePage - 1); i <= Math.min(totalPages - 1, safePage + 1); i++) pageNumbers.push(i);
+    if (safePage < totalPages - 2) pageNumbers.push('…');
+    pageNumbers.push(totalPages);
+  }
 
   const FILTERS: { key: StatusFilter; label: string }[] = [
     { key: 'all',       label: 'Todas' },
@@ -204,7 +226,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ navigate }) => {
           ))}
         </div>
 
-        {/* Table card */}
+        {/* Table / Grid card */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
 
           {/* Toolbar */}
@@ -219,30 +241,49 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ navigate }) => {
                 className="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-gray-200 rounded-xl text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0A2647]/15 focus:border-[#0A2647]/40 focus:bg-white transition-all"
               />
             </div>
-            <div className="flex gap-1 overflow-x-auto">
-              {FILTERS.map(f => (
+            <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex gap-1 overflow-x-auto">
+                {FILTERS.map(f => (
+                  <button
+                    key={f.key}
+                    onClick={() => setFilter(f.key)}
+                    className={`flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
+                      filter === f.key
+                        ? 'bg-[#0A2647] text-white shadow-sm'
+                        : 'text-slate-500 hover:text-slate-700 hover:bg-slate-100'
+                    }`}
+                  >
+                    {f.label}
+                    {f.key !== 'all' && (
+                      <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-bold ${filter === f.key ? 'bg-white/20 text-white' : 'bg-slate-200/80 text-slate-500'}`}>
+                        {counts[f.key]}
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
+              {/* View toggle */}
+              <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-1 ml-auto sm:ml-0">
                 <button
-                  key={f.key}
-                  onClick={() => setFilter(f.key)}
-                  className={`flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
-                    filter === f.key
-                      ? 'bg-[#0A2647] text-white shadow-sm'
-                      : 'text-slate-500 hover:text-slate-700 hover:bg-slate-100'
-                  }`}
+                  onClick={() => setViewMode('list')}
+                  title="Vista lista"
+                  className={`p-1.5 rounded-md transition-all ${viewMode === 'list' ? 'bg-white text-[#0A2647] shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
                 >
-                  {f.label}
-                  {f.key !== 'all' && (
-                    <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-bold ${filter === f.key ? 'bg-white/20 text-white' : 'bg-slate-200/80 text-slate-500'}`}>
-                      {counts[f.key]}
-                    </span>
-                  )}
+                  <List size={14} />
                 </button>
-              ))}
+                <button
+                  onClick={() => setViewMode('grid')}
+                  title="Vista tarjetas"
+                  className={`p-1.5 rounded-md transition-all ${viewMode === 'grid' ? 'bg-white text-[#0A2647] shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                >
+                  <LayoutGrid size={14} />
+                </button>
+              </div>
             </div>
           </div>
 
-          {/* Column headers */}
-          {!loading && filtered.length > 0 && (
+          {/* Column headers — list mode only */}
+          {!loading && filtered.length > 0 && viewMode === 'list' && (
             <div className="px-5 py-2.5 border-b border-gray-50 grid grid-cols-[auto_1fr_auto] sm:grid-cols-[auto_auto_1fr_auto_auto] gap-3 items-center">
               <span className="hidden sm:block text-[10px] font-bold text-slate-400 uppercase tracking-widest w-12">Portada</span>
               <span className="hidden sm:block text-[10px] font-bold text-slate-400 uppercase tracking-widest w-24">Numero</span>
@@ -267,9 +308,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ navigate }) => {
                 {filter === 'deleted' ? 'La papelera esta vacia.' : 'Ajusta el filtro o crea una nueva politica.'}
               </p>
             </div>
-          ) : (
+          ) : viewMode === 'list' ? (
             <div className="divide-y divide-gray-50">
-              {filtered.map(policy => {
+              {paginated.map(policy => {
                 const isBusy = busy === policy.id;
                 const sm = STATUS_META[policy.status ?? (policy.is_published ? 'published' : 'hidden')];
                 return (
@@ -285,7 +326,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ navigate }) => {
                         <FileText size={16} className="text-slate-300" />
                       </div>
                     )}
-
                     {/* Number */}
                     {policy.policy_number ? (
                       <span className="hidden sm:block font-mono text-xs font-bold text-slate-400 flex-shrink-0 w-20">
@@ -294,7 +334,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ navigate }) => {
                     ) : (
                       <span className="hidden sm:block w-20" />
                     )}
-
                     {/* Info */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
@@ -323,7 +362,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ navigate }) => {
                         )}
                       </div>
                     </div>
-
                     {/* Status badge */}
                     <div className="hidden sm:flex flex-shrink-0">
                       <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${sm.color}`}>
@@ -331,7 +369,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ navigate }) => {
                         {sm.label}
                       </span>
                     </div>
-
                     {/* Actions */}
                     <div className="flex items-center gap-0.5 flex-shrink-0 opacity-40 group-hover:opacity-100 transition-opacity">
                       {policy.status === 'deleted' ? (
@@ -358,14 +395,94 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ navigate }) => {
                 );
               })}
             </div>
+          ) : (
+            /* Grid view */
+            <div className="p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {paginated.map(policy => {
+                const isBusy = busy === policy.id;
+                const sm = STATUS_META[policy.status ?? (policy.is_published ? 'published' : 'hidden')];
+                return (
+                  <div key={policy.id} className={`relative group ${isBusy ? 'opacity-60 pointer-events-none' : ''}`}>
+                    <PolicyCard policy={policy} navigate={navigate} />
+                    {/* Admin overlay */}
+                    <div className="absolute top-2 right-2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${sm.color}`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${sm.dot}`} />
+                        {sm.label}
+                      </span>
+                    </div>
+                    <div className="absolute bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-t border-gray-100 rounded-b-2xl px-3 py-2 flex items-center justify-end gap-0.5 opacity-0 group-hover:opacity-100 transition-all translate-y-1 group-hover:translate-y-0">
+                      {policy.status === 'deleted' ? (
+                        <>
+                          <ActionBtn onClick={() => updateStatus(policy.id, 'hidden', { deleted_at: null } as Partial<Policy>)} title="Restaurar" color="emerald"><RotateCcw size={13} /></ActionBtn>
+                          <ActionBtn onClick={() => handleHardDelete(policy.id)} title="Eliminar permanentemente" color="red"><Trash2 size={13} /></ActionBtn>
+                        </>
+                      ) : (
+                        <>
+                          <ActionBtn
+                            onClick={() => updateStatus(policy.id, policy.status === 'published' ? 'hidden' : 'published')}
+                            title={policy.status === 'published' ? 'Ocultar' : 'Publicar'}
+                            color={policy.status === 'published' ? 'emerald' : 'slate'}
+                          >
+                            {policy.status === 'published' ? <Eye size={13} /> : <EyeOff size={13} />}
+                          </ActionBtn>
+                          <ActionBtn onClick={() => updateStatus(policy.id, 'archived', { archived_at: new Date().toISOString() })} title="Archivar" color="sky"><Archive size={13} /></ActionBtn>
+                          <ActionBtn onClick={() => navigate(`/admin/editar/${policy.id}`)} title="Editar" color="slate"><Pencil size={13} /></ActionBtn>
+                          <ActionBtn onClick={() => setConfirmDelete(policy.id)} title="Mover a papelera" color="red"><Trash2 size={13} /></ActionBtn>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           )}
 
-          {/* Table footer */}
+          {/* Footer: counter + pagination */}
           {filtered.length > 0 && (
-            <div className="px-5 py-3 border-t border-gray-100 bg-slate-50/60 flex items-center justify-between">
+            <div className="px-5 py-3.5 border-t border-gray-100 bg-slate-50/60 flex flex-col sm:flex-row items-center justify-between gap-3">
               <span className="text-xs text-slate-400 font-medium">
-                {filtered.length} de {policies.length} {policies.length === 1 ? 'politica' : 'politicas'}
+                Mostrando <strong className="text-slate-600">{(safePage - 1) * PAGE_SIZE + 1}–{Math.min(safePage * PAGE_SIZE, filtered.length)}</strong> de <strong className="text-slate-600">{filtered.length}</strong> {filtered.length === 1 ? 'politica' : 'politicas'}
               </span>
+
+              {totalPages > 1 && (
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => setPage(p => Math.max(1, p - 1))}
+                    disabled={safePage === 1}
+                    className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 bg-white border border-gray-200 hover:border-[#0A2647]/30 hover:text-[#0A2647] disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                  >
+                    <ChevronLeft size={13} />
+                    Anterior
+                  </button>
+                  {pageNumbers.map((n, i) =>
+                    n === '…' ? (
+                      <span key={`e-${i}`} className="px-1.5 text-slate-400 text-xs select-none">…</span>
+                    ) : (
+                      <button
+                        key={n}
+                        onClick={() => setPage(n as number)}
+                        className={`w-8 h-8 rounded-lg text-xs font-semibold transition-all ${
+                          safePage === n
+                            ? 'bg-[#0A2647] text-white shadow-sm'
+                            : 'bg-white text-slate-600 border border-gray-200 hover:border-[#0A2647]/30 hover:text-[#0A2647]'
+                        }`}
+                      >
+                        {n}
+                      </button>
+                    )
+                  )}
+                  <button
+                    onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                    disabled={safePage === totalPages}
+                    className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 bg-white border border-gray-200 hover:border-[#0A2647]/30 hover:text-[#0A2647] disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                  >
+                    Siguiente
+                    <ChevronRight size={13} />
+                  </button>
+                </div>
+              )}
+
               <button
                 onClick={() => navigate('/admin/archivo')}
                 className="inline-flex items-center gap-1.5 text-xs text-[#0A2647] hover:underline font-semibold"
