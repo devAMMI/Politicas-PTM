@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   FileText, FolderOpen, Settings, Users,
-  LogOut, ExternalLink, X, Menu, Plus,
+  LogOut, ExternalLink, X, Menu, Plus, LayoutGrid,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -21,7 +21,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ navigate, currentPage, childr
   };
 
   const navItems = [
-    { key: 'admin-dashboard',  label: 'Politicas',  icon: <FileText size={16} />,  path: '/admin' },
+    { key: 'admin-dashboard',  label: 'Politicas',  icon: <LayoutGrid size={16} />, path: '/admin' },
     { key: 'admin-archive',    label: 'Archivo',     icon: <FolderOpen size={16} />, path: '/admin/archivo' },
     { key: 'admin-categories', label: 'Categorias',  icon: <Settings size={16} />,  path: '/admin/categorias' },
     ...(adminUser?.role === 'superadmin'
@@ -29,85 +29,99 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ navigate, currentPage, childr
       : []),
   ];
 
-  const initials = user?.email?.slice(0, 2).toUpperCase() ?? 'AD';
-  const roleName = adminUser?.role === 'superadmin' ? 'Super Admin' : 'Admin';
+  const displayName = adminUser?.full_name || user?.email?.split('@')[0] || 'Admin';
+  const roleName    = adminUser?.role === 'superadmin' ? 'Super Admin' : 'Administrador';
+  const initials    = displayName.slice(0, 2).toUpperCase();
 
   const Sidebar = () => (
-    <div className="flex flex-col h-full bg-[#0B1F3A]">
+    <div className="flex flex-col h-full" style={{ background: 'linear-gradient(180deg, #0D1B2E 0%, #111D30 100%)' }}>
 
-      {/* Logo */}
-      <div className="flex items-center gap-3 px-5 h-[60px] border-b border-white/8 flex-shrink-0">
-        <img src="https://i.imgur.com/FpiAvCx.png" alt="PTM" className="h-8 object-contain" />
-        <span className="text-[11px] font-bold text-white/40 uppercase tracking-[0.15em]">Admin</span>
-        <button onClick={() => setSidebarOpen(false)} className="ml-auto text-white/30 hover:text-white/70 lg:hidden transition-colors">
-          <X size={16} />
-        </button>
-      </div>
-
-      {/* Nav */}
-      <nav className="flex-1 px-3 pt-4 space-y-0.5">
-        <p className="px-2 pb-2 text-[10px] font-semibold text-white/25 uppercase tracking-widest">Menu</p>
-        {navItems.map(item => {
-          const active = currentPage === item.key;
-          return (
-            <button
-              key={item.key}
-              onClick={() => { navigate(item.path); setSidebarOpen(false); }}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
-                active
-                  ? 'bg-white/10 text-white'
-                  : 'text-white/50 hover:text-white/80 hover:bg-white/5'
-              }`}
-            >
-              <span className={active ? 'text-white' : 'text-white/35'}>{item.icon}</span>
-              {item.label}
-            </button>
-          );
-        })}
-      </nav>
-
-      {/* Bottom section */}
-      <div className="px-3 pb-4 space-y-1 flex-shrink-0">
-
-        {/* Nueva politica */}
-        <button
-          onClick={() => { navigate('/admin/nueva'); setSidebarOpen(false); }}
-          className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-semibold bg-white/8 text-white/70 hover:bg-white/12 hover:text-white transition-all"
-        >
-          <Plus size={15} className="text-white/50" />
-          Nueva politica
-        </button>
-
-        {/* Ver sitio */}
-        <button
-          onClick={() => navigate('/')}
-          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-white/35 hover:text-white/60 hover:bg-white/5 transition-all"
-        >
-          <ExternalLink size={14} />
-          Ver sitio publico
-        </button>
-
-        {/* Divider */}
-        <div className="pt-2 pb-1 border-t border-white/8" />
-
-        {/* User */}
-        <div className="flex items-center gap-2.5 px-2 py-1.5 rounded-lg group">
-          <div className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0">
-            <span className="text-white text-[10px] font-bold">{initials}</span>
+      {/* Logo area */}
+      <div className="px-6 pt-6 pb-5 flex-shrink-0">
+        <div className="flex items-start justify-between">
+          <div>
+            <img src="https://i.imgur.com/FpiAvCx.png" alt="PTM" className="h-8 object-contain mb-2" />
+            <p className="text-[10px] font-bold text-[#C9973A] uppercase tracking-[0.2em] leading-none">Panel Admin</p>
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-white/70 text-xs font-semibold truncate leading-none">{roleName}</p>
-            <p className="text-white/30 text-[10px] truncate mt-0.5">{user?.email}</p>
-          </div>
-          <button
-            onClick={handleSignOut}
-            title="Cerrar sesion"
-            className="p-1.5 rounded-lg text-white/25 hover:text-red-300 hover:bg-red-500/10 transition-colors flex-shrink-0"
-          >
-            <LogOut size={13} />
+          <button onClick={() => setSidebarOpen(false)} className="text-white/25 hover:text-white/60 transition-colors mt-1 lg:hidden">
+            <X size={15} />
           </button>
         </div>
       </div>
+
+      {/* Nav section */}
+      <div className="px-4 flex-shrink-0">
+        <p className="px-2 mb-2 text-[10px] font-bold text-white/25 uppercase tracking-[0.18em]">Navegacion</p>
+        <nav className="space-y-0.5">
+          {navItems.map(item => {
+            const active = currentPage === item.key;
+            return (
+              <button
+                key={item.key}
+                onClick={() => { navigate(item.path); setSidebarOpen(false); }}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                  active
+                    ? 'bg-white/10 text-white'
+                    : 'text-white/45 hover:text-white/75 hover:bg-white/5'
+                }`}
+              >
+                <span className={`flex-shrink-0 ${active ? 'text-white' : 'text-white/30'}`}>{item.icon}</span>
+                <span className="flex-1 text-left">{item.label}</span>
+              </button>
+            );
+          })}
+        </nav>
+      </div>
+
+      {/* Nueva politica section */}
+      <div className="px-4 mt-6 flex-shrink-0">
+        <p className="px-2 mb-2 text-[10px] font-bold text-white/25 uppercase tracking-[0.18em]">Acciones</p>
+        <button
+          onClick={() => { navigate('/admin/nueva'); setSidebarOpen(false); }}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-white/45 hover:text-white/75 hover:bg-white/5 transition-all"
+        >
+          <span className="text-white/30 flex-shrink-0"><Plus size={16} /></span>
+          Nueva politica
+        </button>
+        <button
+          onClick={() => navigate('/')}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-white/45 hover:text-white/75 hover:bg-white/5 transition-all"
+        >
+          <span className="text-white/30 flex-shrink-0"><ExternalLink size={16} /></span>
+          Ver sitio publico
+        </button>
+      </div>
+
+      {/* Spacer */}
+      <div className="flex-1" />
+
+      {/* User profile */}
+      <div className="px-4 pb-5 flex-shrink-0">
+        <div className="border-t border-white/8 mb-4" />
+
+        {/* Avatar + info */}
+        <div className="flex items-center gap-3 px-2 mb-2">
+          <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 text-[#0D1B2E] font-bold text-sm" style={{ backgroundColor: '#C9973A' }}>
+            {initials}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-white text-sm font-semibold leading-none truncate">{displayName}</p>
+            <p className="text-white/35 text-xs mt-0.5 truncate">{user?.email}</p>
+          </div>
+        </div>
+
+        {/* Logout */}
+        <button
+          onClick={handleSignOut}
+          className="w-full flex items-center gap-3 px-2 py-2 rounded-lg text-sm text-white/35 hover:text-white/60 hover:bg-white/5 transition-all"
+        >
+          <LogOut size={15} className="flex-shrink-0" />
+          Cerrar sesion
+        </button>
+      </div>
+
+      {/* Bottom accent bar */}
+      <div className="h-[3px] flex-shrink-0" style={{ background: 'linear-gradient(90deg, #C9973A 0%, #E8B84B 50%, transparent 100%)' }} />
     </div>
   );
 
@@ -120,7 +134,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ navigate, currentPage, childr
 
       {/* Sidebar */}
       <aside className={`
-        fixed top-0 left-0 h-full w-56 z-50
+        fixed top-0 left-0 h-full w-60 z-50 shadow-2xl
         transition-transform duration-300 ease-in-out
         lg:translate-x-0 lg:static lg:z-auto lg:flex-shrink-0
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
@@ -130,8 +144,9 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ navigate, currentPage, childr
 
       {/* Main */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Top bar */}
-        <header className="bg-white border-b border-gray-100 sticky top-0 z-30 h-[60px] flex items-center px-5 gap-4 flex-shrink-0">
+
+        {/* Top bar — mobile only trigger, desktop shows page title */}
+        <header className="bg-white border-b border-gray-100 sticky top-0 z-30 h-[60px] flex items-center px-6 gap-4 flex-shrink-0">
           <button
             onClick={() => setSidebarOpen(true)}
             className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 transition-colors lg:hidden"
@@ -140,19 +155,19 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ navigate, currentPage, childr
           </button>
 
           <span className="text-sm font-semibold text-slate-700">
-            {navItems.find(n => n.key === currentPage)?.label ?? 'Panel'}
+            {navItems.find(n => n.key === currentPage)?.label ?? 'Panel Admin'}
           </span>
 
           <div className="flex-1" />
 
-          {/* Profile chip */}
-          <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-full bg-[#0B1F3A] flex items-center justify-center">
-              <span className="text-white text-[10px] font-bold">{initials}</span>
+          {/* User chip — desktop */}
+          <div className="hidden sm:flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-full flex items-center justify-center text-[#0D1B2E] font-bold text-[11px] flex-shrink-0" style={{ backgroundColor: '#C9973A' }}>
+              {initials}
             </div>
-            <div className="hidden sm:block text-right">
+            <div className="text-right">
               <p className="text-xs font-semibold text-slate-700 leading-none">{roleName}</p>
-              <p className="text-[10px] text-slate-400 truncate max-w-[160px] mt-0.5">{user?.email}</p>
+              <p className="text-[10px] text-slate-400 truncate max-w-[180px] mt-0.5">{user?.email}</p>
             </div>
           </div>
         </header>
