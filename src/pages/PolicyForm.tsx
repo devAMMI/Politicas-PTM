@@ -241,6 +241,28 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
       const { error } = await supabase.from('policies').insert({ ...payload, id: tempId, slug });
       if (error) { showToast('error', 'Error al crear la politica.'); setSaving(false); return; }
       showToast('success', 'Politica creada correctamente.');
+
+      // Fire-and-forget: notificacion por correo via edge function
+      const { data: { session } } = await supabase.auth.getSession();
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
+      fetch(`${supabaseUrl}/functions/v1/send-policy-notification`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token ?? ''}`,
+        },
+        body: JSON.stringify({
+          policyTitle:    form.title.trim(),
+          policyNumber:   `POL-${String(resolvedNumber).padStart(4, '0')}`,
+          category:       form.category,
+          department:     form.department.trim() || undefined,
+          authorName:     form.author_name.trim() || 'Administrador',
+          summary:        form.summary.trim() || undefined,
+          publishedAt:    publishedAt,
+          createdByEmail: user?.email,
+          policyUrl:      `${window.location.origin}/politicas/${slug}`,
+        }),
+      }).catch(() => { /* silent — no bloquea la UX si falla el correo */ });
     }
 
     setSaving(false);
