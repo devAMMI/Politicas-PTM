@@ -126,24 +126,24 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ navigate, currentPage, childr
   );
 
   return (
-    <div className="min-h-screen bg-[#F7F8FA] flex">
+    <div className="h-screen bg-[#F7F8FA] flex overflow-hidden">
       {/* Mobile overlay */}
       {sidebarOpen && (
         <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
-      {/* Sidebar */}
+      {/* Sidebar — fixed on mobile, static on desktop */}
       <aside className={`
-        fixed top-0 left-0 h-full w-60 z-50 shadow-2xl
+        fixed top-0 left-0 h-screen w-60 z-50 shadow-2xl flex-shrink-0
         transition-transform duration-300 ease-in-out
-        lg:translate-x-0 lg:static lg:z-auto lg:flex-shrink-0
+        lg:relative lg:translate-x-0 lg:z-auto
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
         <Sidebar />
       </aside>
 
       {/* Main */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
 
         {/* Top bar — mobile only trigger, desktop shows page title */}
         <header className="bg-white border-b border-gray-100 sticky top-0 z-30 h-[60px] flex items-center px-6 gap-4 flex-shrink-0">
@@ -172,7 +172,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ navigate, currentPage, childr
           </div>
         </header>
 
-        <main className="flex-1 overflow-auto">
+        <main className="flex-1 overflow-y-auto">
           {children}
         </main>
       </div>
