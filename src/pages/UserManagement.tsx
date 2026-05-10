@@ -3,7 +3,6 @@ import {
   Plus, Trash2, UserCheck, UserX, Users, Shield, ShieldCheck,
   AlertCircle, CheckCircle, X, Eye, EyeOff, Pencil, KeyRound,
 } from 'lucide-react';
-import { supabase } from '../lib/supabase';
 import { useAuth, AdminUser } from '../context/AuthContext';
 
 interface UserManagementProps {
@@ -56,11 +55,9 @@ const UserManagement: React.FC<UserManagementProps> = () => {
 
   const fetchUsers = async () => {
     setLoading(true);
-    const { data } = await supabase
-      .from('admin_users')
-      .select('id, email, full_name, role, is_active')
-      .order('created_at', { ascending: true });
-    if (data) setUsers(data as AdminUser[]);
+    const res = await fetch(edgeFnUrl, { method: 'GET', headers: authHeaders() });
+    const json = await res.json();
+    if (res.ok && json.users) setUsers(json.users as AdminUser[]);
     setLoading(false);
   };
 
