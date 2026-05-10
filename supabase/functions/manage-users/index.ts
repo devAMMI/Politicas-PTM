@@ -32,29 +32,55 @@ Deno.serve(async (req: Request) => {
 
     const token = authHeader.replace("Bearer ", "");
     const { data: { user: caller }, error: authError } = await supabaseAdmin.auth.getUser(token);
-    if (authError || !caller) return json({ error: "Unauthorized: " + (authError?.message ?? "no user") }, 401);
+    if (authError || !caller) return json({ error: "Unauthorized" }, 401);
 
-    // Check caller is an active superadmin
+    // Load caller profile
     const { data: callerAdmin, error: callerErr } = await supabaseAdmin
       .from("admin_users")
       .select("role, is_active")
       .eq("id", caller.id)
       .maybeSingle();
 
-    if (callerErr) return json({ error: "DB error verifying caller: " + callerErr.message }, 500);
-    if (!callerAdmin) return json({ error: "Forbidden: caller not found in admin_users (id=" + caller.id + ")" }, 403);
-    if (callerAdmin.role !== "superadmin") return json({ error: "Forbidden: superadmin only (role=" + callerAdmin.role + ")" }, 403);
+    if (callerErr) return json({ error: "DB error: " + callerErr.message }, 500);
+    if (!callerAdmin) return json({ error: "Forbidden: not an admin user" }, 403);
     if (!callerAdmin.is_active) return json({ error: "Forbidden: account inactive" }, 403);
+
+    const isSuperadmin = callerAdmin.role === "superadmin";
+    const isAdmin = callerAdmin.role === "admin";
+
+    if (!isSuperadmin && !isAdmin) return json({ error: "Forbidden: insufficient role" }, 403);
 
     const url = new URL(req.url);
     const method = req.method;
 
-    // ── CREATE ──────────────────────────────────────────────────────────────
+    // ── GET (list users) ─────────────────────────────────────────────────────
+    if (method === "GET") {
+      // Admins only see admin-role users; superadmins see everyone
+      let query = supabaseAdmin
+        .from("admin_users")
+        .select("id, email, full_name, role, is_active, created_at")
+        .order("created_at", { ascending: true });
+
+      if (isAdmin) {
+        query = query.eq("role", "admin");
+      }
+
+      const { data, error } = await query;
+      if (error) return json({ error: error.message }, 500);
+      return json({ users: data });
+    }
+
+    // ── CREATE ───────────────────────────────────────────────────────────────
     if (method === "POST") {
       const { email, password, full_name, role } = await req.json();
 
       if (!email || !password || !full_name || !role) {
         return json({ error: "Missing required fields" }, 400);
+      }
+
+      // Admins can only create admin-role users (not superadmin)
+      if (isAdmin && role === "superadmin") {
+        return json({ error: "Forbidden: admins cannot create superadmin users" }, 403);
       }
 
       const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
@@ -85,19 +111,52 @@ Deno.serve(async (req: Request) => {
       return json({ success: true, user: { id: newUser.user.id, email, full_name, role } });
     }
 
-    // ── UPDATE ──────────────────────────────────────────────────────────────
+    // ── UPDATE ───────────────────────────────────────────────────────────────
     if (method === "PUT") {
       const { id, full_name, role, is_active, password } = await req.json();
 
       if (!id) return json({ error: "Missing user id" }, 400);
 
+      // Load target user to check their role
+      const { data: targetUser, error: targetErr } = await supabaseAdmin
+        .from("admin_users")
+        .select("role, is_active")
+        .eq("id", id)
+        .maybeSingle();
+
+      if (targetErr) return json({ error: "DB error: " + targetErr.message }, 500);
+      if (!targetUser) return json({ error: "User not found" }, 404);
+
+      // Admins cannot touch superadmin accounts (except their own self-service)
+      if (isAdmin && targetUser.role === "superadmin" && id !== caller.id) {
+        return json({ error: "Forbidden: admins cannot modify superadmin accounts" }, 403);
+      }
+
+      // Admins cannot escalate role to superadmin
+      if (isAdmin && role === "superadmin") {
+        return json({ error: "Forbidden: admins cannot assign superadmin role" }, 403);
+      }
+
+      // Nobody can deactivate themselves
       if (id === caller.id && is_active === false) {
         return json({ error: "No puedes desactivarte a ti mismo" }, 400);
       }
 
       const updates: Record<string, unknown> = {};
       if (full_name !== undefined) updates.full_name = full_name;
-      if (role !== undefined) updates.role = role;
+
+      // Only superadmins can change roles, or if not changing superadmin target
+      if (role !== undefined) {
+        if (isAdmin && role === "superadmin") {
+          return json({ error: "Forbidden: cannot assign superadmin role" }, 403);
+        }
+        // Admins can only set role='admin'
+        if (isAdmin && role !== "admin") {
+          return json({ error: "Forbidden: admins can only assign admin role" }, 403);
+        }
+        updates.role = role;
+      }
+
       if (is_active !== undefined) updates.is_active = is_active;
 
       if (Object.keys(updates).length > 0) {
@@ -123,12 +182,24 @@ Deno.serve(async (req: Request) => {
       return json({ success: true });
     }
 
-    // ── DELETE ──────────────────────────────────────────────────────────────
+    // ── DELETE ───────────────────────────────────────────────────────────────
     if (method === "DELETE") {
       const id = url.searchParams.get("id");
 
       if (!id) return json({ error: "Missing user id" }, 400);
       if (id === caller.id) return json({ error: "No puedes eliminarte a ti mismo" }, 400);
+
+      // Load target to enforce hierarchy
+      const { data: targetUser } = await supabaseAdmin
+        .from("admin_users")
+        .select("role")
+        .eq("id", id)
+        .maybeSingle();
+
+      // Admins cannot delete superadmin users
+      if (isAdmin && targetUser?.role === "superadmin") {
+        return json({ error: "Forbidden: admins cannot delete superadmin accounts" }, 403);
+      }
 
       await supabaseAdmin.from("admin_users").delete().eq("id", id);
       await supabaseAdmin.auth.admin.deleteUser(id);

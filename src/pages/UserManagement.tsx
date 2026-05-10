@@ -25,10 +25,10 @@ interface EditUserForm {
 }
 
 const EMPTY_FORM: NewUserForm = { email: '', password: '', full_name: '', role: 'admin' };
-const EMPTY_EDIT: EditUserForm = { id: '', full_name: '', role: 'admin', password: '' };
 
 const UserManagement: React.FC<UserManagementProps> = () => {
   const { session, adminUser: currentAdmin } = useAuth();
+  const isSuperadmin = currentAdmin?.role === 'superadmin';
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -193,14 +193,22 @@ const UserManagement: React.FC<UserManagementProps> = () => {
               </div>
               <div>
                 <label className="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wide">Rol</label>
-                <select
-                  value={editUser.role}
-                  onChange={e => setEditUser(f => f ? { ...f, role: e.target.value as 'admin' | 'superadmin' } : f)}
-                  className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0A2647]/15 focus:border-[#0A2647]/40 transition-all"
-                >
-                  <option value="admin">Admin</option>
-                  <option value="superadmin">Super Admin</option>
-                </select>
+                {isSuperadmin ? (
+                  <select
+                    value={editUser.role}
+                    onChange={e => setEditUser(f => f ? { ...f, role: e.target.value as 'admin' | 'superadmin' } : f)}
+                    className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0A2647]/15 focus:border-[#0A2647]/40 transition-all"
+                  >
+                    <option value="admin">Admin</option>
+                    <option value="superadmin">Super Admin</option>
+                  </select>
+                ) : (
+                  <input
+                    value="Admin"
+                    disabled
+                    className="w-full px-3.5 py-2.5 border border-gray-100 rounded-xl text-sm bg-slate-50 text-slate-400 cursor-not-allowed"
+                  />
+                )}
               </div>
               <div className="bg-slate-50 rounded-2xl p-4">
                 <button
@@ -314,14 +322,22 @@ const UserManagement: React.FC<UserManagementProps> = () => {
               </div>
               <div>
                 <label className="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wide">Rol</label>
-                <select
-                  value={form.role}
-                  onChange={e => setForm(f => ({ ...f, role: e.target.value as 'admin' | 'superadmin' }))}
-                  className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0A2647]/15 focus:border-[#0A2647]/40 transition-all"
-                >
-                  <option value="admin">Admin</option>
-                  <option value="superadmin">Super Admin</option>
-                </select>
+                {isSuperadmin ? (
+                  <select
+                    value={form.role}
+                    onChange={e => setForm(f => ({ ...f, role: e.target.value as 'admin' | 'superadmin' }))}
+                    className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0A2647]/15 focus:border-[#0A2647]/40 transition-all"
+                  >
+                    <option value="admin">Admin</option>
+                    <option value="superadmin">Super Admin</option>
+                  </select>
+                ) : (
+                  <input
+                    value="Admin"
+                    disabled
+                    className="w-full px-3.5 py-2.5 border border-gray-100 rounded-xl text-sm bg-slate-50 text-slate-400 cursor-not-allowed"
+                  />
+                )}
               </div>
               <div className="sm:col-span-2 flex justify-end gap-2.5 pt-1">
                 <button type="button" onClick={() => setShowForm(false)} className="px-5 py-2.5 rounded-xl border border-gray-200 text-slate-600 text-sm font-medium hover:bg-slate-50 transition-colors">
@@ -389,34 +405,36 @@ const UserManagement: React.FC<UserManagementProps> = () => {
                     <p className="text-xs text-slate-400 mt-0.5">{u.email}</p>
                   </div>
 
-                  {/* Actions */}
-                  <div className="flex items-center gap-1 flex-shrink-0 opacity-40 group-hover:opacity-100 transition-opacity">
-                    <button
-                      onClick={() => openEdit(u)}
-                      title="Editar"
-                      className="p-2 rounded-xl text-slate-400 hover:text-[#0A2647] hover:bg-slate-100 transition-colors"
-                    >
-                      <Pencil size={14} />
-                    </button>
-                    {u.id !== currentAdmin?.id && (
-                      <>
-                        <button
-                          onClick={() => handleToggleActive(u)}
-                          title={u.is_active ? 'Desactivar' : 'Activar'}
-                          className={`p-2 rounded-xl transition-colors ${u.is_active ? 'text-emerald-600 hover:bg-emerald-50' : 'text-slate-400 hover:bg-slate-100'}`}
-                        >
-                          {u.is_active ? <UserCheck size={14} /> : <UserX size={14} />}
-                        </button>
-                        <button
-                          onClick={() => setConfirmDelete(u.id)}
-                          title="Eliminar"
-                          className="p-2 rounded-xl text-red-400 hover:bg-red-50 transition-colors"
-                        >
-                          <Trash2 size={14} />
-                        </button>
-                      </>
-                    )}
-                  </div>
+                  {/* Actions — admins cannot act on superadmin rows */}
+                  {(isSuperadmin || u.role !== 'superadmin') && (
+                    <div className="flex items-center gap-1 flex-shrink-0 opacity-40 group-hover:opacity-100 transition-opacity">
+                      <button
+                        onClick={() => openEdit(u)}
+                        title="Editar"
+                        className="p-2 rounded-xl text-slate-400 hover:text-[#0A2647] hover:bg-slate-100 transition-colors"
+                      >
+                        <Pencil size={14} />
+                      </button>
+                      {u.id !== currentAdmin?.id && (
+                        <>
+                          <button
+                            onClick={() => handleToggleActive(u)}
+                            title={u.is_active ? 'Desactivar' : 'Activar'}
+                            className={`p-2 rounded-xl transition-colors ${u.is_active ? 'text-emerald-600 hover:bg-emerald-50' : 'text-slate-400 hover:bg-slate-100'}`}
+                          >
+                            {u.is_active ? <UserCheck size={14} /> : <UserX size={14} />}
+                          </button>
+                          <button
+                            onClick={() => setConfirmDelete(u.id)}
+                            title="Eliminar"
+                            className="p-2 rounded-xl text-red-400 hover:bg-red-50 transition-colors"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

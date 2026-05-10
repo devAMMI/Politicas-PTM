@@ -13,10 +13,11 @@ import PolicyForm from './pages/PolicyForm';
 import UserManagement from './pages/UserManagement';
 import AdminArchive from './pages/AdminArchive';
 import CategoriesManager from './pages/CategoriesManager';
+import MyProfile from './pages/MyProfile';
 
 const AppContent: React.FC = () => {
   const { page, navigate } = useRouter();
-  const { session, loading, adminUser } = useAuth();
+  const { session, loading } = useAuth();
 
   const isAdminArea =
     page.name === 'admin-dashboard' ||
@@ -24,16 +25,15 @@ const AppContent: React.FC = () => {
     page.name === 'admin-edit' ||
     page.name === 'admin-users' ||
     page.name === 'admin-archive' ||
-    page.name === 'admin-categories';
+    page.name === 'admin-categories' ||
+    page.name === 'admin-profile';
 
   useEffect(() => {
     if (!loading && isAdminArea && !session) {
       navigate('/login');
     }
-    if (!loading && page.name === 'admin-users' && session && adminUser && adminUser.role !== 'superadmin') {
-      navigate('/admin');
-    }
-  }, [loading, session, isAdminArea, adminUser]);
+    // Admins CAN access users page now — only block unauthenticated
+  }, [loading, session, isAdminArea]);
 
   if (loading) {
     return (
@@ -54,9 +54,10 @@ const AppContent: React.FC = () => {
         {page.name === 'admin-dashboard' && <AdminDashboard navigate={navigate} />}
         {page.name === 'admin-create' && <PolicyForm navigate={navigate} />}
         {page.name === 'admin-edit' && <PolicyForm editId={page.id} navigate={navigate} />}
-        {page.name === 'admin-users' && adminUser?.role === 'superadmin' && <UserManagement navigate={navigate} />}
+        {page.name === 'admin-users' && <UserManagement navigate={navigate} />}
         {page.name === 'admin-archive' && <AdminArchive navigate={navigate} />}
         {page.name === 'admin-categories' && <CategoriesManager navigate={navigate} />}
+        {page.name === 'admin-profile' && <MyProfile navigate={navigate} />}
       </AdminLayout>
     );
   }

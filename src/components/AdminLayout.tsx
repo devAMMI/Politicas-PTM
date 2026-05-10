@@ -1,8 +1,5 @@
 import React, { useState } from 'react';
-import {
-  FileText, FolderOpen, Settings, Users,
-  LogOut, ExternalLink, X, Menu, Plus, LayoutGrid,
-} from 'lucide-react';
+import { FolderOpen, Settings, Users, LogOut, ExternalLink, X, Menu, Plus, LayoutGrid, CircleUser as UserCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 interface AdminLayoutProps {
@@ -21,22 +18,47 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ navigate, currentPage, childr
   };
 
   const navItems = [
-    { key: 'admin-dashboard',  label: 'Politicas',  icon: <LayoutGrid size={16} />, path: '/admin' },
-    { key: 'admin-archive',    label: 'Archivo',     icon: <FolderOpen size={16} />, path: '/admin/archivo' },
-    { key: 'admin-categories', label: 'Categorias',  icon: <Settings size={16} />,  path: '/admin/categorias' },
-    ...(adminUser?.role === 'superadmin'
-      ? [{ key: 'admin-users', label: 'Usuarios', icon: <Users size={16} />, path: '/admin/usuarios' }]
-      : []),
+    { key: 'admin-dashboard',  label: 'Politicas',   icon: <LayoutGrid size={16} />, path: '/admin' },
+    { key: 'admin-archive',    label: 'Archivo',      icon: <FolderOpen size={16} />, path: '/admin/archivo' },
+    { key: 'admin-categories', label: 'Categorias',   icon: <Settings size={16} />,  path: '/admin/categorias' },
+    { key: 'admin-users',      label: 'Usuarios',     icon: <Users size={16} />,     path: '/admin/usuarios' },
   ];
+
+  const allPageLabels: Record<string, string> = {
+    'admin-dashboard':  'Politicas',
+    'admin-archive':    'Archivo',
+    'admin-categories': 'Categorias',
+    'admin-users':      'Usuarios',
+    'admin-profile':    'Mi Perfil',
+    'admin-create':     'Nueva Politica',
+    'admin-edit':       'Editar Politica',
+  };
 
   const displayName = adminUser?.full_name || user?.email?.split('@')[0] || 'Admin';
   const roleName    = adminUser?.role === 'superadmin' ? 'Super Admin' : 'Administrador';
   const initials    = displayName.slice(0, 2).toUpperCase();
 
+  const NavBtn = ({ item }: { item: typeof navItems[0] }) => {
+    const active = currentPage === item.key;
+    return (
+      <button
+        onClick={() => { navigate(item.path); setSidebarOpen(false); }}
+        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+          active
+            ? 'bg-white/10 text-white'
+            : 'text-white/45 hover:text-white/75 hover:bg-white/5'
+        }`}
+      >
+        <span className={`flex-shrink-0 ${active ? 'text-white' : 'text-white/30'}`}>{item.icon}</span>
+        <span className="flex-1 text-left">{item.label}</span>
+      </button>
+    );
+  };
+
   const Sidebar = () => (
     <div className="flex flex-col h-full" style={{ background: 'linear-gradient(180deg, #0D1B2E 0%, #111D30 100%)' }}>
 
-      {/* Logo area */}
+      {/* Logo */}
       <div className="px-6 pt-6 pb-5 flex-shrink-0">
         <div className="flex items-start justify-between">
           <div>
@@ -49,32 +71,16 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ navigate, currentPage, childr
         </div>
       </div>
 
-      {/* Nav section */}
+      {/* Nav */}
       <div className="px-4 flex-shrink-0">
         <p className="px-2 mb-2 text-[10px] font-bold text-white/25 uppercase tracking-[0.18em]">Navegacion</p>
         <nav className="space-y-0.5">
-          {navItems.map(item => {
-            const active = currentPage === item.key;
-            return (
-              <button
-                key={item.key}
-                onClick={() => { navigate(item.path); setSidebarOpen(false); }}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                  active
-                    ? 'bg-white/10 text-white'
-                    : 'text-white/45 hover:text-white/75 hover:bg-white/5'
-                }`}
-              >
-                <span className={`flex-shrink-0 ${active ? 'text-white' : 'text-white/30'}`}>{item.icon}</span>
-                <span className="flex-1 text-left">{item.label}</span>
-              </button>
-            );
-          })}
+          {navItems.map(item => <NavBtn key={item.key} item={item} />)}
         </nav>
       </div>
 
-      {/* Nueva politica section */}
-      <div className="px-4 mt-6 flex-shrink-0">
+      {/* Acciones */}
+      <div className="px-4 mt-5 flex-shrink-0">
         <p className="px-2 mb-2 text-[10px] font-bold text-white/25 uppercase tracking-[0.18em]">Acciones</p>
         <button
           onClick={() => { navigate('/admin/nueva'); setSidebarOpen(false); }}
@@ -84,24 +90,42 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ navigate, currentPage, childr
           Nueva politica
         </button>
         <button
-          onClick={() => navigate('/')}
+          onClick={() => { navigate('/'); setSidebarOpen(false); }}
           className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-white/45 hover:text-white/75 hover:bg-white/5 transition-all"
         >
           <span className="text-white/30 flex-shrink-0"><ExternalLink size={16} /></span>
-          Ver sitio publico
+          Ver sitio de politicas
         </button>
       </div>
 
       {/* Spacer */}
       <div className="flex-1" />
 
-      {/* User profile */}
+      {/* User section */}
       <div className="px-4 pb-5 flex-shrink-0">
-        <div className="border-t border-white/8 mb-4" />
+        <div className="border-t border-white/8 mb-3" />
+
+        {/* Mi Perfil */}
+        <button
+          onClick={() => { navigate('/admin/perfil'); setSidebarOpen(false); }}
+          className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all mb-1 ${
+            currentPage === 'admin-profile'
+              ? 'bg-white/10 text-white'
+              : 'text-white/45 hover:text-white/75 hover:bg-white/5'
+          }`}
+        >
+          <span className={`flex-shrink-0 ${currentPage === 'admin-profile' ? 'text-white' : 'text-white/30'}`}>
+            <UserCircle size={16} />
+          </span>
+          Mi Perfil
+        </button>
 
         {/* Avatar + info */}
-        <div className="flex items-center gap-3 px-2 mb-2">
-          <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 text-[#0D1B2E] font-bold text-sm" style={{ backgroundColor: '#C9973A' }}>
+        <div className="flex items-center gap-3 px-2 mt-3 mb-1">
+          <div
+            className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 text-[#0D1B2E] font-bold text-sm"
+            style={{ backgroundColor: '#C9973A' }}
+          >
             {initials}
           </div>
           <div className="flex-1 min-w-0">
@@ -110,17 +134,17 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ navigate, currentPage, childr
           </div>
         </div>
 
-        {/* Logout */}
+        {/* Cerrar sesion */}
         <button
           onClick={handleSignOut}
-          className="w-full flex items-center gap-3 px-2 py-2 rounded-lg text-sm text-white/35 hover:text-white/60 hover:bg-white/5 transition-all"
+          className="w-full flex items-center gap-3 px-2 py-2 rounded-lg text-sm text-white/35 hover:text-white/60 hover:bg-white/5 transition-all mt-1"
         >
           <LogOut size={15} className="flex-shrink-0" />
           Cerrar sesion
         </button>
       </div>
 
-      {/* Bottom accent bar */}
+      {/* Accent bar */}
       <div className="h-[3px] flex-shrink-0" style={{ background: 'linear-gradient(90deg, #C9973A 0%, #E8B84B 50%, transparent 100%)' }} />
     </div>
   );
@@ -132,7 +156,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ navigate, currentPage, childr
         <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
-      {/* Sidebar — fixed on mobile, static on desktop */}
+      {/* Sidebar */}
       <aside className={`
         fixed top-0 left-0 h-screen w-60 z-50 shadow-2xl flex-shrink-0
         transition-transform duration-300 ease-in-out
@@ -144,8 +168,6 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ navigate, currentPage, childr
 
       {/* Main */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-
-        {/* Top bar — mobile only trigger, desktop shows page title */}
         <header className="bg-white border-b border-gray-100 sticky top-0 z-30 h-[60px] flex items-center px-6 gap-4 flex-shrink-0">
           <button
             onClick={() => setSidebarOpen(true)}
@@ -155,14 +177,17 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ navigate, currentPage, childr
           </button>
 
           <span className="text-sm font-semibold text-slate-700">
-            {navItems.find(n => n.key === currentPage)?.label ?? 'Panel Admin'}
+            {allPageLabels[currentPage] ?? 'Panel Admin'}
           </span>
 
           <div className="flex-1" />
 
-          {/* User chip — desktop */}
+          {/* User chip */}
           <div className="hidden sm:flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-full flex items-center justify-center text-[#0D1B2E] font-bold text-[11px] flex-shrink-0" style={{ backgroundColor: '#C9973A' }}>
+            <div
+              className="w-7 h-7 rounded-full flex items-center justify-center text-[#0D1B2E] font-bold text-[11px] flex-shrink-0"
+              style={{ backgroundColor: '#C9973A' }}
+            >
               {initials}
             </div>
             <div className="text-right">
