@@ -46,7 +46,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ navigate }) => {
     const { data } = await supabase
       .from('policies')
       .select('*')
-      .order('policy_number', { ascending: true });
+      .order('policy_number', { ascending: false });
     if (data) setPolicies(data as Policy[]);
     setLoading(false);
   };

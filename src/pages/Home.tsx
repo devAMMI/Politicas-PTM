@@ -32,7 +32,7 @@ const Home: React.FC<HomeProps> = ({ navigate, initialCategory = 'Todas', showBa
       .from('policies')
       .select('*')
       .eq('status', 'published')
-      .order('policy_number', { ascending: true });
+      .order('policy_number', { ascending: false });
 
     if (!error && data) setPolicies(data as Policy[]);
     setLoading(false);
