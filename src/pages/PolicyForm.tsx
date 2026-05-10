@@ -261,6 +261,11 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
           publishedAt:    publishedAt,
           createdByEmail: user?.email,
           policyUrl:      `${window.location.origin}/politicas/${slug}`,
+          coverImageUrl:  cover_image_url ?? undefined,
+          documentUrl:    document_url ?? undefined,
+          documentName:   document_name ?? undefined,
+          isInternal:     form.is_internal,
+          version:        form.version.trim() || '1.0',
         }),
       }).catch(() => { /* silent — no bloquea la UX si falla el correo */ });
     }
