@@ -99,102 +99,208 @@ async function fetchPdfAsBase64(url: string): Promise<string | null> {
   } catch { return null; }
 }
 
+// Convert UTC date to GMT-6 (Central America / Mexico DF)
+function toGMTMinus6(utcStr: string): Date {
+  const utc = new Date(utcStr);
+  return new Date(utc.getTime() - 6 * 60 * 60 * 1000);
+}
+
+function formatDate(d: Date): string {
+  const days   = ["domingo","lunes","martes","miercoles","jueves","viernes","sabado"];
+  const months = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+  return `${days[d.getUTCDay()]}, ${d.getUTCDate()} de ${months[d.getUTCMonth()]} de ${d.getUTCFullYear()}`;
+}
+
+function formatTime(d: Date): string {
+  let h = d.getUTCHours();
+  const m = String(d.getUTCMinutes()).padStart(2, "0");
+  const ampm = h >= 12 ? "p. m." : "a. m.";
+  h = h % 12 || 12;
+  return `${String(h).padStart(2, "0")}:${m} ${ampm}`;
+}
+
+function formatMonth(d: Date): string {
+  const months = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+  return `${months[d.getUTCMonth()]} de ${d.getUTCFullYear()}`;
+}
+
 function buildHtml(p: NotificationPayload): string {
-  const date = new Date(p.publishedAt).toLocaleDateString("es-GT", {
-    weekday: "long", year: "numeric", month: "long", day: "numeric",
-  });
-  const time = new Date(p.publishedAt).toLocaleTimeString("es-GT", {
-    hour: "2-digit", minute: "2-digit",
-  });
+  const local    = toGMTMinus6(p.publishedAt);
+  const dateStr  = formatDate(local);
+  const timeStr  = formatTime(local);
+  const monthStr = formatMonth(local);
 
-  // Logos — hosted external URLs used in the APP header
-  const logoAmmi     = "https://i.imgur.com/nwFGGgf.png";
-  const logoMillfood = "https://i.imgur.com/kAzFS5n.png";
-  const logoPTM      = "https://i.imgur.com/FpiAvCx.png"; // provided by user
+  const logoPTM = "https://i.imgur.com/FpiAvCx.png";
 
+  // ── Sección oscura del PDF (va ARRIBA, justo después del navbar) ──
+  const docDarkSection = p.documentUrl
+    ? `<tr>
+        <td style="background:#0d1f3c;padding:32px 36px 28px;">
+          <table width="100%" cellpadding="0" cellspacing="0">
+            <tr>
+              <td align="center" style="padding-bottom:16px;">
+                <img src="${logoPTM}" alt="PTM" height="56"
+                  style="height:56px;object-fit:contain;display:block;" />
+              </td>
+            </tr>
+            <tr>
+              <td align="center" style="padding-bottom:4px;">
+                <p style="margin:0;color:#94a3b8;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;">POLITICA INTERNA</p>
+              </td>
+            </tr>
+            <tr>
+              <td align="center" style="padding-bottom:20px;">
+                <p style="margin:0;color:#ffffff;font-size:20px;font-weight:800;line-height:1.3;">${p.policyTitle}</p>
+              </td>
+            </tr>
+            <!-- divider -->
+            <tr>
+              <td style="padding-bottom:16px;">
+                <div style="height:1px;background:#1e3a5f;"></div>
+              </td>
+            </tr>
+            <!-- meta grid -->
+            <tr>
+              <td>
+                <table width="100%" cellpadding="0" cellspacing="0">
+                  <tr>
+                    <td width="25%" style="text-align:center;border-right:1px solid #1e3a5f;padding:0 8px 12px;">
+                      <p style="margin:0;color:#64748b;font-size:10px;font-weight:500;">Empresa</p>
+                      <p style="margin:4px 0 0;color:#e2e8f0;font-size:13px;font-weight:800;">PTM.</p>
+                    </td>
+                    <td width="25%" style="text-align:center;border-right:1px solid #1e3a5f;padding:0 8px 12px;">
+                      <p style="margin:0;color:#64748b;font-size:10px;font-weight:500;">Version</p>
+                      <p style="margin:4px 0 0;color:#e2e8f0;font-size:13px;font-weight:800;">${p.version ?? "1.0"}</p>
+                    </td>
+                    <td width="25%" style="text-align:center;border-right:1px solid #1e3a5f;padding:0 8px 12px;">
+                      <p style="margin:0;color:#64748b;font-size:10px;font-weight:500;">Fecha</p>
+                      <p style="margin:4px 0 0;color:#e2e8f0;font-size:13px;font-weight:800;text-transform:capitalize;">${monthStr}</p>
+                    </td>
+                    <td width="25%" style="text-align:center;padding:0 8px 12px;">
+                      <p style="margin:0;color:#64748b;font-size:10px;font-weight:500;">Clasificacion</p>
+                      <p style="margin:4px 0 0;color:#e2e8f0;font-size:13px;font-weight:800;">${p.isInternal ? "Uso Interno" : "Externa"}</p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <!-- PDF name row -->
+            <tr>
+              <td style="padding-top:16px;">
+                <table width="100%" cellpadding="0" cellspacing="0"
+                  style="background:#1e3a5f;border-radius:10px;">
+                  <tr>
+                    <td style="padding:12px 16px;">
+                      <table cellpadding="0" cellspacing="0" width="100%">
+                        <tr>
+                          <td style="vertical-align:middle;">
+                            <table cellpadding="0" cellspacing="0">
+                              <tr>
+                                <td style="padding-right:10px;vertical-align:middle;">
+                                  <div style="width:32px;height:32px;background:#e63329;border-radius:6px;text-align:center;line-height:32px;">
+                                    <span style="color:#fff;font-size:11px;font-weight:800;">PDF</span>
+                                  </div>
+                                </td>
+                                <td style="vertical-align:middle;">
+                                  <p style="margin:0;color:#e2e8f0;font-size:13px;font-weight:600;">${p.documentName ?? "Documento de politica"}</p>
+                                </td>
+                              </tr>
+                            </table>
+                          </td>
+                          <td align="right" style="vertical-align:middle;">
+                            <a href="${p.documentUrl}"
+                              style="display:inline-block;background:#0d1f3c;color:#ffffff;font-size:12px;font-weight:700;text-decoration:none;padding:8px 16px;border-radius:8px;border:1px solid #334155;">
+                              &#8599; Pantalla completa
+                            </a>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <!-- Download CTA -->
+            <tr>
+              <td align="center" style="padding-top:20px;">
+                <a href="${p.documentUrl}"
+                  style="display:inline-block;background:#e63329;color:#ffffff;font-size:13px;font-weight:800;text-decoration:none;padding:12px 36px;border-radius:10px;letter-spacing:0.3px;">
+                  Descargar PDF
+                </a>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>`
+    : "";
+
+  // ── Hero banner azul (va DESPUÉS del doc oscuro) ──
+  const heroBanner = `<tr>
+    <td style="background:linear-gradient(160deg,#0d1f3c 0%,#1a3a6b 55%,#1e4d8c 100%);padding:28px 32px 24px;">
+      <!-- Badges -->
+      <table cellpadding="0" cellspacing="0" style="margin-bottom:14px;">
+        <tr>
+          <td style="padding-right:6px;">
+            <span style="display:inline-block;border:1.5px solid rgba(255,255,255,0.35);color:#e2e8f0;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;">${p.category}</span>
+          </td>
+          <td style="padding-right:6px;">
+            <span style="display:inline-block;border:1.5px solid rgba(255,255,255,0.35);color:#e2e8f0;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;font-family:monospace;">${p.policyNumber}</span>
+          </td>
+          <td style="padding-right:6px;">
+            <span style="display:inline-block;border:1.5px solid rgba(255,255,255,0.35);color:#e2e8f0;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;">v${p.version ?? "1.0"}</span>
+          </td>
+          ${p.department ? `<td>
+            <span style="display:inline-block;border:1.5px solid rgba(255,255,255,0.35);color:#e2e8f0;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;">${p.department}</span>
+          </td>` : ""}
+        </tr>
+      </table>
+      <h1 style="margin:0 0 10px;color:#ffffff;font-size:22px;font-weight:800;line-height:1.3;">${p.policyTitle}</h1>
+      ${p.summary ? `<p style="margin:0;color:#cbd5e1;font-size:13px;line-height:1.6;">${p.summary}</p>` : ""}
+    </td>
+  </tr>`;
+
+  // ── Meta row (fecha · hora · autor) ──
+  const metaRow = `<tr>
+    <td style="background:#ffffff;padding:16px 32px;border-bottom:1px solid #f1f5f9;">
+      <table cellpadding="0" cellspacing="0">
+        <tr>
+          <td style="padding-right:20px;vertical-align:middle;">
+            <table cellpadding="0" cellspacing="0"><tr>
+              <td style="padding-right:6px;font-size:14px;">&#128197;</td>
+              <td style="color:#374151;font-size:12px;font-weight:500;text-transform:capitalize;">${dateStr}</td>
+            </tr></table>
+          </td>
+          <td style="padding-right:20px;vertical-align:middle;">
+            <table cellpadding="0" cellspacing="0"><tr>
+              <td style="padding-right:6px;font-size:14px;">&#128336;</td>
+              <td style="color:#374151;font-size:12px;font-weight:500;">${timeStr} hrs</td>
+            </tr></table>
+          </td>
+          <td style="vertical-align:middle;">
+            <table cellpadding="0" cellspacing="0"><tr>
+              <td style="padding-right:6px;font-size:14px;">&#128100;</td>
+              <td style="color:#374151;font-size:12px;font-weight:500;">${p.authorName}</td>
+            </tr></table>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>`;
+
+  // ── Cover image (va ABAJO, después del hero) ──
   const coverSection = p.coverImageUrl
-    ? `<tr><td style="padding:0 0 0 0;">
-        <img src="${p.coverImageUrl}" alt="Portada" width="600"
-          style="width:100%;max-width:600px;height:260px;object-fit:cover;display:block;" />
-        <p style="margin:0;padding:6px 0 0;color:#64748b;font-size:11px;text-align:center;font-style:italic;">Click para ampliar</p>
+    ? `<tr><td style="padding:0;">
+        <img src="${p.coverImageUrl}" alt="Portada" width="620"
+          style="width:100%;max-width:620px;height:260px;object-fit:cover;display:block;" />
+        <p style="margin:0;padding:6px 0;color:#64748b;font-size:11px;text-align:center;font-style:italic;">Click para ampliar</p>
       </td></tr>`
     : "";
 
-  const contentPreview = p.summary
+  // ── Content preview ──
+  const contentSection = p.summary
     ? `<tr><td style="padding:20px 36px 8px;">
         <p style="margin:0;color:#374151;font-size:14px;line-height:1.75;">${p.summary}</p>
         ${p.policyUrl ? `<p style="margin:10px 0 0;"><a href="${p.policyUrl}" style="color:#1d4ed8;font-size:13px;font-weight:600;text-decoration:none;">Ver mas...</a></p>` : ""}
-      </td></tr>`
-    : "";
-
-  const docSection = p.documentUrl
-    ? `<tr><td style="padding:16px 36px 28px;">
-        <table width="100%" cellpadding="0" cellspacing="0"
-          style="border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;">
-          <tr>
-            <td style="padding:14px 18px;background:#f8fafc;">
-              <table width="100%" cellpadding="0" cellspacing="0">
-                <tr>
-                  <td style="vertical-align:middle;">
-                    <table cellpadding="0" cellspacing="0">
-                      <tr>
-                        <td style="padding-right:10px;vertical-align:middle;">
-                          <div style="width:32px;height:32px;background:#e63329;border-radius:6px;text-align:center;line-height:32px;">
-                            <span style="color:#fff;font-size:11px;font-weight:800;">PDF</span>
-                          </div>
-                        </td>
-                        <td style="vertical-align:middle;">
-                          <p style="margin:0;color:#374151;font-size:13px;font-weight:600;">${p.documentName ?? "Documento de politica"}</p>
-                        </td>
-                      </tr>
-                    </table>
-                  </td>
-                  <td align="right" style="vertical-align:middle;">
-                    <a href="${p.documentUrl}"
-                      style="display:inline-block;background:#0d1f3c;color:#ffffff;font-size:12px;font-weight:700;text-decoration:none;padding:8px 18px;border-radius:8px;">
-                      &#8599; Pantalla completa
-                    </a>
-                  </td>
-                </tr>
-              </table>
-            </td>
-          </tr>
-          <!-- PDF mini-preview strip -->
-          <tr>
-            <td style="background:#1e293b;padding:28px 36px;text-align:center;">
-              <img src="${logoPTM}" alt="PTM" height="52"
-                style="height:52px;object-fit:contain;margin-bottom:12px;display:block;margin-left:auto;margin-right:auto;" />
-              <p style="margin:0;color:#94a3b8;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;">POLITICA INTERNA</p>
-              <p style="margin:6px 0 0;color:#ffffff;font-size:16px;font-weight:800;">${p.policyTitle}</p>
-              <table cellpadding="0" cellspacing="0" style="margin:20px auto 0;border-top:1px solid #334155;padding-top:16px;width:100%;">
-                <tr>
-                  <td style="padding:0 16px;text-align:center;border-right:1px solid #334155;">
-                    <p style="margin:0;color:#94a3b8;font-size:10px;">Empresa</p>
-                    <p style="margin:2px 0 0;color:#e2e8f0;font-size:12px;font-weight:700;">PTM.</p>
-                  </td>
-                  <td style="padding:0 16px;text-align:center;border-right:1px solid #334155;">
-                    <p style="margin:0;color:#94a3b8;font-size:10px;">Version</p>
-                    <p style="margin:2px 0 0;color:#e2e8f0;font-size:12px;font-weight:700;">${p.version ?? "1.0"}</p>
-                  </td>
-                  <td style="padding:0 16px;text-align:center;border-right:1px solid #334155;">
-                    <p style="margin:0;color:#94a3b8;font-size:10px;">Fecha</p>
-                    <p style="margin:2px 0 0;color:#e2e8f0;font-size:12px;font-weight:700;">${new Date(p.publishedAt).toLocaleDateString("es-GT", { month: "long", year: "numeric" })}</p>
-                  </td>
-                  <td style="padding:0 16px;text-align:center;">
-                    <p style="margin:0;color:#94a3b8;font-size:10px;">Clasificacion</p>
-                    <p style="margin:2px 0 0;color:#e2e8f0;font-size:12px;font-weight:700;">${p.isInternal ? "Uso Interno" : "Externa"}</p>
-                  </td>
-                </tr>
-              </table>
-              <div style="margin-top:20px;">
-                <a href="${p.documentUrl}"
-                  style="display:inline-block;background:#e63329;color:#ffffff;font-size:13px;font-weight:700;text-decoration:none;padding:10px 28px;border-radius:8px;">
-                  Descargar PDF
-                </a>
-              </div>
-            </td>
-          </tr>
-        </table>
       </td></tr>`
     : "";
 
@@ -212,38 +318,14 @@ function buildHtml(p: NotificationPayload): string {
       <table width="620" cellpadding="0" cellspacing="0"
         style="max-width:620px;width:100%;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 2px 20px rgba(0,0,0,0.08);">
 
-        <!-- ── NAVBAR (replica exacta del header de la APP) ── -->
+        <!-- ── NAVBAR: solo logo PTM ── -->
         <tr>
           <td style="background:#0d1f3c;padding:0 28px;">
             <table width="100%" cellpadding="0" cellspacing="0">
               <tr>
-                <td style="height:52px;vertical-align:middle;">
-                  <table cellpadding="0" cellspacing="0">
-                    <tr>
-                      <!-- AMMI -->
-                      <td style="vertical-align:middle;padding-right:14px;">
-                        <img src="${logoAmmi}" alt="ammi" height="24"
-                          style="height:24px;display:block;object-fit:contain;opacity:0.92;" />
-                      </td>
-                      <!-- separator -->
-                      <td style="vertical-align:middle;padding-right:14px;">
-                        <div style="width:1px;height:18px;background:rgba(255,255,255,0.2);"></div>
-                      </td>
-                      <!-- PLIHSA badge (teal pill like in the APP) -->
-                      <td style="vertical-align:middle;padding-right:14px;">
-                        <span style="display:inline-block;background:#0ea5e9;color:#fff;font-size:11px;font-weight:800;padding:3px 10px;border-radius:20px;letter-spacing:0.3px;">PLIHSA</span>
-                      </td>
-                      <!-- separator -->
-                      <td style="vertical-align:middle;padding-right:14px;">
-                        <div style="width:1px;height:18px;background:rgba(255,255,255,0.2);"></div>
-                      </td>
-                      <!-- Millfoods -->
-                      <td style="vertical-align:middle;">
-                        <img src="${logoMillfood}" alt="millfoods" height="22"
-                          style="height:22px;display:block;object-fit:contain;opacity:0.92;" />
-                      </td>
-                    </tr>
-                  </table>
+                <td style="height:56px;vertical-align:middle;">
+                  <img src="${logoPTM}" alt="PTM" height="32"
+                    style="height:32px;display:block;object-fit:contain;" />
                 </td>
                 <td align="right" style="vertical-align:middle;">
                   <span style="color:#93c5fd;font-size:11px;font-weight:500;letter-spacing:0.5px;">Gobierno Corporativo</span>
@@ -253,96 +335,25 @@ function buildHtml(p: NotificationPayload): string {
           </td>
         </tr>
 
-        <!-- ── HERO BANNER (replica del card azul de la APP) ── -->
-        <tr>
-          <td style="background:linear-gradient(160deg,#0d1f3c 0%,#1a3a6b 55%,#1e4d8c 100%);padding:28px 32px 24px;">
+        <!-- ── DOC DARK SECTION (arriba) ── -->
+        ${docDarkSection}
 
-            <!-- Badges row: categoria | POL-XXXX | v1.0 | departamento -->
-            <table cellpadding="0" cellspacing="0" style="margin-bottom:14px;">
-              <tr>
-                <td style="padding-right:6px;">
-                  <span style="display:inline-block;border:1.5px solid rgba(255,255,255,0.35);color:#e2e8f0;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;">
-                    ${p.category}
-                  </span>
-                </td>
-                <td style="padding-right:6px;">
-                  <span style="display:inline-block;border:1.5px solid rgba(255,255,255,0.35);color:#e2e8f0;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;font-family:monospace;">
-                    ${p.policyNumber}
-                  </span>
-                </td>
-                <td style="padding-right:6px;">
-                  <span style="display:inline-block;border:1.5px solid rgba(255,255,255,0.35);color:#e2e8f0;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;">
-                    v${p.version ?? "1.0"}
-                  </span>
-                </td>
-                ${p.department ? `<td>
-                  <span style="display:inline-block;border:1.5px solid rgba(255,255,255,0.35);color:#e2e8f0;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;">
-                    ${p.department}
-                  </span>
-                </td>` : ""}
-              </tr>
-            </table>
+        <!-- ── HERO BANNER ── -->
+        ${heroBanner}
 
-            <!-- Title -->
-            <h1 style="margin:0 0 10px;color:#ffffff;font-size:22px;font-weight:800;line-height:1.3;">
-              ${p.policyTitle}
-            </h1>
+        <!-- ── META ROW ── -->
+        ${metaRow}
 
-            <!-- Summary preview inside hero -->
-            ${p.summary ? `<p style="margin:0;color:#cbd5e1;font-size:13px;line-height:1.6;">${p.summary}</p>` : ""}
-          </td>
-        </tr>
-
-        <!-- ── META ROW (fecha · hora · autor) ── -->
-        <tr>
-          <td style="background:#ffffff;padding:16px 32px;border-bottom:1px solid #f1f5f9;">
-            <table cellpadding="0" cellspacing="0">
-              <tr>
-                <!-- calendar icon + date -->
-                <td style="padding-right:20px;vertical-align:middle;">
-                  <table cellpadding="0" cellspacing="0">
-                    <tr>
-                      <td style="padding-right:6px;color:#64748b;font-size:14px;">&#128197;</td>
-                      <td style="color:#374151;font-size:12px;font-weight:500;text-transform:capitalize;">${date}</td>
-                    </tr>
-                  </table>
-                </td>
-                <!-- clock icon + time -->
-                <td style="padding-right:20px;vertical-align:middle;">
-                  <table cellpadding="0" cellspacing="0">
-                    <tr>
-                      <td style="padding-right:6px;color:#64748b;font-size:14px;">&#128336;</td>
-                      <td style="color:#374151;font-size:12px;font-weight:500;">${time} hrs</td>
-                    </tr>
-                  </table>
-                </td>
-                <!-- person icon + author -->
-                <td style="vertical-align:middle;">
-                  <table cellpadding="0" cellspacing="0">
-                    <tr>
-                      <td style="padding-right:6px;color:#64748b;font-size:14px;">&#128100;</td>
-                      <td style="color:#374151;font-size:12px;font-weight:500;">${p.authorName}</td>
-                    </tr>
-                  </table>
-                </td>
-              </tr>
-            </table>
-          </td>
-        </tr>
-
-        <!-- ── COVER IMAGE ── -->
+        <!-- ── COVER IMAGE (abajo) ── -->
         ${coverSection}
 
         <!-- ── CONTENT PREVIEW ── -->
-        ${contentPreview}
-
-        <!-- ── PDF DOCUMENT SECTION ── -->
-        ${docSection}
+        ${contentSection}
 
         <!-- ── PUBLISHED BY ── -->
         ${p.createdByEmail ? `
         <tr>
-          <td style="padding:0 36px 20px;">
+          <td style="padding:16px 36px 20px;">
             <table width="100%" cellpadding="0" cellspacing="0"
               style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;">
               <tr>
@@ -373,13 +384,12 @@ function buildHtml(p: NotificationPayload): string {
             <table width="100%" cellpadding="0" cellspacing="0">
               <tr>
                 <td style="vertical-align:middle;">
-                  <img src="${logoPTM}" alt="PTM" height="28"
-                    style="height:28px;object-fit:contain;opacity:0.75;" />
+                  <img src="${logoPTM}" alt="PTM" height="26"
+                    style="height:26px;object-fit:contain;opacity:0.7;" />
                 </td>
                 <td align="right" style="vertical-align:middle;">
                   <p style="margin:0;color:#94a3b8;font-size:11px;text-align:right;line-height:1.5;">
-                    Sistema de Gobierno Corporativo · PTM<br />
-                    <span style="color:#cbd5e1;">helpdesk@ammi.com</span>
+                    Sistema de Gobierno Corporativo · PTM
                   </p>
                 </td>
               </tr>
