@@ -139,8 +139,12 @@ const SendEmailModal: React.FC<SendEmailModalProps> = ({ policy, onClose }) => {
           publishedAt:    policy.published_at,
           policyUrl:      `${window.location.origin}/politicas/${policy.slug}`,
           coverImageUrl:  policy.cover_image_url ?? undefined,
-          documentUrl:    policy.document_url ?? undefined,
-          documentName:   policy.document_name ?? undefined,
+          documentUrl:    policy.document_clean_path
+            ? `${window.location.origin}/docs/${policy.document_clean_path}`
+            : policy.document_url ?? undefined,
+          documentName:   policy.document_clean_path
+            ? policy.document_clean_path.split('/').pop()
+            : (policy.document_name ?? undefined),
           isInternal:     policy.is_internal,
           version:        policy.version || '1.0',
           recipients:     selectedRecipients.map(r => ({ email: r.email, full_name: r.full_name })),
