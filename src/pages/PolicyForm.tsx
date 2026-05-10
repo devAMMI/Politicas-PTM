@@ -1,11 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
   ArrowLeft, Save, X, FileText, Image, Loader2, CheckCircle, AlertCircle, Zap, Clock,
-  Lock, Globe
+  Lock, Globe, Send, Mail,
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { Policy, generateSlug, buildStoragePath, buildFolderPath, buildDocCleanPath } from '../types';
 import { useAuth } from '../context/AuthContext';
+import SendEmailModal from '../components/SendEmailModal';
 
 interface PolicyFormProps {
   editId?: string;
@@ -61,8 +62,10 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
   const [existingDocUrl, setExistingDocUrl] = useState<string | null>(null);
   const [existingDocName, setExistingDocName] = useState<string | null>(null);
   const [existingCoverUrl, setExistingCoverUrl] = useState<string | null>(null);
-  const [saving, setSaving] = useState(false);
-  const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [saving, setSaving]         = useState(false);
+  const [toast, setToast]           = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [savedPolicy, setSavedPolicy] = useState<Policy | null>(null);
+  const [showSendPrompt, setShowSendPrompt] = useState(false);
   const coverRef = useRef<HTMLInputElement>(null);
   const docRef = useRef<HTMLInputElement>(null);
 
@@ -242,32 +245,12 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
       if (error) { showToast('error', 'Error al crear la politica.'); setSaving(false); return; }
       showToast('success', 'Politica creada correctamente.');
 
-      // Fire-and-forget: notificacion por correo via edge function
-      const { data: { session } } = await supabase.auth.getSession();
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
-      fetch(`${supabaseUrl}/functions/v1/send-policy-notification`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session?.access_token ?? ''}`,
-        },
-        body: JSON.stringify({
-          policyTitle:    form.title.trim(),
-          policyNumber:   `POL-${String(resolvedNumber).padStart(4, '0')}`,
-          category:       form.category,
-          department:     form.department.trim() || undefined,
-          authorName:     form.author_name.trim() || 'Administrador',
-          summary:        form.summary.trim() || undefined,
-          publishedAt:    publishedAt,
-          createdByEmail: user?.email,
-          policyUrl:      `${window.location.origin}/politicas/${slug}`,
-          coverImageUrl:  cover_image_url ?? undefined,
-          documentUrl:    document_url ?? undefined,
-          documentName:   document_name ?? undefined,
-          isInternal:     form.is_internal,
-          version:        form.version.trim() || '1.0',
-        }),
-      }).catch(() => { /* silent — no bloquea la UX si falla el correo */ });
+      // Fetch full saved policy to pass to send modal
+      const { data: created } = await supabase.from('policies').select('*').eq('id', tempId).maybeSingle();
+      if (created) setSavedPolicy(created as Policy);
+      setSaving(false);
+      setShowSendPrompt(true);
+      return;
     }
 
     setSaving(false);
@@ -295,6 +278,42 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
 
   return (
     <div className="min-h-screen bg-slate-50">
+      {/* Send email modal (after creation) */}
+      {savedPolicy && !showSendPrompt && (
+        <SendEmailModal policy={savedPolicy} onClose={() => { setSavedPolicy(null); navigate('/admin'); }} />
+      )}
+
+      {/* Send prompt: enviar ahora o enviar despues */}
+      {showSendPrompt && savedPolicy && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-7 text-center">
+            <div className="w-14 h-14 bg-[#0A2647] rounded-2xl flex items-center justify-center mx-auto mb-5">
+              <Mail size={24} className="text-white" />
+            </div>
+            <h3 className="text-base font-bold text-slate-900 mb-1.5">Politica guardada</h3>
+            <p className="text-slate-500 text-sm mb-6 leading-relaxed">
+              <strong className="text-slate-700">{savedPolicy.title}</strong> fue creada.<br />
+              ¿Deseas enviarla por correo ahora?
+            </p>
+            <div className="flex flex-col gap-2.5">
+              <button
+                onClick={() => setShowSendPrompt(false)}
+                className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-xl bg-[#0A2647] text-white text-sm font-semibold hover:bg-[#0d3060] transition-colors shadow-sm"
+              >
+                <Send size={15} />
+                Enviar por email ahora
+              </button>
+              <button
+                onClick={() => { setSavedPolicy(null); setShowSendPrompt(false); navigate('/admin'); }}
+                className="w-full py-3 rounded-xl border border-gray-200 text-slate-600 text-sm font-medium hover:bg-slate-50 transition-colors"
+              >
+                Enviar despues
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {toast && (
         <div className={`fixed top-6 right-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-lg text-white text-sm font-medium transition-all ${toast.type === 'success' ? 'bg-emerald-600' : 'bg-red-600'}`}>
           {toast.type === 'success' ? <CheckCircle size={16} /> : <AlertCircle size={16} />}

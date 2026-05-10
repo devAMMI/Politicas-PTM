@@ -2,11 +2,12 @@ import React, { useEffect, useMemo, useState } from 'react';
 import {
   Plus, Search, Pencil, Trash2, Eye, EyeOff, FileText, Calendar,
   CheckCircle, AlertCircle, Tag, Archive, FolderOpen, RotateCcw, Settings,
-  LayoutGrid, List, ChevronLeft, ChevronRight,
+  LayoutGrid, List, ChevronLeft, ChevronRight, Send,
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { Policy, PolicyStatus } from '../types';
 import PolicyCard from '../components/PolicyCard';
+import SendEmailModal from '../components/SendEmailModal';
 
 interface AdminDashboardProps {
   navigate: (to: string) => void;
@@ -44,6 +45,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ navigate }) => {
   const [toast, setToast]           = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [viewMode, setViewMode]     = useState<'list' | 'grid'>('list');
   const [page, setPage]             = useState(1);
+  const [sendPolicy, setSendPolicy] = useState<Policy | null>(null);
 
   useEffect(() => { fetchPolicies(); }, []);
   useEffect(() => { setPage(1); }, [search, filter]);
@@ -136,6 +138,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ navigate }) => {
 
   return (
     <div className="min-h-screen bg-[#F7F8FA]">
+
+      {/* Send email modal */}
+      {sendPolicy && <SendEmailModal policy={sendPolicy} onClose={() => setSendPolicy(null)} />}
 
       {/* Toast */}
       {toast && (
@@ -378,12 +383,14 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ navigate }) => {
                         </>
                       ) : (
                         <>
+                          <ActionBtn onClick={() => navigate(`/politicas/${policy.slug}`)} title="Ver politica" color="sky"><Eye size={14} /></ActionBtn>
+                          <ActionBtn onClick={() => setSendPolicy(policy)} title="Enviar por email" color="emerald"><Send size={14} /></ActionBtn>
                           <ActionBtn
                             onClick={() => updateStatus(policy.id, policy.status === 'published' ? 'hidden' : 'published')}
                             title={policy.status === 'published' ? 'Ocultar' : 'Publicar'}
                             color={policy.status === 'published' ? 'emerald' : 'slate'}
                           >
-                            {policy.status === 'published' ? <Eye size={14} /> : <EyeOff size={14} />}
+                            {policy.status === 'published' ? <EyeOff size={14} /> : <Eye size={14} />}
                           </ActionBtn>
                           <ActionBtn onClick={() => updateStatus(policy.id, 'archived', { archived_at: new Date().toISOString() })} title="Archivar" color="sky"><Archive size={14} /></ActionBtn>
                           <ActionBtn onClick={() => navigate(`/admin/editar/${policy.id}`)} title="Editar" color="slate"><Pencil size={14} /></ActionBtn>
@@ -419,12 +426,14 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ navigate }) => {
                         </>
                       ) : (
                         <>
+                          <ActionBtn onClick={() => navigate(`/politicas/${policy.slug}`)} title="Ver politica" color="sky"><Eye size={13} /></ActionBtn>
+                          <ActionBtn onClick={() => setSendPolicy(policy)} title="Enviar por email" color="emerald"><Send size={13} /></ActionBtn>
                           <ActionBtn
                             onClick={() => updateStatus(policy.id, policy.status === 'published' ? 'hidden' : 'published')}
                             title={policy.status === 'published' ? 'Ocultar' : 'Publicar'}
                             color={policy.status === 'published' ? 'emerald' : 'slate'}
                           >
-                            {policy.status === 'published' ? <Eye size={13} /> : <EyeOff size={13} />}
+                            {policy.status === 'published' ? <EyeOff size={13} /> : <Eye size={13} />}
                           </ActionBtn>
                           <ActionBtn onClick={() => updateStatus(policy.id, 'archived', { archived_at: new Date().toISOString() })} title="Archivar" color="sky"><Archive size={13} /></ActionBtn>
                           <ActionBtn onClick={() => navigate(`/admin/editar/${policy.id}`)} title="Editar" color="slate"><Pencil size={13} /></ActionBtn>
