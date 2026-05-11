@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
   ArrowLeft, Calendar, User, Tag, Download, FileText, Clock,
-  Maximize2, Minimize2, Lock, Printer, ExternalLink, X, LayoutGrid,
+  Maximize2, Minimize2, Lock, Printer, ExternalLink, X,
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { Policy, buildDocCleanUrl } from '../types';
@@ -129,19 +129,13 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="flex items-center gap-3 mb-8">
-          <button onClick={() => navigate('/')} className="inline-flex items-center gap-2 text-slate-500 hover:text-[#0A2647] text-sm font-medium transition-colors group">
+          <button
+            onClick={() => navigate(session ? '/admin' : '/')}
+            className="inline-flex items-center gap-2 text-slate-500 hover:text-[#0A2647] text-sm font-medium transition-colors group"
+          >
             <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
-            Volver a Políticas
+            {session ? 'Volver al Panel Admin' : 'Volver a Políticas'}
           </button>
-          {session && (
-            <button
-              onClick={() => navigate('/admin')}
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#0A2647]/8 text-[#0A2647] hover:bg-[#0A2647]/15 text-xs font-semibold transition-colors ml-2"
-            >
-              <LayoutGrid size={13} />
-              Ir al Panel Admin
-            </button>
-          )}
         </div>
 
         <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
