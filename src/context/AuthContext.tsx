@@ -6,7 +6,7 @@ export interface AdminUser {
   id: string;
   email: string;
   full_name: string;
-  role: 'superadmin' | 'admin';
+  role: 'superadmin' | 'admin' | 'auditor' | 'viewer';
   is_active: boolean;
 }
 

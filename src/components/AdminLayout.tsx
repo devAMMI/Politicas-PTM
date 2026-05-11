@@ -37,7 +37,11 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ navigate, currentPage, childr
   };
 
   const displayName = adminUser?.full_name || user?.email?.split('@')[0] || 'Admin';
-  const roleName    = adminUser?.role === 'superadmin' ? 'Super Admin' : 'Administrador';
+  const roleName =
+    adminUser?.role === 'superadmin' ? 'Super Admin' :
+    adminUser?.role === 'admin'      ? 'Administrador' :
+    adminUser?.role === 'auditor'    ? 'Auditor' :
+    adminUser?.role === 'viewer'     ? 'Visor' : 'Admin';
   const initials    = displayName.slice(0, 2).toUpperCase();
 
   const NavBtn = ({ item }: { item: typeof navItems[0] }) => {

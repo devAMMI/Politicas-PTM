@@ -7,6 +7,22 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
+type Role = "superadmin" | "admin" | "auditor" | "viewer";
+
+// Role hierarchy: index = rank (higher = more privileged)
+const ROLE_RANK: Record<Role, number> = {
+  superadmin: 3,
+  admin: 2,
+  auditor: 1,
+  viewer: 0,
+};
+
+const VALID_ROLES = new Set<string>(["superadmin", "admin", "auditor", "viewer"]);
+
+function canManage(callerRole: Role, targetRole: Role): boolean {
+  return ROLE_RANK[callerRole] >= ROLE_RANK[targetRole];
+}
+
 function json(data: unknown, status = 200) {
   return new Response(JSON.stringify(data), {
     status,
@@ -45,24 +61,26 @@ Deno.serve(async (req: Request) => {
     if (!callerAdmin) return json({ error: "Forbidden: not an admin user" }, 403);
     if (!callerAdmin.is_active) return json({ error: "Forbidden: account inactive" }, 403);
 
-    const isSuperadmin = callerAdmin.role === "superadmin";
-    const isAdmin = callerAdmin.role === "admin";
+    const callerRole = callerAdmin.role as Role;
 
-    if (!isSuperadmin && !isAdmin) return json({ error: "Forbidden: insufficient role" }, 403);
+    // Only superadmin and admin can manage users
+    if (callerRole !== "superadmin" && callerRole !== "admin") {
+      return json({ error: "Forbidden: insufficient role" }, 403);
+    }
 
     const url = new URL(req.url);
     const method = req.method;
 
     // ── GET (list users) ─────────────────────────────────────────────────────
     if (method === "GET") {
-      // Admins only see admin-role users; superadmins see everyone
       let query = supabaseAdmin
         .from("admin_users")
         .select("id, email, full_name, role, is_active, created_at")
         .order("created_at", { ascending: true });
 
-      if (isAdmin) {
-        query = query.eq("role", "admin");
+      // admin sees their level and below (admin, auditor, viewer)
+      if (callerRole === "admin") {
+        query = query.in("role", ["admin", "auditor", "viewer"]);
       }
 
       const { data, error } = await query;
@@ -78,12 +96,15 @@ Deno.serve(async (req: Request) => {
         return json({ error: "Missing required fields" }, 400);
       }
 
-      // Admins can only create admin-role users (not superadmin)
-      if (isAdmin && role === "superadmin") {
-        return json({ error: "Forbidden: admins cannot create superadmin users" }, 403);
+      if (!VALID_ROLES.has(role)) {
+        return json({ error: "Invalid role" }, 400);
       }
 
-      // Check if the email already exists in auth.users via direct DB query
+      if (!canManage(callerRole, role as Role)) {
+        return json({ error: "Forbidden: cannot create a user with a higher role than your own" }, 403);
+      }
+
+      // Look up existing auth user by email via direct DB query
       const { data: existingAuthRows } = await supabaseAdmin
         .from("users")
         .select("id")
@@ -95,7 +116,6 @@ Deno.serve(async (req: Request) => {
       let authUserId: string;
 
       if (existingAuthId) {
-        // Reuse the existing auth user — update password, metadata, and unban
         authUserId = existingAuthId;
         const { error: updateErr } = await supabaseAdmin.auth.admin.updateUserById(authUserId, {
           password,
@@ -139,7 +159,6 @@ Deno.serve(async (req: Request) => {
 
       if (!id) return json({ error: "Missing user id" }, 400);
 
-      // Load target user to check their role
       const { data: targetUser, error: targetErr } = await supabaseAdmin
         .from("admin_users")
         .select("role, is_active")
@@ -149,14 +168,19 @@ Deno.serve(async (req: Request) => {
       if (targetErr) return json({ error: "DB error: " + targetErr.message }, 500);
       if (!targetUser) return json({ error: "User not found" }, 404);
 
-      // Admins cannot touch superadmin accounts (except their own self-service)
-      if (isAdmin && targetUser.role === "superadmin" && id !== caller.id) {
-        return json({ error: "Forbidden: admins cannot modify superadmin accounts" }, 403);
+      const targetRole = targetUser.role as Role;
+
+      // Cannot manage users with higher rank (except own record)
+      if (id !== caller.id && !canManage(callerRole, targetRole)) {
+        return json({ error: "Forbidden: cannot modify a user with a higher role" }, 403);
       }
 
-      // Admins cannot escalate role to superadmin
-      if (isAdmin && role === "superadmin") {
-        return json({ error: "Forbidden: admins cannot assign superadmin role" }, 403);
+      // Cannot assign a role higher than own rank
+      if (role !== undefined) {
+        if (!VALID_ROLES.has(role)) return json({ error: "Invalid role" }, 400);
+        if (!canManage(callerRole, role as Role)) {
+          return json({ error: "Forbidden: cannot assign a role higher than your own" }, 403);
+        }
       }
 
       // Nobody can deactivate themselves
@@ -166,19 +190,7 @@ Deno.serve(async (req: Request) => {
 
       const updates: Record<string, unknown> = {};
       if (full_name !== undefined) updates.full_name = full_name;
-
-      // Only superadmins can change roles, or if not changing superadmin target
-      if (role !== undefined) {
-        if (isAdmin && role === "superadmin") {
-          return json({ error: "Forbidden: cannot assign superadmin role" }, 403);
-        }
-        // Admins can only set role='admin'
-        if (isAdmin && role !== "admin") {
-          return json({ error: "Forbidden: admins can only assign admin role" }, 403);
-        }
-        updates.role = role;
-      }
-
+      if (role !== undefined) updates.role = role;
       if (is_active !== undefined) updates.is_active = is_active;
 
       if (Object.keys(updates).length > 0) {
@@ -211,16 +223,14 @@ Deno.serve(async (req: Request) => {
       if (!id) return json({ error: "Missing user id" }, 400);
       if (id === caller.id) return json({ error: "No puedes eliminarte a ti mismo" }, 400);
 
-      // Load target to enforce hierarchy
       const { data: targetUser } = await supabaseAdmin
         .from("admin_users")
         .select("role")
         .eq("id", id)
         .maybeSingle();
 
-      // Admins cannot delete superadmin users
-      if (isAdmin && targetUser?.role === "superadmin") {
-        return json({ error: "Forbidden: admins cannot delete superadmin accounts" }, 403);
+      if (targetUser && !canManage(callerRole, targetUser.role as Role)) {
+        return json({ error: "Forbidden: cannot delete a user with a higher role" }, 403);
       }
 
       await supabaseAdmin.from("admin_users").delete().eq("id", id);

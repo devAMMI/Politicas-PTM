@@ -90,7 +90,11 @@ const MyProfile: React.FC<MyProfileProps> = () => {
     }
   };
 
-  const roleName = adminUser?.role === 'superadmin' ? 'Super Admin' : 'Administrador';
+  const roleName =
+    adminUser?.role === 'superadmin' ? 'Super Admin' :
+    adminUser?.role === 'admin'      ? 'Administrador' :
+    adminUser?.role === 'auditor'    ? 'Auditor' :
+    adminUser?.role === 'viewer'     ? 'Visor' : 'Admin';
   const initials = (adminUser?.full_name || user?.email || 'AD').slice(0, 2).toUpperCase();
 
   return (
