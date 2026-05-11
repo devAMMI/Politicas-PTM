@@ -83,15 +83,20 @@ Deno.serve(async (req: Request) => {
         return json({ error: "Forbidden: admins cannot create superadmin users" }, 403);
       }
 
-      // Check if the email already exists in auth.users (e.g. was previously deleted from admin_users only)
-      const { data: existingList } = await supabaseAdmin.auth.admin.listUsers();
-      const existingAuthUser = existingList?.users?.find((u) => u.email === email);
+      // Check if the email already exists in auth.users via direct DB query
+      const { data: existingAuthRows } = await supabaseAdmin
+        .from("users")
+        .select("id")
+        .eq("email", email)
+        .limit(1)
+        .schema("auth");
 
+      const existingAuthId = existingAuthRows?.[0]?.id ?? null;
       let authUserId: string;
 
-      if (existingAuthUser) {
-        // Reuse the existing auth user — update password and metadata
-        authUserId = existingAuthUser.id;
+      if (existingAuthId) {
+        // Reuse the existing auth user — update password, metadata, and unban
+        authUserId = existingAuthId;
         const { error: updateErr } = await supabaseAdmin.auth.admin.updateUserById(authUserId, {
           password,
           user_metadata: { full_name },

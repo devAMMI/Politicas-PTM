@@ -319,22 +319,14 @@ const UserManagement: React.FC<UserManagementProps> = () => {
               </div>
               <div>
                 <label className="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wide">Rol</label>
-                {isSuperadmin ? (
-                  <select
-                    value={form.role}
-                    onChange={e => setForm(f => ({ ...f, role: e.target.value as 'admin' | 'superadmin' }))}
-                    className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0A2647]/15 focus:border-[#0A2647]/40 transition-all"
-                  >
-                    <option value="admin">Admin</option>
-                    <option value="superadmin">Super Admin</option>
-                  </select>
-                ) : (
-                  <input
-                    value="Admin"
-                    disabled
-                    className="w-full px-3.5 py-2.5 border border-gray-100 rounded-xl text-sm bg-slate-50 text-slate-400 cursor-not-allowed"
-                  />
-                )}
+                <select
+                  value={form.role}
+                  onChange={e => setForm(f => ({ ...f, role: e.target.value as 'admin' | 'superadmin' }))}
+                  className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0A2647]/15 focus:border-[#0A2647]/40 transition-all"
+                >
+                  <option value="admin">Admin</option>
+                  {isSuperadmin && <option value="superadmin">Super Admin</option>}
+                </select>
               </div>
               <div className="sm:col-span-2 flex justify-end gap-2.5 pt-1">
                 <button type="button" onClick={() => setShowForm(false)} className="px-5 py-2.5 rounded-xl border border-gray-200 text-slate-600 text-sm font-medium hover:bg-slate-50 transition-colors">
