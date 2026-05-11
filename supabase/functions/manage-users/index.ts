@@ -83,32 +83,49 @@ Deno.serve(async (req: Request) => {
         return json({ error: "Forbidden: admins cannot create superadmin users" }, 403);
       }
 
-      const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
-        email,
-        password,
-        email_confirm: true,
-        user_metadata: { full_name },
-      });
+      // Check if the email already exists in auth.users (e.g. was previously deleted from admin_users only)
+      const { data: existingList } = await supabaseAdmin.auth.admin.listUsers();
+      const existingAuthUser = existingList?.users?.find((u) => u.email === email);
 
-      if (createError || !newUser.user) {
-        return json({ error: createError?.message ?? "Failed to create auth user" }, 400);
+      let authUserId: string;
+
+      if (existingAuthUser) {
+        // Reuse the existing auth user — update password and metadata
+        authUserId = existingAuthUser.id;
+        const { error: updateErr } = await supabaseAdmin.auth.admin.updateUserById(authUserId, {
+          password,
+          user_metadata: { full_name },
+          email_confirm: true,
+          ban_duration: "none",
+        });
+        if (updateErr) return json({ error: "Auth update error: " + updateErr.message }, 400);
+      } else {
+        const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
+          email,
+          password,
+          email_confirm: true,
+          user_metadata: { full_name },
+        });
+        if (createError || !newUser.user) {
+          return json({ error: createError?.message ?? "Failed to create auth user" }, 400);
+        }
+        authUserId = newUser.user.id;
       }
 
-      const { error: insertError } = await supabaseAdmin.from("admin_users").insert({
-        id: newUser.user.id,
+      const { error: insertError } = await supabaseAdmin.from("admin_users").upsert({
+        id: authUserId,
         email,
         full_name,
         role,
         is_active: true,
         created_by: caller.id,
-      });
+      }, { onConflict: "id" });
 
       if (insertError) {
-        await supabaseAdmin.auth.admin.deleteUser(newUser.user.id);
         return json({ error: insertError.message }, 400);
       }
 
-      return json({ success: true, user: { id: newUser.user.id, email, full_name, role } });
+      return json({ success: true, user: { id: authUserId, email, full_name, role } });
     }
 
     // ── UPDATE ───────────────────────────────────────────────────────────────
