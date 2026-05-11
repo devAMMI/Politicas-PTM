@@ -37,6 +37,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   useEffect(() => {
+    let initialLoad = true;
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
@@ -45,15 +47,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } else {
         setLoading(false);
       }
+      initialLoad = false;
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        (async () => { await fetchAdminUser(session.user.id); })();
+        (async () => {
+          await fetchAdminUser(session.user.id);
+          // Only update loading after initial getSession has finished
+          if (!initialLoad) setLoading(false);
+        })();
       } else {
         setAdminUser(null);
+        if (!initialLoad) setLoading(false);
       }
     });
 

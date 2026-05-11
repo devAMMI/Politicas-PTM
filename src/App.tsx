@@ -16,26 +16,30 @@ import CategoriesManager from './pages/CategoriesManager';
 import MyProfile from './pages/MyProfile';
 import EmailRecipients from './pages/EmailRecipients';
 
+const ADMIN_PAGES = new Set([
+  'admin-dashboard', 'admin-create', 'admin-edit',
+  'admin-users', 'admin-archive', 'admin-categories',
+  'admin-profile', 'admin-recipients',
+]);
+
 const AppContent: React.FC = () => {
   const { page, navigate } = useRouter();
   const { session, loading } = useAuth();
 
-  const isAdminArea =
-    page.name === 'admin-dashboard' ||
-    page.name === 'admin-create' ||
-    page.name === 'admin-edit' ||
-    page.name === 'admin-users' ||
-    page.name === 'admin-archive' ||
-    page.name === 'admin-categories' ||
-    page.name === 'admin-profile' ||
-    page.name === 'admin-recipients';
+  const isAdminArea = ADMIN_PAGES.has(page.name);
 
   useEffect(() => {
-    if (!loading && isAdminArea && !session) {
+    if (loading) return;
+    // Unauthenticated user trying to access admin → send to login
+    if (isAdminArea && !session) {
       navigate('/login');
+      return;
     }
-    // Admins CAN access users page now — only block unauthenticated
-  }, [loading, session, isAdminArea]);
+    // Already logged-in user lands on login page → send to admin
+    if (page.name === 'admin-login' && session) {
+      navigate('/admin');
+    }
+  }, [loading, session, page.name]);
 
   if (loading) {
     return (

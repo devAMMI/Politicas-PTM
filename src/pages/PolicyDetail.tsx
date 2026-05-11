@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import {
   ArrowLeft, Calendar, User, Tag, Download, FileText, Clock,
-  Maximize2, Minimize2, Lock, Printer, ExternalLink, X,
+  Maximize2, Minimize2, Lock, Printer, ExternalLink, X, LayoutGrid,
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { Policy, buildDocCleanUrl } from '../types';
+import { useAuth } from '../context/AuthContext';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ScrollToTop from '../components/ScrollToTop';
 
@@ -35,6 +36,7 @@ function formatTime(dateStr: string): string {
 const CONTENT_LINE_CLAMP = 6;
 
 const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
+  const { session } = useAuth();
   const [policy, setPolicy]               = useState<Policy | null>(null);
   const [loading, setLoading]             = useState(true);
   const [pdfFullscreen, setPdfFullscreen] = useState(false);
@@ -126,10 +128,21 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
       )}
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <button onClick={() => navigate('/')} className="inline-flex items-center gap-2 text-slate-500 hover:text-[#0A2647] text-sm font-medium mb-8 transition-colors group">
-          <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
-          Volver a Políticas
-        </button>
+        <div className="flex items-center gap-3 mb-8">
+          <button onClick={() => navigate('/')} className="inline-flex items-center gap-2 text-slate-500 hover:text-[#0A2647] text-sm font-medium transition-colors group">
+            <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+            Volver a Políticas
+          </button>
+          {session && (
+            <button
+              onClick={() => navigate('/admin')}
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#0A2647]/8 text-[#0A2647] hover:bg-[#0A2647]/15 text-xs font-semibold transition-colors ml-2"
+            >
+              <LayoutGrid size={13} />
+              Ir al Panel Admin
+            </button>
+          )}
+        </div>
 
         <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
           {/* Hero */}
