@@ -412,9 +412,9 @@ const UserManagement: React.FC<UserManagementProps> = () => {
           </div>
         )}
 
-        {/* Role legend */}
+        {/* Role legend — only show roles visible to the caller */}
         <div className="flex flex-wrap gap-2 mb-4">
-          {(['superadmin', 'admin', 'auditor', 'viewer'] as Role[]).map(r => (
+          {roleOptions.map(r => (
             <span key={r} className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${ROLE_BADGE[r]}`}>
               {ROLE_ICON[r]}
               {ROLE_LABEL[r]}
