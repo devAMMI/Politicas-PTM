@@ -104,9 +104,11 @@ Deno.serve(async (req: Request) => {
         return json({ error: "Forbidden: cannot create a user with a higher role than your own" }, 403);
       }
 
-      // Check if auth user already exists for this email
-      const { data: existingUserData } = await supabaseAdmin.auth.admin.getUserByEmail(email);
-      const existingAuthId = existingUserData?.user?.id ?? null;
+      // Check if auth user already exists for this email via RPC (avoids SDK version issues)
+      const { data: existingAuthId } = await supabaseAdmin
+        .rpc("get_auth_user_id_by_email", { p_email: email })
+        .single()
+        .then(r => ({ data: r.data as string | null, error: r.error }));
       let authUserId: string;
 
       if (existingAuthId) {
