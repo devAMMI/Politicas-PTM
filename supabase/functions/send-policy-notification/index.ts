@@ -148,7 +148,7 @@ function buildHtml(p: NotificationPayload): string {
 
   // ── Hero banner azul (va DESPUÉS del doc oscuro) ──
   const heroBanner = `<tr>
-    <td style="background:linear-gradient(160deg,#0d1f3c 0%,#1a3a6b 55%,#1e4d8c 100%);padding:28px 32px 24px;">
+    <td style="background:#0d1f3c;padding:28px 32px 24px;">
       <!-- Badges -->
       <table cellpadding="0" cellspacing="0" style="margin-bottom:14px;">
         <tr>
