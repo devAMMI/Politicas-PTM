@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
   ArrowLeft, Save, X, FileText, Image, Loader2, CheckCircle, AlertCircle, Zap, Clock,
-  Lock, Globe, Send, Mail,
+  Lock, Globe, Send, Mail, Eye, Tag, User, Calendar, Shield, CheckSquare, Square,
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { Policy, generateSlug, buildStoragePath, buildFolderPath, buildDocCleanPath } from '../types';
@@ -38,6 +38,14 @@ function toLocalDatetime(iso: string): string {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
 
+function formatPreviewDate(val: string): string {
+  try {
+    return new Date(val).toLocaleDateString('es-GT', {
+      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+    });
+  } catch { return val; }
+}
+
 const emptyForm = (): FormState => ({
   title: '',
   category: 'General',
@@ -51,6 +59,207 @@ const emptyForm = (): FormState => ({
   author_name: 'Administrador',
 });
 
+// ── Preview / Review modal ────────────────────────────────────────────────────
+
+interface PreviewModalProps {
+  form: FormState;
+  policyNumber: number | null;
+  coverPreview: string | null;
+  existingCoverUrl: string | null;
+  docFile: File | null;
+  existingDocName: string | null;
+  onConfirm: () => void;
+  onBack: () => void;
+}
+
+const PreviewModal: React.FC<PreviewModalProps> = ({
+  form, policyNumber, coverPreview, existingCoverUrl, docFile, existingDocName,
+  onConfirm, onBack,
+}) => {
+  const numLabel = policyNumber ? `POL-${String(policyNumber).padStart(4, '0')}` : '—';
+  const coverSrc = coverPreview ?? existingCoverUrl ?? null;
+  const docName  = docFile?.name ?? existingDocName ?? null;
+
+  const checks = [
+    { label: 'Titulo definido',         ok: form.title.trim().length > 0 },
+    { label: 'Categoria asignada',      ok: !!form.category },
+    { label: 'Autor responsable',       ok: form.author_name.trim().length > 0 },
+    { label: 'Version indicada',        ok: form.version.trim().length > 0 },
+    { label: 'Imagen de portada',       ok: !!coverSrc },
+    { label: 'Documento adjunto',       ok: !!docName },
+    { label: 'Resumen descriptivo',     ok: form.summary.trim().length > 0 },
+    { label: 'Clasificacion definida',  ok: true },
+  ];
+
+  const allOk   = checks.every(c => c.ok);
+  const warnings = checks.filter(c => !c.ok);
+
+  return (
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-start justify-center p-4 overflow-y-auto">
+      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl my-6 overflow-hidden">
+
+        {/* Header */}
+        <div className="bg-gradient-to-r from-[#0A2647] to-[#205295] px-8 py-6 flex items-start justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-white/20 rounded-2xl flex items-center justify-center flex-shrink-0">
+              <Eye size={18} className="text-white" />
+            </div>
+            <div>
+              <h2 className="text-base font-bold text-white">Revision antes de publicar</h2>
+              <p className="text-blue-200 text-xs mt-0.5">Verifica que todo este correcto antes de confirmar</p>
+            </div>
+          </div>
+          <button onClick={onBack} className="p-2 rounded-xl text-white/60 hover:text-white hover:bg-white/10 transition-colors mt-0.5">
+            <X size={18} />
+          </button>
+        </div>
+
+        <div className="divide-y divide-gray-100">
+
+          {/* Cover + title hero */}
+          <div className="relative">
+            {coverSrc ? (
+              <div className="relative h-44 overflow-hidden">
+                <img src={coverSrc} alt="Portada" className="w-full h-full object-cover" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0A2647]/80 to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 p-5">
+                  <div className="flex flex-wrap gap-1.5 mb-2">
+                    <span className="text-[10px] font-bold bg-white/20 text-white px-2.5 py-0.5 rounded-full font-mono">{numLabel}</span>
+                    <span className="text-[10px] font-bold bg-white/20 text-white px-2.5 py-0.5 rounded-full">v{form.version || '1.0'}</span>
+                    <span className="text-[10px] font-semibold bg-white/20 text-white px-2.5 py-0.5 rounded-full">{form.category}</span>
+                  </div>
+                  <p className="text-white font-bold text-base leading-snug">{form.title || <span className="opacity-50 italic">Sin titulo</span>}</p>
+                </div>
+              </div>
+            ) : (
+              <div className="bg-slate-50 px-8 py-6">
+                <div className="flex flex-wrap gap-1.5 mb-2">
+                  <span className="text-[10px] font-bold bg-[#0A2647]/10 text-[#0A2647] px-2.5 py-0.5 rounded-full font-mono">{numLabel}</span>
+                  <span className="text-[10px] font-bold bg-[#0A2647]/10 text-[#0A2647] px-2.5 py-0.5 rounded-full">v{form.version || '1.0'}</span>
+                  <span className="text-[10px] font-semibold bg-slate-200 text-slate-600 px-2.5 py-0.5 rounded-full">{form.category}</span>
+                </div>
+                <p className="text-slate-800 font-bold text-lg leading-snug">
+                  {form.title || <span className="text-slate-400 italic font-normal">Sin titulo definido</span>}
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Info grid */}
+          <div className="px-8 py-5 grid grid-cols-2 gap-x-8 gap-y-4">
+            <InfoRow icon={<Tag size={13} />}      label="Categoria"    value={form.category} />
+            <InfoRow icon={<User size={13} />}     label="Autor"        value={form.author_name || '—'} />
+            <InfoRow icon={<Calendar size={13} />} label="Publicacion"  value={formatPreviewDate(form.published_at)} />
+            <InfoRow icon={<Shield size={13} />}   label="Clasificacion" value={form.is_internal ? 'Interna (solo pantalla)' : 'Externa (descarga permitida)'} highlight={form.is_internal ? 'blue' : 'green'} />
+            {form.department && (
+              <InfoRow icon={<Tag size={13} />} label="Departamento" value={form.department} />
+            )}
+            <InfoRow
+              icon={<FileText size={13} />}
+              label="Estado al publicar"
+              value={form.is_published ? 'Publicada' : 'Borrador (oculta)'}
+              highlight={form.is_published ? 'green' : 'orange'}
+            />
+          </div>
+
+          {/* Summary */}
+          {form.summary && (
+            <div className="px-8 py-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-1.5">Resumen</p>
+              <p className="text-sm text-slate-600 leading-relaxed">{form.summary}</p>
+            </div>
+          )}
+
+          {/* Document */}
+          <div className="px-8 py-4 flex items-center gap-3">
+            <div className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 ${docName ? 'bg-red-50' : 'bg-slate-100'}`}>
+              <FileText size={15} className={docName ? 'text-red-500' : 'text-slate-300'} />
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-semibold text-slate-500">Documento PDF</p>
+              {docName
+                ? <p className="text-sm font-medium text-slate-800 truncate">{docName}</p>
+                : <p className="text-sm text-amber-600 font-medium">Sin documento adjunto</p>
+              }
+            </div>
+          </div>
+
+          {/* Checklist */}
+          <div className="px-8 py-5">
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-3">Verificacion</p>
+            <div className="grid grid-cols-2 gap-x-6 gap-y-2">
+              {checks.map(c => (
+                <div key={c.label} className="flex items-center gap-2">
+                  {c.ok
+                    ? <CheckSquare size={14} className="text-emerald-500 flex-shrink-0" />
+                    : <Square size={14} className="text-amber-400 flex-shrink-0" />
+                  }
+                  <span className={`text-xs ${c.ok ? 'text-slate-600' : 'text-amber-600 font-medium'}`}>{c.label}</span>
+                </div>
+              ))}
+            </div>
+            {!allOk && (
+              <div className="mt-3 flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-xl px-3.5 py-2.5">
+                <AlertCircle size={13} className="text-amber-500 flex-shrink-0 mt-0.5" />
+                <p className="text-xs text-amber-700">
+                  {warnings.length} campo{warnings.length !== 1 ? 's' : ''} opcional{warnings.length !== 1 ? 'es' : ''} sin completar: {warnings.map(w => w.label).join(', ')}. Puedes publicar igual.
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Actions */}
+          <div className="px-8 py-5 flex items-center gap-3">
+            <button
+              onClick={onBack}
+              className="px-5 py-2.5 rounded-xl border border-gray-200 text-slate-600 text-sm font-medium hover:bg-slate-50 transition-colors"
+            >
+              Volver a editar
+            </button>
+            <button
+              onClick={onConfirm}
+              className="flex-1 inline-flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[#0A2647] text-white text-sm font-semibold hover:bg-[#0d3060] transition-all shadow-sm"
+            >
+              <CheckCircle size={15} />
+              Aprobar y {form.is_published ? 'publicar' : 'guardar como borrador'}
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  );
+};
+
+interface InfoRowProps {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  highlight?: 'blue' | 'green' | 'orange';
+}
+
+const InfoRow: React.FC<InfoRowProps> = ({ icon, label, value, highlight }) => {
+  const colorMap = {
+    blue:   'text-blue-700 bg-blue-50',
+    green:  'text-emerald-700 bg-emerald-50',
+    orange: 'text-amber-700 bg-amber-50',
+  };
+  return (
+    <div>
+      <div className="flex items-center gap-1.5 text-slate-400 mb-0.5">
+        {icon}
+        <span className="text-[10px] font-semibold uppercase tracking-wide">{label}</span>
+      </div>
+      {highlight
+        ? <span className={`inline-flex text-xs font-semibold px-2 py-0.5 rounded-full ${colorMap[highlight]}`}>{value}</span>
+        : <p className="text-sm font-medium text-slate-800 leading-snug">{value}</p>
+      }
+    </div>
+  );
+};
+
+// ── PolicyForm ────────────────────────────────────────────────────────────────
+
 const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
   const { user } = useAuth();
   const [form, setForm] = useState<FormState>(emptyForm());
@@ -62,20 +271,18 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
   const [existingDocUrl, setExistingDocUrl] = useState<string | null>(null);
   const [existingDocName, setExistingDocName] = useState<string | null>(null);
   const [existingCoverUrl, setExistingCoverUrl] = useState<string | null>(null);
-  const [saving, setSaving]         = useState(false);
-  const [toast, setToast]           = useState<{ type: 'success' | 'error'; message: string } | null>(null);
-  const [savedPolicy, setSavedPolicy] = useState<Policy | null>(null);
+  const [saving, setSaving]               = useState(false);
+  const [toast, setToast]                 = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [savedPolicy, setSavedPolicy]     = useState<Policy | null>(null);
   const [showSendPrompt, setShowSendPrompt] = useState(false);
+  const [showPreview, setShowPreview]     = useState(false);
   const coverRef = useRef<HTMLInputElement>(null);
-  const docRef = useRef<HTMLInputElement>(null);
+  const docRef   = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetchCategories();
-    if (editId) {
-      loadPolicy(editId);
-    } else {
-      fetchNextPolicyNumber();
-    }
+    if (editId) loadPolicy(editId);
+    else fetchNextPolicyNumber();
   }, [editId]);
 
   const fetchCategories = async () => {
@@ -84,9 +291,7 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
       .select('name')
       .eq('is_active', true)
       .order('order_num', { ascending: true });
-    if (data && data.length > 0) {
-      setDbCategories(data.map((c: { name: string }) => c.name));
-    }
+    if (data && data.length > 0) setDbCategories(data.map((c: { name: string }) => c.name));
   };
 
   const fetchNextPolicyNumber = async () => {
@@ -127,19 +332,8 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
     setTimeout(() => setToast(null), 4000);
   };
 
-  const uploadFile = async (
-    file: File,
-    folder: 'documents' | 'covers',
-    num: number,
-  ): Promise<string | null> => {
-    const path = buildStoragePath(
-      folder,
-      form.category,
-      num,
-      form.title.trim(),
-      file.name,
-      form.published_at,
-    );
+  const uploadFile = async (file: File, folder: 'documents' | 'covers', num: number): Promise<string | null> => {
+    const path = buildStoragePath(folder, form.category, num, form.title.trim(), file.name, form.published_at);
     const { error } = await supabase.storage.from('ptm-media').upload(path, file, { upsert: true });
     if (error) return null;
     const { data } = supabase.storage.from('ptm-media').getPublicUrl(path);
@@ -147,17 +341,20 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
   };
 
   const handlePublishNow = () => {
-    setForm(p => ({
-      ...p,
-      is_published: true,
-      published_at: getNowGMT6Local(),
-    }));
+    setForm(p => ({ ...p, is_published: true, published_at: getNowGMT6Local() }));
   };
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm(p => ({ ...p, published_at: e.target.value }));
   };
 
+  // Called from the preview "Aprobar y publicar" button
+  const handleConfirmPublish = async () => {
+    setShowPreview(false);
+    await doSave();
+  };
+
+  // Called when the form submit button is clicked (shows preview first for new policies)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.title.trim()) { showToast('error', 'El titulo es requerido.'); return; }
@@ -170,14 +367,23 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
       }
     }
 
+    // For new policies show the preview/review step; for edits save directly
+    if (!editId) {
+      setShowPreview(true);
+      return;
+    }
+
+    await doSave();
+  };
+
+  const doSave = async () => {
     setSaving(true);
 
     let cover_image_url = existingCoverUrl ?? null;
-    let document_url = existingDocUrl ?? null;
-    let document_name = existingDocName ?? null;
+    let document_url    = existingDocUrl ?? null;
+    let document_name   = existingDocName ?? null;
     let document_clean_path: string | null = null;
 
-    // Resolve policy number: existing for edits, next available for new
     let resolvedNumber = policyNumber;
     if (!resolvedNumber) {
       const { data } = await supabase
@@ -190,47 +396,41 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
     }
 
     if (coverFile) {
-      const url = await uploadFile(coverFile, 'covers', resolvedNumber);
+      const url = await uploadFile(coverFile, 'covers', resolvedNumber!);
       if (url) cover_image_url = url;
     }
     if (docFile) {
-      const url = await uploadFile(docFile, 'documents', resolvedNumber);
+      const url = await uploadFile(docFile, 'documents', resolvedNumber!);
       if (url) {
-        document_url = url;
+        document_url  = url;
         document_name = docFile.name;
         const ext = docFile.name.split('.').pop() ?? 'pdf';
-        document_clean_path = buildDocCleanPath(
-          form.category,
-          form.department.trim(),
-          form.title.trim(),
-          form.published_at,
-          ext,
-        );
+        document_clean_path = buildDocCleanPath(form.category, form.department.trim(), form.title.trim(), form.published_at, ext);
       }
     }
 
     const publishedAt = new Date(form.published_at).toISOString();
+    const newStatus   = form.is_published ? 'published' : 'hidden';
 
-    const newStatus = form.is_published ? 'published' : 'hidden';
     const payload = {
-      title: form.title.trim(),
-      category: form.category,
-      department: form.department.trim(),
-      version: form.version.trim() || '1.0',
-      summary: form.summary.trim(),
-      content: form.content,
-      status: newStatus,
-      is_published: form.is_published,
-      is_internal: form.is_internal,
-      folder_path: buildFolderPath(form.category, form.published_at),
-      published_at: publishedAt,
-      author_name: form.author_name.trim() || 'Administrador',
-      author_id: user?.id ?? null,
+      title:         form.title.trim(),
+      category:      form.category,
+      department:    form.department.trim(),
+      version:       form.version.trim() || '1.0',
+      summary:       form.summary.trim(),
+      content:       form.content,
+      status:        newStatus,
+      is_published:  form.is_published,
+      is_internal:   form.is_internal,
+      folder_path:   buildFolderPath(form.category, form.published_at),
+      published_at:  publishedAt,
+      author_name:   form.author_name.trim() || 'Administrador',
+      author_id:     user?.id ?? null,
       cover_image_url,
       document_url,
       document_name,
       ...(document_clean_path !== null ? { document_clean_path } : {}),
-      updated_at: new Date().toISOString(),
+      updated_at:    new Date().toISOString(),
     };
 
     if (editId) {
@@ -238,23 +438,21 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
       const { error } = await supabase.from('policies').update({ ...payload, slug: slugBase }).eq('id', editId);
       if (error) { showToast('error', 'Error al actualizar la politica.'); setSaving(false); return; }
       showToast('success', 'Politica actualizada correctamente.');
-    } else {
-      const tempId = crypto.randomUUID();
-      const slug = generateSlug(form.title.trim(), tempId);
-      const { error } = await supabase.from('policies').insert({ ...payload, id: tempId, slug });
-      if (error) { showToast('error', 'Error al crear la politica.'); setSaving(false); return; }
-      showToast('success', 'Politica creada correctamente.');
-
-      // Fetch full saved policy to pass to send modal
-      const { data: created } = await supabase.from('policies').select('*').eq('id', tempId).maybeSingle();
-      if (created) setSavedPolicy(created as Policy);
       setSaving(false);
-      setShowSendPrompt(true);
+      setTimeout(() => navigate('/admin'), 1500);
       return;
     }
 
+    const tempId = crypto.randomUUID();
+    const slug   = generateSlug(form.title.trim(), tempId);
+    const { error } = await supabase.from('policies').insert({ ...payload, id: tempId, slug });
+    if (error) { showToast('error', 'Error al crear la politica.'); setSaving(false); return; }
+    showToast('success', 'Politica creada correctamente.');
+
+    const { data: created } = await supabase.from('policies').select('*').eq('id', tempId).maybeSingle();
+    if (created) setSavedPolicy(created as Policy);
     setSaving(false);
-    setTimeout(() => navigate('/admin'), 1500);
+    setShowSendPrompt(true);
   };
 
   const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -278,6 +476,21 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
 
   return (
     <div className="min-h-screen bg-slate-50">
+
+      {/* Preview / review modal */}
+      {showPreview && (
+        <PreviewModal
+          form={form}
+          policyNumber={policyNumber}
+          coverPreview={coverPreview}
+          existingCoverUrl={existingCoverUrl}
+          docFile={docFile}
+          existingDocName={existingDocName}
+          onConfirm={handleConfirmPublish}
+          onBack={() => setShowPreview(false)}
+        />
+      )}
+
       {/* Send email modal (after creation) */}
       {savedPolicy && !showSendPrompt && (
         <SendEmailModal policy={savedPolicy} onClose={() => { setSavedPolicy(null); navigate('/admin'); }} />
@@ -318,6 +531,16 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
         <div className={`fixed top-6 right-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-lg text-white text-sm font-medium transition-all ${toast.type === 'success' ? 'bg-emerald-600' : 'bg-red-600'}`}>
           {toast.type === 'success' ? <CheckCircle size={16} /> : <AlertCircle size={16} />}
           {toast.message}
+        </div>
+      )}
+
+      {saving && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="bg-white rounded-3xl shadow-2xl px-10 py-8 flex flex-col items-center gap-4">
+            <div className="w-12 h-12 border-3 border-[#0A2647]/20 border-t-[#0A2647] rounded-full animate-spin" style={{ borderWidth: 3 }} />
+            <p className="text-sm font-semibold text-slate-700">Guardando politica...</p>
+            <p className="text-xs text-slate-400">Subiendo archivos y registrando datos</p>
+          </div>
         </div>
       )}
 
@@ -628,8 +851,8 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
               disabled={saving}
               className="inline-flex items-center gap-2 bg-[#0A2647] text-white px-6 py-2.5 rounded-xl text-sm font-semibold hover:bg-[#144272] transition-all disabled:opacity-60 disabled:cursor-not-allowed hover:shadow-lg"
             >
-              {saving ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
-              {saving ? 'Guardando...' : editId ? 'Guardar cambios' : 'Crear politica'}
+              {saving ? <Loader2 size={15} className="animate-spin" /> : editId ? <Save size={15} /> : <Eye size={15} />}
+              {saving ? 'Guardando...' : editId ? 'Guardar cambios' : 'Revisar y publicar'}
             </button>
           </div>
         </form>
