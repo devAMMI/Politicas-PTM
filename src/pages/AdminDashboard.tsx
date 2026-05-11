@@ -184,7 +184,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ navigate }) => {
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-7">
           <div>
             <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-1">Gobierno Corporativo</p>
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Politicas</h1>
+            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Políticas</h1>
           </div>
           <div className="flex items-center gap-2">
             <button

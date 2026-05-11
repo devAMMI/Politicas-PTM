@@ -18,7 +18,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ navigate, currentPage, childr
   };
 
   const navItems = [
-    { key: 'admin-dashboard',   label: 'Politicas',     icon: <LayoutGrid size={16} />, path: '/admin' },
+    { key: 'admin-dashboard',   label: 'Políticas',     icon: <LayoutGrid size={16} />, path: '/admin' },
     { key: 'admin-archive',     label: 'Archivo',       icon: <FolderOpen size={16} />, path: '/admin/archivo' },
     { key: 'admin-categories',  label: 'Categorias',    icon: <Settings size={16} />,   path: '/admin/categorias' },
     { key: 'admin-users',       label: 'Usuarios',      icon: <Users size={16} />,      path: '/admin/usuarios' },
@@ -26,7 +26,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ navigate, currentPage, childr
   ];
 
   const allPageLabels: Record<string, string> = {
-    'admin-dashboard':   'Politicas',
+    'admin-dashboard':   'Políticas',
     'admin-archive':     'Archivo',
     'admin-categories':  'Categorias',
     'admin-users':       'Usuarios',

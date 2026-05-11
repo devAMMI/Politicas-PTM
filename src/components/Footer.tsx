@@ -30,7 +30,7 @@ const Footer: React.FC<FooterProps> = ({ navigate }) => {
               className="h-8 object-contain mb-3 brightness-0 invert opacity-80"
             />
             <p className="text-slate-400 text-xs leading-relaxed max-w-xs">
-              Portal de Politicas Internas de PTM. Consulta y gestion de documentos normativos para todos los colaboradores.
+              Portal de Políticas Internas de PTM. Consulta y gestion de documentos normativos para todos los colaboradores.
             </p>
           </div>
 
@@ -68,7 +68,7 @@ const Footer: React.FC<FooterProps> = ({ navigate }) => {
             &copy; {year} PTM &mdash; Grupo AMMI. Todos los derechos reservados.
           </p>
           <p className="text-slate-600 text-xs">
-            Uso exclusivo para PTM &mdash; Politicas Internas
+            Uso exclusivo para PTM &mdash; Políticas Internas
           </p>
         </div>
       </div>

@@ -100,11 +100,11 @@ const Home: React.FC<HomeProps> = ({ navigate, initialCategory = 'Todas', showBa
             </button>
           )}
           <h2 className="text-2xl font-bold text-[#0A2647] mb-1">
-            {initialCategory !== 'Todas' ? initialCategory : 'Politicas Publicadas'}
+            {initialCategory !== 'Todas' ? initialCategory : 'Políticas Publicadas'}
           </h2>
           <p className="text-slate-500 text-sm">
             {initialCategory !== 'Todas'
-              ? 'Politicas de la categoria seleccionada'
+              ? 'Políticas de la categoria seleccionada'
               : 'Consulta la normativa interna vigente de PTM'}
           </p>
         </div>

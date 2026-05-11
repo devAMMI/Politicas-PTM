@@ -128,7 +128,7 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <button onClick={() => navigate('/')} className="inline-flex items-center gap-2 text-slate-500 hover:text-[#0A2647] text-sm font-medium mb-8 transition-colors group">
           <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
-          Volver a Politicas
+          Volver a Políticas
         </button>
 
         <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
