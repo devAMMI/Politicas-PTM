@@ -134,107 +134,17 @@ function buildHtml(p: NotificationPayload): string {
 
   const logoPTM = "https://i.imgur.com/FpiAvCx.png";
 
-  // ── Sección oscura del PDF (va ARRIBA, justo después del navbar) ──
-  const docDarkSection = p.documentUrl
-    ? `<tr>
-        <td style="background:#0d1f3c;padding:32px 36px 28px;">
-          <table width="100%" cellpadding="0" cellspacing="0">
-            <tr>
-              <td align="center" style="padding-bottom:16px;">
-                <img src="${logoPTM}" alt="PTM" height="56"
-                  style="height:56px;object-fit:contain;display:block;" />
-              </td>
-            </tr>
-            <tr>
-              <td align="center" style="padding-bottom:4px;">
-                <p style="margin:0;color:#94a3b8;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;">POLITICA INTERNA</p>
-              </td>
-            </tr>
-            <tr>
-              <td align="center" style="padding-bottom:20px;">
-                <p style="margin:0;color:#ffffff;font-size:20px;font-weight:800;line-height:1.3;">${p.policyTitle}</p>
-              </td>
-            </tr>
-            <!-- divider -->
-            <tr>
-              <td style="padding-bottom:16px;">
-                <div style="height:1px;background:#1e3a5f;"></div>
-              </td>
-            </tr>
-            <!-- meta grid -->
-            <tr>
-              <td>
-                <table width="100%" cellpadding="0" cellspacing="0">
-                  <tr>
-                    <td width="25%" style="text-align:center;border-right:1px solid #1e3a5f;padding:0 8px 12px;">
-                      <p style="margin:0;color:#64748b;font-size:10px;font-weight:500;">Empresa</p>
-                      <p style="margin:4px 0 0;color:#e2e8f0;font-size:13px;font-weight:800;">PTM.</p>
-                    </td>
-                    <td width="25%" style="text-align:center;border-right:1px solid #1e3a5f;padding:0 8px 12px;">
-                      <p style="margin:0;color:#64748b;font-size:10px;font-weight:500;">Version</p>
-                      <p style="margin:4px 0 0;color:#e2e8f0;font-size:13px;font-weight:800;">${p.version ?? "1.0"}</p>
-                    </td>
-                    <td width="25%" style="text-align:center;border-right:1px solid #1e3a5f;padding:0 8px 12px;">
-                      <p style="margin:0;color:#64748b;font-size:10px;font-weight:500;">Fecha</p>
-                      <p style="margin:4px 0 0;color:#e2e8f0;font-size:13px;font-weight:800;text-transform:capitalize;">${monthStr}</p>
-                    </td>
-                    <td width="25%" style="text-align:center;padding:0 8px 12px;">
-                      <p style="margin:0;color:#64748b;font-size:10px;font-weight:500;">Clasificacion</p>
-                      <p style="margin:4px 0 0;color:#e2e8f0;font-size:13px;font-weight:800;">${p.isInternal ? "Uso Interno" : "Externa"}</p>
-                    </td>
-                  </tr>
-                </table>
-              </td>
-            </tr>
-            <!-- PDF name row -->
-            <tr>
-              <td style="padding-top:16px;">
-                <table width="100%" cellpadding="0" cellspacing="0"
-                  style="background:#1e3a5f;border-radius:10px;">
-                  <tr>
-                    <td style="padding:12px 16px;">
-                      <table cellpadding="0" cellspacing="0" width="100%">
-                        <tr>
-                          <td style="vertical-align:middle;">
-                            <table cellpadding="0" cellspacing="0">
-                              <tr>
-                                <td style="padding-right:10px;vertical-align:middle;">
-                                  <div style="width:32px;height:32px;background:#e63329;border-radius:6px;text-align:center;line-height:32px;">
-                                    <span style="color:#fff;font-size:11px;font-weight:800;">PDF</span>
-                                  </div>
-                                </td>
-                                <td style="vertical-align:middle;">
-                                  <p style="margin:0;color:#e2e8f0;font-size:13px;font-weight:600;">${p.documentName ?? "Documento de politica"}</p>
-                                </td>
-                              </tr>
-                            </table>
-                          </td>
-                          <td align="right" style="vertical-align:middle;">
-                            <a href="${p.documentUrl}"
-                              style="display:inline-block;background:#0d1f3c;color:#ffffff;font-size:12px;font-weight:700;text-decoration:none;padding:8px 16px;border-radius:8px;border:1px solid #334155;">
-                              &#8599; Pantalla completa
-                            </a>
-                          </td>
-                        </tr>
-                      </table>
-                    </td>
-                  </tr>
-                </table>
-              </td>
-            </tr>
-            <!-- Download CTA -->
-            <tr>
-              <td align="center" style="padding-top:20px;">
-                <a href="${p.documentUrl}"
-                  style="display:inline-block;background:#e63329;color:#ffffff;font-size:13px;font-weight:800;text-decoration:none;padding:12px 36px;border-radius:10px;letter-spacing:0.3px;">
-                  Descargar PDF
-                </a>
-              </td>
-            </tr>
-          </table>
-        </td>
-      </tr>`
-    : "";
+  // ── Sección oscura del PDF — oculta del correo, conservada para uso futuro ──
+  // const docDarkSection = p.documentUrl
+  //   ? `<tr>
+  //       <td style="background:#0d1f3c;padding:32px 36px 28px;">
+  //         <table width="100%" cellpadding="0" cellspacing="0">
+  //           ... (logo, meta grid, PDF name row con "Pantalla completa", boton "Descargar PDF")
+  //         </table>
+  //       </td>
+  //     </tr>`
+  //   : "";
+  const docDarkSection = "";
 
   // ── Hero banner azul (va DESPUÉS del doc oscuro) ──
   const heroBanner = `<tr>
@@ -372,10 +282,26 @@ function buildHtml(p: NotificationPayload): string {
         <!-- ── CTA ── -->
         ${p.policyUrl ? `
         <tr>
-          <td style="padding:0 36px 32px;" align="center">
+          <td style="padding:0 36px 12px;" align="center">
             <a href="${p.policyUrl}"
               style="display:inline-block;background:#0d1f3c;color:#ffffff;font-size:13px;font-weight:700;text-decoration:none;padding:13px 40px;border-radius:10px;letter-spacing:0.3px;">
               Ver Politica en la App
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:0 36px 12px;" align="center">
+            <a href="${p.policyUrl}"
+              style="display:inline-block;background:#e63329;color:#ffffff;font-size:13px;font-weight:700;text-decoration:none;padding:13px 40px;border-radius:10px;letter-spacing:0.3px;">
+              Abrir Politica
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:0 36px 32px;" align="center">
+            <a href="${p.policyUrl}"
+              style="display:inline-block;background:#ffffff;color:#0d1f3c;font-size:13px;font-weight:700;text-decoration:none;padding:13px 40px;border-radius:10px;letter-spacing:0.3px;border:2px solid #0d1f3c;">
+              Ir a la App PTM
             </a>
           </td>
         </tr>` : ""}
@@ -422,11 +348,12 @@ Deno.serve(async (req: Request) => {
     const subject = `[PTM] Nueva Politica · ${payload.policyTitle} — ${payload.policyNumber}`;
     const html = buildHtml(payload);
 
+    // PDF attachment disabled — kept for future use
     const attachments: { name: string; contentBytes: string; contentType: string }[] = [];
-    if (payload.documentUrl && payload.documentName) {
-      const b64 = await fetchPdfAsBase64(payload.documentUrl);
-      if (b64) attachments.push({ name: payload.documentName, contentBytes: b64, contentType: "application/pdf" });
-    }
+    // if (payload.documentUrl && payload.documentName) {
+    //   const b64 = await fetchPdfAsBase64(payload.documentUrl);
+    //   if (b64) attachments.push({ name: payload.documentName, contentBytes: b64, contentType: "application/pdf" });
+    // }
 
     const recipientList = payload.recipients && payload.recipients.length > 0
       ? payload.recipients.map(r => r.email)
