@@ -104,15 +104,9 @@ Deno.serve(async (req: Request) => {
         return json({ error: "Forbidden: cannot create a user with a higher role than your own" }, 403);
       }
 
-      // Look up existing auth user by email via direct DB query
-      const { data: existingAuthRows } = await supabaseAdmin
-        .from("users")
-        .select("id")
-        .eq("email", email)
-        .limit(1)
-        .schema("auth");
-
-      const existingAuthId = existingAuthRows?.[0]?.id ?? null;
+      // Look up existing auth user by email using admin API
+      const { data: { users: authUserList } } = await supabaseAdmin.auth.admin.listUsers({ perPage: 1000 });
+      const existingAuthId = authUserList?.find((u) => u.email === email)?.id ?? null;
       let authUserId: string;
 
       if (existingAuthId) {
