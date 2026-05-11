@@ -104,30 +104,29 @@ Deno.serve(async (req: Request) => {
         return json({ error: "Forbidden: cannot create a user with a higher role than your own" }, 403);
       }
 
-      // Check if auth user already exists for this email via RPC (avoids SDK version issues)
+      // Check if auth user already exists for this email via RPC
       const { data: existingAuthId } = await supabaseAdmin
-        .rpc("get_auth_user_id_by_email", { p_email: email })
-        .single()
-        .then(r => ({ data: r.data as string | null, error: r.error }));
+        .rpc("get_auth_user_id_by_email", { p_email: email });
+
       let authUserId: string;
 
       if (existingAuthId) {
-        authUserId = existingAuthId;
+        // Auth user exists — just update password and metadata
+        authUserId = existingAuthId as string;
         const { error: updateErr } = await supabaseAdmin.auth.admin.updateUserById(authUserId, {
           password,
           user_metadata: { full_name },
-          email_confirm: true,
-          ban_duration: "none",
         });
         if (updateErr) return json({ error: "Auth update error: " + updateErr.message }, 400);
       } else {
+        // Create brand new auth user
         const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
           email,
           password,
           email_confirm: true,
           user_metadata: { full_name },
         });
-        if (createError || !newUser.user) {
+        if (createError || !newUser?.user) {
           return json({ error: createError?.message ?? "Failed to create auth user" }, 400);
         }
         authUserId = newUser.user.id;
