@@ -24,7 +24,10 @@ const CodigoEtica: React.FC<CodigoEticaProps> = ({ navigate }) => {
       .eq('key', 'codigo_etica_url')
       .maybeSingle()
       .then(({ data }) => {
-        if (data?.value) setPdfUrl(data.value);
+        if (data?.value) {
+          // data.value is the clean storage path — resolve through the in-app proxy
+          setPdfUrl(`/docs/${data.value}`);
+        }
         setLoading(false);
       });
   }, []);
@@ -90,7 +93,7 @@ const CodigoEtica: React.FC<CodigoEticaProps> = ({ navigate }) => {
                 </a>
                 <a
                   href={pdfUrl}
-                  download
+                  download="codigo-de-etica-ptm.pdf"
                   className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#0A2647] text-white hover:bg-[#144272] transition text-sm font-medium"
                 >
                   <Download size={15} />
@@ -157,7 +160,7 @@ const CodigoEtica: React.FC<CodigoEticaProps> = ({ navigate }) => {
               </button>
               <a
                 href={pdfUrl!}
-                download
+                download="codigo-de-etica-ptm.pdf"
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/20 text-white/80 hover:bg-white/10 transition text-xs"
               >
                 <Download size={14} />
