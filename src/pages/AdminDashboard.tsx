@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import {
   Plus, Search, Pencil, Trash2, Eye, EyeOff, FileText, Calendar,
   CheckCircle, AlertCircle, Tag, Archive, FolderOpen, RotateCcw, Settings,
-  LayoutGrid, List, ChevronLeft, ChevronRight, Send,
+  LayoutGrid, List, ChevronLeft, ChevronRight, Send, X,
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { Policy, PolicyStatus } from '../types';
@@ -47,6 +47,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ navigate }) => {
   const [page, setPage]             = useState(1);
   const [sendPolicy, setSendPolicy] = useState<Policy | null>(null);
   const [sendType, setSendType]     = useState<NotificationType>('nueva');
+  const [confirmArchive, setConfirmArchive] = useState<Policy | null>(null);
+  const [confirmHide, setConfirmHide]       = useState<Policy | null>(null);
 
   useEffect(() => { fetchPolicies(); }, []);
   useEffect(() => { setPage(1); }, [search, filter]);
@@ -92,6 +94,16 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ navigate }) => {
   const handleSoftDelete = async (id: string) => {
     setConfirmDelete(null);
     await updateStatus(id, 'deleted', { deleted_at: new Date().toISOString() });
+  };
+
+  const handleArchive = async (policy: Policy) => {
+    setConfirmArchive(null);
+    await updateStatus(policy.id, 'archived', { archived_at: new Date().toISOString() });
+  };
+
+  const handleHide = async (policy: Policy) => {
+    setConfirmHide(null);
+    await updateStatus(policy.id, 'hidden', {}, 'oculta');
   };
 
   const handleHardDelete = async (id: string) => {
@@ -189,6 +201,72 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ navigate }) => {
                 className="flex-1 py-2.5 rounded-xl bg-amber-500 text-white text-sm font-semibold hover:bg-amber-600 transition-colors disabled:opacity-60"
               >
                 Mover a papelera
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Confirm archive modal */}
+      {confirmArchive && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="relative bg-white rounded-3xl shadow-2xl p-7 max-w-md w-full">
+            <button onClick={() => setConfirmArchive(null)} className="absolute top-4 right-4 p-1.5 rounded-lg hover:bg-slate-100 text-slate-400"><X size={16} /></button>
+            <div className="w-12 h-12 bg-sky-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <Archive size={20} className="text-sky-600" />
+            </div>
+            <h3 className="text-base font-bold text-slate-800 text-center mb-1.5">Archivar politica</h3>
+            <p className="text-slate-500 text-sm text-center mb-2 leading-relaxed">
+              <strong className="text-slate-700">"{confirmArchive.title}"</strong> sera movida al archivo historico.
+            </p>
+            <div className="bg-sky-50 border border-sky-100 rounded-2xl p-4 mb-6 space-y-2">
+              <p className="text-xs font-semibold text-sky-700 uppercase tracking-wide mb-1">¿Que significa archivar?</p>
+              <ul className="space-y-1.5 text-xs text-sky-800">
+                <li className="flex items-start gap-2"><span className="w-1.5 h-1.5 rounded-full bg-sky-400 mt-1.5 flex-shrink-0" />La politica <strong>deja de aparecer en el sitio publico</strong> para los empleados.</li>
+                <li className="flex items-start gap-2"><span className="w-1.5 h-1.5 rounded-full bg-sky-400 mt-1.5 flex-shrink-0" />Queda guardada en el <strong>Archivo</strong> como registro historico, con su PDF e historial de versiones.</li>
+                <li className="flex items-start gap-2"><span className="w-1.5 h-1.5 rounded-full bg-sky-400 mt-1.5 flex-shrink-0" />Puede ser <strong>restaurada o consultada</strong> en cualquier momento desde el Archivo.</li>
+                <li className="flex items-start gap-2"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-1.5 flex-shrink-0" />Usualmente se archiva cuando <strong>una nueva version reemplaza a la anterior</strong> o ya no esta vigente.</li>
+              </ul>
+            </div>
+            <div className="flex gap-2.5">
+              <button onClick={() => setConfirmArchive(null)} className="flex-1 py-2.5 rounded-xl border border-gray-200 text-slate-600 text-sm font-medium hover:bg-slate-50 transition-colors">
+                Cancelar
+              </button>
+              <button onClick={() => handleArchive(confirmArchive)} disabled={!!busy} className="flex-1 py-2.5 rounded-xl bg-sky-600 text-white text-sm font-semibold hover:bg-sky-700 transition-colors disabled:opacity-60 flex items-center justify-center gap-2">
+                <Archive size={14} /> Archivar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Confirm hide modal */}
+      {confirmHide && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="relative bg-white rounded-3xl shadow-2xl p-7 max-w-md w-full">
+            <button onClick={() => setConfirmHide(null)} className="absolute top-4 right-4 p-1.5 rounded-lg hover:bg-slate-100 text-slate-400"><X size={16} /></button>
+            <div className="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <EyeOff size={20} className="text-amber-500" />
+            </div>
+            <h3 className="text-base font-bold text-slate-800 text-center mb-1.5">Ocultar politica</h3>
+            <p className="text-slate-500 text-sm text-center mb-2 leading-relaxed">
+              <strong className="text-slate-700">"{confirmHide.title}"</strong> sera ocultada temporalmente.
+            </p>
+            <div className="bg-amber-50 border border-amber-100 rounded-2xl p-4 mb-6 space-y-2">
+              <p className="text-xs font-semibold text-amber-700 uppercase tracking-wide mb-1">¿Que significa ocultar?</p>
+              <ul className="space-y-1.5 text-xs text-amber-800">
+                <li className="flex items-start gap-2"><span className="w-1.5 h-1.5 rounded-full bg-amber-400 mt-1.5 flex-shrink-0" />La politica <strong>deja de ser visible en el sitio publico</strong>, pero no se elimina ni archiva.</li>
+                <li className="flex items-start gap-2"><span className="w-1.5 h-1.5 rounded-full bg-amber-400 mt-1.5 flex-shrink-0" />Sigue apareciendo aqui en el panel admin con el estado <strong>"Oculta"</strong>.</li>
+                <li className="flex items-start gap-2"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-1.5 flex-shrink-0" />Puedes <strong>volver a publicarla</strong> con un clic cuando estes listo.</li>
+                <li className="flex items-start gap-2"><span className="w-1.5 h-1.5 rounded-full bg-amber-400 mt-1.5 flex-shrink-0" />Util para <strong>pausar una politica temporalmente</strong> sin perder su historial ni configuracion.</li>
+              </ul>
+            </div>
+            <div className="flex gap-2.5">
+              <button onClick={() => setConfirmHide(null)} className="flex-1 py-2.5 rounded-xl border border-gray-200 text-slate-600 text-sm font-medium hover:bg-slate-50 transition-colors">
+                Cancelar
+              </button>
+              <button onClick={() => handleHide(confirmHide)} disabled={!!busy} className="flex-1 py-2.5 rounded-xl bg-amber-500 text-white text-sm font-semibold hover:bg-amber-600 transition-colors disabled:opacity-60 flex items-center justify-center gap-2">
+                <EyeOff size={14} /> Ocultar
               </button>
             </div>
           </div>
@@ -392,31 +470,26 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ navigate }) => {
                       </span>
                     </div>
                     {/* Actions */}
-                    <div className="flex items-center gap-0.5 flex-shrink-0 opacity-40 group-hover:opacity-100 transition-opacity">
+                    <div className="flex items-center gap-1 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
                       {policy.status === 'deleted' ? (
                         <>
-                          <ActionBtn onClick={() => updateStatus(policy.id, 'hidden', { deleted_at: null } as Partial<Policy>)} title="Restaurar" color="emerald"><RotateCcw size={14} /></ActionBtn>
-                          <ActionBtn onClick={() => handleHardDelete(policy.id)} title="Eliminar permanentemente" color="red"><Trash2 size={14} /></ActionBtn>
+                          <LabelBtn onClick={() => updateStatus(policy.id, 'hidden', { deleted_at: null } as Partial<Policy>)} icon={<RotateCcw size={13} />} label="Restaurar" color="emerald" />
+                          <LabelBtn onClick={() => handleHardDelete(policy.id)} icon={<Trash2 size={13} />} label="Eliminar" color="red" />
                         </>
                       ) : (
                         <>
-                          <ActionBtn onClick={() => navigate(`/politicas/${policy.slug}`)} title="Ver politica" color="sky"><Eye size={14} /></ActionBtn>
-                          <ActionBtn onClick={() => { setSendType('nueva'); setSendPolicy(policy); }} title="Enviar por email" color="emerald"><Send size={14} /></ActionBtn>
-                          <ActionBtn
-                            onClick={() => updateStatus(
-                              policy.id,
-                              policy.status === 'published' ? 'hidden' : 'published',
-                              {},
-                              policy.status === 'published' ? 'oculta' : undefined,
-                            )}
-                            title={policy.status === 'published' ? 'Ocultar' : 'Publicar'}
-                            color={policy.status === 'published' ? 'emerald' : 'slate'}
-                          >
-                            {policy.status === 'published' ? <EyeOff size={14} /> : <Eye size={14} />}
-                          </ActionBtn>
-                          <ActionBtn onClick={() => updateStatus(policy.id, 'archived', { archived_at: new Date().toISOString() }, 'oculta')} title="Archivar" color="sky"><Archive size={14} /></ActionBtn>
-                          <ActionBtn onClick={() => navigate(`/admin/editar/${policy.id}`)} title="Editar" color="slate"><Pencil size={14} /></ActionBtn>
-                          <ActionBtn onClick={() => setConfirmDelete(policy.id)} title="Mover a papelera" color="red"><Trash2 size={14} /></ActionBtn>
+                          <LabelBtn onClick={() => navigate(`/politicas/${policy.slug}`)} icon={<Eye size={13} />} label="Ver" color="sky" />
+                          <LabelBtn onClick={() => { setSendType('nueva'); setSendPolicy(policy); }} icon={<Send size={13} />} label="Enviar" color="emerald" />
+                          {policy.status === 'published' ? (
+                            <LabelBtn onClick={() => setConfirmHide(policy)} icon={<EyeOff size={13} />} label="Ocultar" color="amber" />
+                          ) : policy.status === 'hidden' ? (
+                            <LabelBtn onClick={() => updateStatus(policy.id, 'published')} icon={<Eye size={13} />} label="Publicar" color="emerald" />
+                          ) : null}
+                          {policy.status !== 'archived' && (
+                            <LabelBtn onClick={() => setConfirmArchive(policy)} icon={<Archive size={13} />} label="Archivar" color="sky" />
+                          )}
+                          <LabelBtn onClick={() => navigate(`/admin/editar/${policy.id}`)} icon={<Pencil size={13} />} label="Editar" color="slate" />
+                          <LabelBtn onClick={() => setConfirmDelete(policy.id)} icon={<Trash2 size={13} />} label="Papelera" color="red" />
                         </>
                       )}
                     </div>
@@ -440,31 +513,26 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ navigate }) => {
                         {sm.label}
                       </span>
                     </div>
-                    <div className="absolute bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-t border-gray-100 rounded-b-2xl px-3 py-2 flex items-center justify-end gap-0.5 opacity-0 group-hover:opacity-100 transition-all translate-y-1 group-hover:translate-y-0">
+                    <div className="absolute bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-t border-gray-100 rounded-b-2xl px-3 py-2 flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-all translate-y-1 group-hover:translate-y-0">
                       {policy.status === 'deleted' ? (
                         <>
-                          <ActionBtn onClick={() => updateStatus(policy.id, 'hidden', { deleted_at: null } as Partial<Policy>)} title="Restaurar" color="emerald"><RotateCcw size={13} /></ActionBtn>
-                          <ActionBtn onClick={() => handleHardDelete(policy.id)} title="Eliminar permanentemente" color="red"><Trash2 size={13} /></ActionBtn>
+                          <LabelBtn onClick={() => updateStatus(policy.id, 'hidden', { deleted_at: null } as Partial<Policy>)} icon={<RotateCcw size={12} />} label="Restaurar" color="emerald" />
+                          <LabelBtn onClick={() => handleHardDelete(policy.id)} icon={<Trash2 size={12} />} label="Eliminar" color="red" />
                         </>
                       ) : (
                         <>
-                          <ActionBtn onClick={() => navigate(`/politicas/${policy.slug}`)} title="Ver politica" color="sky"><Eye size={13} /></ActionBtn>
-                          <ActionBtn onClick={() => { setSendType('nueva'); setSendPolicy(policy); }} title="Enviar por email" color="emerald"><Send size={13} /></ActionBtn>
-                          <ActionBtn
-                            onClick={() => updateStatus(
-                              policy.id,
-                              policy.status === 'published' ? 'hidden' : 'published',
-                              {},
-                              policy.status === 'published' ? 'oculta' : undefined,
-                            )}
-                            title={policy.status === 'published' ? 'Ocultar' : 'Publicar'}
-                            color={policy.status === 'published' ? 'emerald' : 'slate'}
-                          >
-                            {policy.status === 'published' ? <EyeOff size={13} /> : <Eye size={13} />}
-                          </ActionBtn>
-                          <ActionBtn onClick={() => updateStatus(policy.id, 'archived', { archived_at: new Date().toISOString() }, 'oculta')} title="Archivar" color="sky"><Archive size={13} /></ActionBtn>
-                          <ActionBtn onClick={() => navigate(`/admin/editar/${policy.id}`)} title="Editar" color="slate"><Pencil size={13} /></ActionBtn>
-                          <ActionBtn onClick={() => setConfirmDelete(policy.id)} title="Mover a papelera" color="red"><Trash2 size={13} /></ActionBtn>
+                          <LabelBtn onClick={() => navigate(`/politicas/${policy.slug}`)} icon={<Eye size={12} />} label="Ver" color="sky" />
+                          <LabelBtn onClick={() => { setSendType('nueva'); setSendPolicy(policy); }} icon={<Send size={12} />} label="Enviar" color="emerald" />
+                          {policy.status === 'published' ? (
+                            <LabelBtn onClick={() => setConfirmHide(policy)} icon={<EyeOff size={12} />} label="Ocultar" color="amber" />
+                          ) : policy.status === 'hidden' ? (
+                            <LabelBtn onClick={() => updateStatus(policy.id, 'published')} icon={<Eye size={12} />} label="Publicar" color="emerald" />
+                          ) : null}
+                          {policy.status !== 'archived' && (
+                            <LabelBtn onClick={() => setConfirmArchive(policy)} icon={<Archive size={12} />} label="Archivar" color="sky" />
+                          )}
+                          <LabelBtn onClick={() => navigate(`/admin/editar/${policy.id}`)} icon={<Pencil size={12} />} label="Editar" color="slate" />
+                          <LabelBtn onClick={() => setConfirmDelete(policy.id)} icon={<Trash2 size={12} />} label="Papelera" color="red" />
                         </>
                       )}
                     </div>
@@ -534,22 +602,22 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ navigate }) => {
   );
 };
 
-const COLOR_MAP: Record<string, string> = {
-  emerald: 'text-emerald-600 hover:bg-emerald-50',
-  sky:     'text-sky-500 hover:bg-sky-50',
-  amber:   'text-amber-500 hover:bg-amber-50',
-  slate:   'text-slate-400 hover:bg-slate-100',
-  red:     'text-red-400 hover:bg-red-50',
+const LABEL_BTN_MAP: Record<string, string> = {
+  emerald: 'text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200',
+  sky:     'text-sky-700 bg-sky-50 hover:bg-sky-100 border border-sky-200',
+  amber:   'text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200',
+  slate:   'text-slate-600 bg-slate-50 hover:bg-slate-100 border border-slate-200',
+  red:     'text-red-600 bg-red-50 hover:bg-red-100 border border-red-200',
 };
 
-function ActionBtn({ children, onClick, title, color }: { children: React.ReactNode; onClick: () => void; title: string; color: string }) {
+function LabelBtn({ icon, label, onClick, color }: { icon: React.ReactNode; label: string; onClick: () => void; color: string }) {
   return (
     <button
-      title={title}
       onClick={onClick}
-      className={`p-2 rounded-lg transition-colors ${COLOR_MAP[color] ?? COLOR_MAP.slate}`}
+      className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-semibold transition-colors ${LABEL_BTN_MAP[color] ?? LABEL_BTN_MAP.slate}`}
     >
-      {children}
+      {icon}
+      {label}
     </button>
   );
 }
