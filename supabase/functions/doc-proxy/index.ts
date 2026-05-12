@@ -7,8 +7,6 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
-const SUPABASE_STORAGE_BASE = `${Deno.env.get("SUPABASE_URL")}/storage/v1/object/public/documents/`;
-
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { status: 200, headers: corsHeaders });
@@ -27,14 +25,14 @@ Deno.serve(async (req: Request) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
 
-    // 1. Try resolving from policies table
+    let fileUrl: string | null = null;
+
+    // 1. Try resolving from policies table (clean_path → document_url)
     const { data: policy } = await supabase
       .from("policies")
-      .select("document_url, document_name, status")
+      .select("document_url, status")
       .eq("document_clean_path", cleanPath)
       .maybeSingle();
-
-    let fileUrl: string | null = null;
 
     if (policy) {
       if (policy.status !== "published") {
@@ -42,15 +40,17 @@ Deno.serve(async (req: Request) => {
       }
       fileUrl = policy.document_url;
     } else {
-      // 2. Fallback: match any app_settings whose value equals this clean_path
+      // 2. Fallback: check app_settings has a matching value for this path,
+      //    then build the public Storage URL directly.
       const { data: setting } = await supabase
         .from("app_settings")
-        .select("value")
+        .select("key")
         .eq("value", cleanPath)
         .maybeSingle();
 
-      if (setting?.value) {
-        fileUrl = `${SUPABASE_STORAGE_BASE}${cleanPath}`;
+      if (setting) {
+        const storageBase = `${Deno.env.get("SUPABASE_URL")}/storage/v1/object/public/documents/`;
+        fileUrl = `${storageBase}${cleanPath}`;
       }
     }
 
