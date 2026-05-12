@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Search, Filter, ArrowLeft, LayoutGrid, List, ChevronLeft, ChevronRight, Calendar, FileText, Tag } from 'lucide-react';
 import { supabase } from '../lib/supabase';
-import { Policy, CATEGORIES } from '../types';
+import { Policy } from '../types';
 import PolicyCard from '../components/PolicyCard';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ScrollToTop from '../components/ScrollToTop';
@@ -12,16 +12,14 @@ interface HomeProps {
   showBackButton?: boolean;
 }
 
+interface DbCategory {
+  id: string;
+  name: string;
+  color: string;
+}
+
 const PAGE_SIZE = 6;
 
-const CATEGORY_COLORS: Record<string, { bg: string; text: string; dot: string }> = {
-  'Calidad e Inocuidad':  { bg: 'bg-emerald-50', text: 'text-emerald-700', dot: 'bg-emerald-500' },
-  'Seguridad Industrial': { bg: 'bg-amber-50',   text: 'text-amber-700',   dot: 'bg-amber-500' },
-  'Recursos Humanos':     { bg: 'bg-blue-50',     text: 'text-blue-700',   dot: 'bg-blue-500' },
-  'Operaciones':          { bg: 'bg-teal-50',     text: 'text-teal-700',   dot: 'bg-teal-500' },
-  'Medio Ambiente':       { bg: 'bg-green-50',    text: 'text-green-700',  dot: 'bg-green-500' },
-  'General':              { bg: 'bg-slate-50',    text: 'text-slate-700',  dot: 'bg-slate-400' },
-};
 
 function formatDate(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString('es-GT', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -31,21 +29,29 @@ function formatTime(dateStr: string): string {
 }
 
 const Home: React.FC<HomeProps> = ({ navigate, initialCategory = 'Todas', showBackButton = true }) => {
-  const [policies, setPolicies]         = useState<Policy[]>([]);
-  const [loading, setLoading]           = useState(true);
-  const [search, setSearch]             = useState('');
+  const [policies, setPolicies]             = useState<Policy[]>([]);
+  const [dbCategories, setDbCategories]     = useState<DbCategory[]>([]);
+  const [loading, setLoading]               = useState(true);
+  const [search, setSearch]                 = useState('');
   const [activeCategory, setActiveCategory] = useState<string>(initialCategory);
-  const [viewMode, setViewMode]         = useState<'grid' | 'list'>('grid');
-  const [page, setPage]                 = useState(1);
+  const [viewMode, setViewMode]             = useState<'grid' | 'list'>('grid');
+  const [page, setPage]                     = useState(1);
 
   useEffect(() => {
     setActiveCategory(initialCategory);
     setPage(1);
   }, [initialCategory]);
 
-  useEffect(() => { fetchPolicies(); }, []);
+  useEffect(() => {
+    fetchPolicies();
+    supabase
+      .from('categories')
+      .select('id, name, color')
+      .eq('is_active', true)
+      .order('order_num')
+      .then(({ data }) => { if (data) setDbCategories(data as DbCategory[]); });
+  }, []);
 
-  // Reset to page 1 when search/category changes
   useEffect(() => { setPage(1); }, [search, activeCategory]);
 
   const fetchPolicies = async () => {
@@ -70,7 +76,12 @@ const Home: React.FC<HomeProps> = ({ navigate, initialCategory = 'Todas', showBa
   const safePage   = Math.min(page, totalPages);
   const paginated  = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
-  const categories = ['Todas', ...CATEGORIES];
+  const categoryNames = dbCategories.map(c => c.name);
+  const categories = ['Todas', ...categoryNames];
+
+  // Build color lookup by name for the list-view chip
+  const colorByName: Record<string, string> = {};
+  dbCategories.forEach(c => { colorByName[c.name] = c.color; });
 
   // Pagination page numbers (show max 5 around current)
   const pageNumbers: (number | '…')[] = [];
@@ -187,7 +198,7 @@ const Home: React.FC<HomeProps> = ({ navigate, initialCategory = 'Todas', showBa
             {viewMode === 'list' && (
               <div className="flex flex-col gap-3">
                 {paginated.map(policy => {
-                  const colors = CATEGORY_COLORS[policy.category] ?? CATEGORY_COLORS['General'];
+                  const catColor = colorByName[policy.category] ?? '#64748b';
                   return (
                     <article
                       key={policy.id}
@@ -211,8 +222,11 @@ const Home: React.FC<HomeProps> = ({ navigate, initialCategory = 'Todas', showBa
                         {/* Main info */}
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold ${colors.bg} ${colors.text}`}>
-                              <span className={`w-1.5 h-1.5 rounded-full ${colors.dot}`} />
+                            <span
+                              className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold"
+                              style={{ background: `${catColor}18`, color: catColor }}
+                            >
+                              <span className="w-1.5 h-1.5 rounded-full" style={{ background: catColor }} />
                               <Tag size={9} />
                               {policy.category}
                             </span>
