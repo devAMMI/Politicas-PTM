@@ -23,6 +23,11 @@ function parsePath(pathname: string): Page {
   const categoryMatch = path.match(/^categoria\/(.+)$/);
   if (categoryMatch) return { name: 'category', category: decodeURIComponent(categoryMatch[1]) };
 
+  if (path === 'politicas-publicadas') return { name: 'policies', category: 'Todas' };
+
+  const policiesMatch = path.match(/^politicas-publicadas\/(.+)$/);
+  if (policiesMatch) return { name: 'policies', category: decodeURIComponent(policiesMatch[1]) };
+
   return { name: 'home' };
 }
 

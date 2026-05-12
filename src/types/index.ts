@@ -125,6 +125,7 @@ export function buildDocCleanUrl(cleanPath: string): string {
 
 export type Page =
   | { name: 'home' }
+  | { name: 'policies'; category: string }
   | { name: 'category'; category: string }
   | { name: 'policy'; slug: string }
   | { name: 'admin-login' }

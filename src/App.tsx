@@ -74,13 +74,13 @@ const AppContent: React.FC = () => {
       <Header navigate={navigate} currentPage={page.name} />
       <div className="pt-14">
         {page.name === 'home' && (
-          <>
-            <Hero navigate={navigate} />
-            <Home navigate={navigate} initialCategory="Todas" showBackButton={false} />
-          </>
+          <Hero navigate={navigate} />
+        )}
+        {page.name === 'policies' && (
+          <Home navigate={navigate} initialCategory={page.category} showBackButton={true} />
         )}
         {page.name === 'category' && (
-          <Home navigate={navigate} initialCategory={page.category} />
+          <Home navigate={navigate} initialCategory={page.category} showBackButton={true} />
         )}
         {page.name === 'policy' && (
           <PolicyDetail slug={page.slug} navigate={navigate} />
