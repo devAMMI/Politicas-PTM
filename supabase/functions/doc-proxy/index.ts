@@ -14,25 +14,26 @@ Deno.serve(async (req: Request) => {
 
   try {
     const url = new URL(req.url);
+    // Strip leading /doc-proxy/ or /doc-proxy prefix
     const cleanPath = url.pathname.replace(/^\/doc-proxy\/?/, "").replace(/^\//, "");
 
     if (!cleanPath) {
       return new Response("Not found", { status: 404, headers: corsHeaders });
     }
 
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
-    );
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const serviceKey  = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
-    let fileUrl: string | null = null;
+    const supabase = createClient(supabaseUrl, serviceKey);
 
-    // 1. Try resolving from policies table (clean_path → document_url)
+    // 1. Try policies table first
     const { data: policy } = await supabase
       .from("policies")
       .select("document_url, status")
       .eq("document_clean_path", cleanPath)
       .maybeSingle();
+
+    let fileUrl: string | null = null;
 
     if (policy) {
       if (policy.status !== "published") {
@@ -40,17 +41,14 @@ Deno.serve(async (req: Request) => {
       }
       fileUrl = policy.document_url;
     } else {
-      // 2. Fallback: check app_settings has a matching value for this path,
-      //    then build the public Storage URL directly.
-      const { data: setting } = await supabase
-        .from("app_settings")
-        .select("key")
-        .eq("value", cleanPath)
-        .maybeSingle();
+      // 2. Fallback: serve directly from Storage using the signed URL API
+      //    (works for public buckets too — just build the public URL)
+      const { data: signed } = await supabase.storage
+        .from("documents")
+        .createSignedUrl(cleanPath, 60); // 60-second signed URL
 
-      if (setting) {
-        const storageBase = `${Deno.env.get("SUPABASE_URL")}/storage/v1/object/public/documents/`;
-        fileUrl = `${storageBase}${cleanPath}`;
+      if (signed?.signedUrl) {
+        fileUrl = signed.signedUrl;
       }
     }
 
@@ -60,12 +58,12 @@ Deno.serve(async (req: Request) => {
 
     const fileRes = await fetch(fileUrl);
     if (!fileRes.ok) {
-      return new Response("File not found in storage", { status: 404, headers: corsHeaders });
+      return new Response("File not found in storage", { status: 502, headers: corsHeaders });
     }
 
-    const contentType = fileRes.headers.get("content-type") ?? "application/pdf";
+    const contentType   = fileRes.headers.get("content-type") ?? "application/pdf";
     const contentLength = fileRes.headers.get("content-length");
-    const filename = cleanPath.split("/").pop() ?? "documento.pdf";
+    const filename      = cleanPath.split("/").pop() ?? "documento.pdf";
 
     const responseHeaders: Record<string, string> = {
       ...corsHeaders,
@@ -76,7 +74,8 @@ Deno.serve(async (req: Request) => {
     if (contentLength) responseHeaders["Content-Length"] = contentLength;
 
     return new Response(fileRes.body, { status: 200, headers: responseHeaders });
-  } catch (_err) {
+  } catch (err) {
+    console.error(err);
     return new Response("Internal error", { status: 500, headers: corsHeaders });
   }
 });
