@@ -6,6 +6,8 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
+type NotificationType = "nueva" | "editada" | "oculta";
+
 interface NotificationPayload {
   policyTitle: string;
   policyNumber: string;
@@ -22,6 +24,7 @@ interface NotificationPayload {
   documentName?: string;
   isInternal?: boolean;
   version?: string;
+  notificationType?: NotificationType;
   // Optional: list of recipients to send to. If omitted, falls back to default list.
   recipients?: { email: string; full_name?: string }[];
 }
@@ -126,25 +129,35 @@ function formatMonth(d: Date): string {
   return `${months[d.getUTCMonth()]} de ${d.getUTCFullYear()}`;
 }
 
+const TYPE_CONFIG: Record<NotificationType, { label: string; subjectPrefix: string; bannerBg: string; bannerText: string }> = {
+  nueva:   { label: "Nueva Politica",       subjectPrefix: "Nueva Politica",       bannerBg: "#0d1f3c", bannerText: "#93c5fd" },
+  editada: { label: "Politica Actualizada", subjectPrefix: "Politica Actualizada", bannerBg: "#92400e", bannerText: "#fde68a" },
+  oculta:  { label: "Politica Ocultada",    subjectPrefix: "Politica Ocultada",    bannerBg: "#374151", bannerText: "#d1d5db" },
+};
+
 function buildHtml(p: NotificationPayload): string {
   const local    = toGMTMinus6(p.publishedAt);
   const dateStr  = formatDate(local);
   const timeStr  = formatTime(local);
   const monthStr = formatMonth(local);
 
+  const nt = p.notificationType ?? "nueva";
+  const tc = TYPE_CONFIG[nt];
+
   const logoPTM = "https://i.imgur.com/FpiAvCx.png";
 
-  // ── Sección oscura del PDF — oculta del correo, conservada para uso futuro ──
-  // const docDarkSection = p.documentUrl
-  //   ? `<tr>
-  //       <td style="background:#0d1f3c;padding:32px 36px 28px;">
-  //         <table width="100%" cellpadding="0" cellspacing="0">
-  //           ... (logo, meta grid, PDF name row con "Pantalla completa", boton "Descargar PDF")
-  //         </table>
-  //       </td>
-  //     </tr>`
-  //   : "";
   const docDarkSection = "";
+
+  // ── Status banner (only for editada / oculta) ──
+  const statusBanner = nt !== "nueva"
+    ? `<tr>
+        <td style="background:${tc.bannerBg};padding:10px 32px;">
+          <p style="margin:0;color:${tc.bannerText};font-size:12px;font-weight:700;letter-spacing:0.4px;text-transform:uppercase;">
+            ${tc.label}
+          </p>
+        </td>
+      </tr>`
+    : "";
 
   // ── Hero banner azul (va DESPUÉS del doc oscuro) ──
   const heroBanner = `<tr>
@@ -247,6 +260,9 @@ function buildHtml(p: NotificationPayload): string {
           </td>
         </tr>
 
+        <!-- ── STATUS BANNER ── -->
+        ${statusBanner}
+
         <!-- ── DOC DARK SECTION (arriba) ── -->
         ${docDarkSection}
 
@@ -345,7 +361,9 @@ Deno.serve(async (req: Request) => {
     const payload: NotificationPayload = await req.json();
 
     const token = await getMsAccessToken();
-    const subject = `[PTM] Nueva Politica · ${payload.policyTitle} — ${payload.policyNumber}`;
+    const nt = payload.notificationType ?? "nueva";
+    const subjectPrefix = TYPE_CONFIG[nt].subjectPrefix;
+    const subject = `[PTM] ${subjectPrefix} · ${payload.policyTitle} — ${payload.policyNumber}`;
     const html = buildHtml(payload);
 
     // PDF attachment disabled — kept for future use

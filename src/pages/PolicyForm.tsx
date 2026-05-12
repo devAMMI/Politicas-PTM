@@ -6,7 +6,7 @@ import {
 import { supabase } from '../lib/supabase';
 import { Policy, generateSlug, buildStoragePath, buildFolderPath, buildDocCleanPath } from '../types';
 import { useAuth } from '../context/AuthContext';
-import SendEmailModal from '../components/SendEmailModal';
+import SendEmailModal, { NotificationType } from '../components/SendEmailModal';
 
 interface PolicyFormProps {
   editId?: string;
@@ -276,6 +276,7 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
   const [savedPolicy, setSavedPolicy]     = useState<Policy | null>(null);
   const [showSendPrompt, setShowSendPrompt] = useState(false);
   const [showPreview, setShowPreview]     = useState(false);
+  const [notifType, setNotifType]         = useState<NotificationType>('nueva');
   const coverRef = useRef<HTMLInputElement>(null);
   const docRef   = useRef<HTMLInputElement>(null);
 
@@ -438,8 +439,15 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
       const { error } = await supabase.from('policies').update({ ...payload, slug: slugBase }).eq('id', editId);
       if (error) { showToast('error', 'Error al actualizar la politica.'); setSaving(false); return; }
       showToast('success', 'Politica actualizada correctamente.');
+      const { data: updated } = await supabase.from('policies').select('*').eq('id', editId).maybeSingle();
       setSaving(false);
-      setTimeout(() => navigate('/admin'), 1500);
+      if (updated) {
+        setNotifType('editada');
+        setSavedPolicy(updated as Policy);
+        setShowSendPrompt(true);
+      } else {
+        setTimeout(() => navigate('/admin'), 1500);
+      }
       return;
     }
 
@@ -451,6 +459,7 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
 
     const { data: created } = await supabase.from('policies').select('*').eq('id', tempId).maybeSingle();
     if (created) setSavedPolicy(created as Policy);
+    setNotifType('nueva');
     setSaving(false);
     setShowSendPrompt(true);
   };
@@ -491,9 +500,13 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
         />
       )}
 
-      {/* Send email modal (after creation) */}
+      {/* Send email modal (after creation or edit) */}
       {savedPolicy && !showSendPrompt && (
-        <SendEmailModal policy={savedPolicy} onClose={() => { setSavedPolicy(null); navigate('/admin'); }} />
+        <SendEmailModal
+          policy={savedPolicy}
+          notificationType={notifType}
+          onClose={() => { setSavedPolicy(null); navigate('/admin'); }}
+        />
       )}
 
       {/* Send prompt: enviar ahora o enviar despues */}
@@ -503,10 +516,13 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
             <div className="w-14 h-14 bg-[#0A2647] rounded-2xl flex items-center justify-center mx-auto mb-5">
               <Mail size={24} className="text-white" />
             </div>
-            <h3 className="text-base font-bold text-slate-900 mb-1.5">Politica guardada</h3>
+            <h3 className="text-base font-bold text-slate-900 mb-1.5">
+              {notifType === 'editada' ? 'Politica actualizada' : 'Politica guardada'}
+            </h3>
             <p className="text-slate-500 text-sm mb-6 leading-relaxed">
-              <strong className="text-slate-700">{savedPolicy.title}</strong> fue creada.<br />
-              ¿Deseas enviarla por correo ahora?
+              <strong className="text-slate-700">{savedPolicy.title}</strong>{' '}
+              {notifType === 'editada' ? 'fue actualizada.' : 'fue creada.'}<br />
+              ¿Deseas notificar por correo ahora?
             </p>
             <div className="flex flex-col gap-2.5">
               <button

@@ -7,7 +7,7 @@ import {
 import { supabase } from '../lib/supabase';
 import { Policy, PolicyStatus } from '../types';
 import PolicyCard from '../components/PolicyCard';
-import SendEmailModal from '../components/SendEmailModal';
+import SendEmailModal, { NotificationType } from '../components/SendEmailModal';
 
 interface AdminDashboardProps {
   navigate: (to: string) => void;
@@ -46,6 +46,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ navigate }) => {
   const [viewMode, setViewMode]     = useState<'list' | 'grid'>('list');
   const [page, setPage]             = useState(1);
   const [sendPolicy, setSendPolicy] = useState<Policy | null>(null);
+  const [sendType, setSendType]     = useState<NotificationType>('nueva');
 
   useEffect(() => { fetchPolicies(); }, []);
   useEffect(() => { setPage(1); }, [search, filter]);
@@ -65,15 +66,25 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ navigate }) => {
     setTimeout(() => setToast(null), 3500);
   };
 
-  const updateStatus = async (id: string, status: PolicyStatus, extra: Partial<Policy> = {}) => {
+  const updateStatus = async (
+    id: string,
+    status: PolicyStatus,
+    extra: Partial<Policy> = {},
+    notifyType?: NotificationType,
+  ) => {
     setBusy(id);
     const patch: Record<string, unknown> = { status, updated_at: new Date().toISOString(), ...extra };
     const { error } = await supabase.from('policies').update(patch).eq('id', id);
     if (error) {
       showToast('error', 'No se pudo actualizar el estado.');
     } else {
-      setPolicies(prev => prev.map(p => p.id === id ? { ...p, status, is_published: status === 'published', ...extra } as Policy : p));
+      const updated = { ...policies.find(p => p.id === id)!, status, is_published: status === 'published', ...extra } as Policy;
+      setPolicies(prev => prev.map(p => p.id === id ? updated : p));
       showToast('success', `Estado actualizado a "${STATUS_META[status].label}".`);
+      if (notifyType) {
+        setSendType(notifyType);
+        setSendPolicy(updated);
+      }
     }
     setBusy(null);
   };
@@ -140,7 +151,13 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ navigate }) => {
     <div className="min-h-screen bg-[#F7F8FA]">
 
       {/* Send email modal */}
-      {sendPolicy && <SendEmailModal policy={sendPolicy} onClose={() => setSendPolicy(null)} />}
+      {sendPolicy && (
+        <SendEmailModal
+          policy={sendPolicy}
+          notificationType={sendType}
+          onClose={() => setSendPolicy(null)}
+        />
+      )}
 
       {/* Toast */}
       {toast && (
@@ -384,15 +401,20 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ navigate }) => {
                       ) : (
                         <>
                           <ActionBtn onClick={() => navigate(`/politicas/${policy.slug}`)} title="Ver politica" color="sky"><Eye size={14} /></ActionBtn>
-                          <ActionBtn onClick={() => setSendPolicy(policy)} title="Enviar por email" color="emerald"><Send size={14} /></ActionBtn>
+                          <ActionBtn onClick={() => { setSendType('nueva'); setSendPolicy(policy); }} title="Enviar por email" color="emerald"><Send size={14} /></ActionBtn>
                           <ActionBtn
-                            onClick={() => updateStatus(policy.id, policy.status === 'published' ? 'hidden' : 'published')}
+                            onClick={() => updateStatus(
+                              policy.id,
+                              policy.status === 'published' ? 'hidden' : 'published',
+                              {},
+                              policy.status === 'published' ? 'oculta' : undefined,
+                            )}
                             title={policy.status === 'published' ? 'Ocultar' : 'Publicar'}
                             color={policy.status === 'published' ? 'emerald' : 'slate'}
                           >
                             {policy.status === 'published' ? <EyeOff size={14} /> : <Eye size={14} />}
                           </ActionBtn>
-                          <ActionBtn onClick={() => updateStatus(policy.id, 'archived', { archived_at: new Date().toISOString() })} title="Archivar" color="sky"><Archive size={14} /></ActionBtn>
+                          <ActionBtn onClick={() => updateStatus(policy.id, 'archived', { archived_at: new Date().toISOString() }, 'oculta')} title="Archivar" color="sky"><Archive size={14} /></ActionBtn>
                           <ActionBtn onClick={() => navigate(`/admin/editar/${policy.id}`)} title="Editar" color="slate"><Pencil size={14} /></ActionBtn>
                           <ActionBtn onClick={() => setConfirmDelete(policy.id)} title="Mover a papelera" color="red"><Trash2 size={14} /></ActionBtn>
                         </>
@@ -427,15 +449,20 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ navigate }) => {
                       ) : (
                         <>
                           <ActionBtn onClick={() => navigate(`/politicas/${policy.slug}`)} title="Ver politica" color="sky"><Eye size={13} /></ActionBtn>
-                          <ActionBtn onClick={() => setSendPolicy(policy)} title="Enviar por email" color="emerald"><Send size={13} /></ActionBtn>
+                          <ActionBtn onClick={() => { setSendType('nueva'); setSendPolicy(policy); }} title="Enviar por email" color="emerald"><Send size={13} /></ActionBtn>
                           <ActionBtn
-                            onClick={() => updateStatus(policy.id, policy.status === 'published' ? 'hidden' : 'published')}
+                            onClick={() => updateStatus(
+                              policy.id,
+                              policy.status === 'published' ? 'hidden' : 'published',
+                              {},
+                              policy.status === 'published' ? 'oculta' : undefined,
+                            )}
                             title={policy.status === 'published' ? 'Ocultar' : 'Publicar'}
                             color={policy.status === 'published' ? 'emerald' : 'slate'}
                           >
                             {policy.status === 'published' ? <EyeOff size={13} /> : <Eye size={13} />}
                           </ActionBtn>
-                          <ActionBtn onClick={() => updateStatus(policy.id, 'archived', { archived_at: new Date().toISOString() })} title="Archivar" color="sky"><Archive size={13} /></ActionBtn>
+                          <ActionBtn onClick={() => updateStatus(policy.id, 'archived', { archived_at: new Date().toISOString() }, 'oculta')} title="Archivar" color="sky"><Archive size={13} /></ActionBtn>
                           <ActionBtn onClick={() => navigate(`/admin/editar/${policy.id}`)} title="Editar" color="slate"><Pencil size={13} /></ActionBtn>
                           <ActionBtn onClick={() => setConfirmDelete(policy.id)} title="Mover a papelera" color="red"><Trash2 size={13} /></ActionBtn>
                         </>

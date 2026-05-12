@@ -2,10 +2,13 @@ import React, { useEffect, useState, useMemo } from 'react';
 import {
   Send, X, Search, Users, UserCheck,
   ChevronDown, ChevronUp, Mail, CheckCircle, AlertCircle,
+  FilePlus, FilePen, EyeOff,
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { Policy } from '../types';
+
+export type NotificationType = 'nueva' | 'editada' | 'oculta';
 
 interface Recipient {
   id: string;
@@ -17,10 +20,32 @@ interface Recipient {
 
 interface Props {
   policy: Policy;
+  notificationType: NotificationType;
   onClose: () => void;
 }
 
-const SendEmailModal: React.FC<Props> = ({ policy, onClose }) => {
+const TYPE_META: Record<NotificationType, { label: string; description: string; icon: React.ReactNode; accent: string }> = {
+  nueva: {
+    label: 'Nueva Politica',
+    description: 'Se notificara que se publico una nueva politica.',
+    icon: <FilePlus size={18} className="text-white" />,
+    accent: 'bg-[#0A2647]',
+  },
+  editada: {
+    label: 'Politica Actualizada',
+    description: 'Se notificara que esta politica fue modificada.',
+    icon: <FilePen size={18} className="text-white" />,
+    accent: 'bg-amber-600',
+  },
+  oculta: {
+    label: 'Politica Ocultada',
+    description: 'Se notificara que esta politica fue ocultada / archivada.',
+    icon: <EyeOff size={18} className="text-white" />,
+    accent: 'bg-slate-600',
+  },
+};
+
+const SendEmailModal: React.FC<Props> = ({ policy, notificationType, onClose }) => {
   const { session } = useAuth();
   const [recipients, setRecipients] = useState<Recipient[]>([]);
   const [loading, setLoading]       = useState(true);
@@ -31,6 +56,8 @@ const SendEmailModal: React.FC<Props> = ({ policy, onClose }) => {
   const [error, setError]           = useState('');
   const [filterArea, setFilterArea] = useState('Todas');
   const [areaOpen, setAreaOpen]     = useState(false);
+
+  const meta = TYPE_META[notificationType];
 
   useEffect(() => {
     supabase
@@ -97,24 +124,25 @@ const SendEmailModal: React.FC<Props> = ({ policy, onClose }) => {
           'Authorization': `Bearer ${session?.access_token ?? ''}`,
         },
         body: JSON.stringify({
-          policyTitle:   policy.title,
+          policyTitle:       policy.title,
           policyNumber,
-          category:      policy.category,
-          department:    policy.department || undefined,
-          authorName:    policy.author_name,
-          summary:       policy.summary || undefined,
-          publishedAt:   policy.published_at,
-          policyUrl:     `${window.location.origin}/politicas/${policy.slug}`,
-          coverImageUrl: policy.cover_image_url ?? undefined,
-          documentUrl:   policy.document_clean_path
+          category:          policy.category,
+          department:        policy.department || undefined,
+          authorName:        policy.author_name,
+          summary:           policy.summary || undefined,
+          publishedAt:       policy.published_at,
+          policyUrl:         `${window.location.origin}/politicas/${policy.slug}`,
+          coverImageUrl:     policy.cover_image_url ?? undefined,
+          documentUrl:       policy.document_clean_path
             ? `${window.location.origin}/docs/${policy.document_clean_path}`
             : policy.document_url ?? undefined,
-          documentName:  policy.document_clean_path
+          documentName:      policy.document_clean_path
             ? policy.document_clean_path.split('/').pop()
             : (policy.document_name ?? undefined),
-          isInternal:    policy.is_internal,
-          version:       policy.version || '1.0',
-          recipients:    selectedRecipients.map(r => ({ email: r.email, full_name: r.full_name })),
+          isInternal:        policy.is_internal,
+          version:           policy.version || '1.0',
+          notificationType,
+          recipients:        selectedRecipients.map(r => ({ email: r.email, full_name: r.full_name })),
         }),
       });
 
@@ -140,7 +168,7 @@ const SendEmailModal: React.FC<Props> = ({ policy, onClose }) => {
           </div>
           <h3 className="text-lg font-bold text-slate-900 mb-2">Correos enviados</h3>
           <p className="text-slate-500 text-sm mb-1">
-            La politica fue enviada a{' '}
+            Notificacion <strong className="text-slate-700">({meta.label})</strong> enviada a{' '}
             <strong className="text-slate-700">{selectedRecipients.length}</strong>{' '}
             destinatario{selectedRecipients.length !== 1 ? 's' : ''}.
           </p>
@@ -165,14 +193,20 @@ const SendEmailModal: React.FC<Props> = ({ policy, onClose }) => {
         {/* Header */}
         <div className="flex items-start justify-between px-6 pt-6 pb-4 border-b border-gray-100 flex-shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-[#0A2647] rounded-2xl flex items-center justify-center flex-shrink-0">
-              <Send size={16} className="text-white" />
+            <div className={`w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0 ${meta.accent}`}>
+              {meta.icon}
             </div>
             <div>
-              <h2 className="text-base font-bold text-slate-900">Enviar Politica por Correo</h2>
+              <div className="flex items-center gap-2">
+                <h2 className="text-base font-bold text-slate-900">Enviar Notificacion por Correo</h2>
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full text-white ${meta.accent}`}>
+                  {meta.label}
+                </span>
+              </div>
               <p className="text-xs text-slate-400 mt-0.5 truncate max-w-xs">
                 {policy.title} &middot; POL-{String(policy.policy_number).padStart(4, '0')}
               </p>
+              <p className="text-xs text-slate-500 mt-0.5">{meta.description}</p>
             </div>
           </div>
           <button onClick={onClose} className="p-2 rounded-xl text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors">
