@@ -130,9 +130,9 @@ function formatMonth(d: Date): string {
 }
 
 const TYPE_CONFIG: Record<NotificationType, { label: string; subjectPrefix: string; bannerBg: string; bannerText: string }> = {
-  nueva:   { label: "Nueva Politica",       subjectPrefix: "Nueva Politica",       bannerBg: "#0d1f3c", bannerText: "#93c5fd" },
+  nueva:   { label: "Politica Nueva",       subjectPrefix: "Nueva Politica",       bannerBg: "#1e40af", bannerText: "#bfdbfe" },
   editada: { label: "Politica Actualizada", subjectPrefix: "Politica Actualizada", bannerBg: "#92400e", bannerText: "#fde68a" },
-  oculta:  { label: "Politica Ocultada",    subjectPrefix: "Politica Ocultada",    bannerBg: "#374151", bannerText: "#d1d5db" },
+  oculta:  { label: "Politica Archivada",   subjectPrefix: "Politica Archivada",   bannerBg: "#374151", bannerText: "#d1d5db" },
 };
 
 function buildHtml(p: NotificationPayload): string {
@@ -149,15 +149,13 @@ function buildHtml(p: NotificationPayload): string {
   const docDarkSection = "";
 
   // ── Status banner (only for editada / oculta) ──
-  const statusBanner = nt !== "nueva"
-    ? `<tr>
-        <td style="background:${tc.bannerBg};padding:10px 32px;">
-          <p style="margin:0;color:${tc.bannerText};font-size:12px;font-weight:700;letter-spacing:0.4px;text-transform:uppercase;">
-            ${tc.label}
-          </p>
-        </td>
-      </tr>`
-    : "";
+  const statusBanner = `<tr>
+      <td style="background:${tc.bannerBg};padding:10px 32px;">
+        <p style="margin:0;color:${tc.bannerText};font-size:12px;font-weight:700;letter-spacing:0.4px;text-transform:uppercase;">
+          ${tc.label}
+        </p>
+      </td>
+    </tr>`;
 
   // ── Hero banner azul (va DESPUÉS del doc oscuro) ──
   const heroBanner = `<tr>
