@@ -15,6 +15,7 @@ import AdminArchive from './pages/AdminArchive';
 import CategoriesManager from './pages/CategoriesManager';
 import MyProfile from './pages/MyProfile';
 import EmailRecipients from './pages/EmailRecipients';
+import CodigoEtica from './pages/CodigoEtica';
 
 const ADMIN_PAGES = new Set([
   'admin-dashboard', 'admin-create', 'admin-edit',
@@ -75,6 +76,9 @@ const AppContent: React.FC = () => {
       <div className="pt-14">
         {page.name === 'home' && (
           <Hero navigate={navigate} />
+        )}
+        {page.name === 'codigo-etica' && (
+          <CodigoEtica navigate={navigate} />
         )}
         {page.name === 'policies' && (
           <Home navigate={navigate} initialCategory={page.category} showBackButton={true} />

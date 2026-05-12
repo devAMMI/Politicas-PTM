@@ -5,6 +5,7 @@ function parsePath(pathname: string): Page {
   const path = pathname.replace(/^\//, '').replace(/\/$/, '') || '';
 
   if (path === '') return { name: 'home' };
+  if (path === 'codigoetica') return { name: 'codigo-etica' };
   if (path === 'login') return { name: 'admin-login' };
   if (path === 'admin') return { name: 'admin-dashboard' };
   if (path === 'admin/nueva') return { name: 'admin-create' };
