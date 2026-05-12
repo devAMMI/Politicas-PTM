@@ -32,13 +32,15 @@ const Hero: React.FC<HeroProps> = ({ navigate }) => {
               Accede a todas las pol&iacute;ticas, normativas y procedimientos internos de PTM. Documentaci&oacute;n actualizada para todos los colaboradores del grupo.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
-              <button
-                onClick={() => navigate('/categoria/Todas')}
+              <a
+                href="https://cssfpgrobcgjsuosuuwe.supabase.co/storage/v1/object/public/documents/codigo-de-etica/politica-conflicto-de-interes.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="inline-flex items-center justify-center gap-2 bg-white text-[#0A2647] font-semibold px-6 py-3 rounded-xl hover:bg-blue-50 transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5"
               >
-                <BookOpen size={18} />
-                Ver Pol&iacute;ticas
-              </button>
+                <FileText size={18} />
+                Ver C&oacute;digo de &Eacute;tica
+              </a>
             </div>
           </div>
 
