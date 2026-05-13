@@ -13,7 +13,7 @@ const Header: React.FC<HeaderProps> = ({ navigate, currentPage }) => {
             <div className="flex items-center gap-6">
               <img src="https://i.imgur.com/nwFGGgf.png" alt="AMMI" className="h-8 object-contain opacity-90" />
               <div className="h-6 w-px bg-white/20" />
-              <img src="/logo-06.png" alt="PLIHSA" className="h-7 object-contain opacity-90" />
+              <img src="https://www.plihsa.com/wp-content/uploads/2023/02/Plihsa_Logo_Azul.svg" alt="PLIHSA" className="h-7 object-contain opacity-90" />
               <div className="h-6 w-px bg-white/20" />
               <img src="https://i.imgur.com/kAzFS5n.png" alt="Millfoods" className="h-7 object-contain opacity-90" />
             </div>
