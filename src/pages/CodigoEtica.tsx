@@ -103,6 +103,13 @@ const CodigoEtica: React.FC<CodigoEticaProps> = ({ navigate }) => {
             )}
           </div>
 
+          {/* Quote banner */}
+          <div className="mb-6 bg-[#0A2647]/5 border-l-4 border-[#0A2647] rounded-r-xl px-5 py-4">
+            <p className="text-[#0A2647] text-sm font-medium leading-relaxed italic">
+              "Actuar con ética es responsabilidad de todos. Conoce, aplica y fortalece nuestro Código de Ética en cada decisión."
+            </p>
+          </div>
+
           {/* PDF viewer */}
           <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
             {/* Toolbar */}
