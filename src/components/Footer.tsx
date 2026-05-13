@@ -55,7 +55,7 @@ const Footer: React.FC<FooterProps> = ({ navigate }) => {
             <h3 className="text-xs font-semibold uppercase tracking-widest text-blue-300 mb-3">Grupo Empresarial</h3>
             <div className="grid grid-cols-2 gap-x-6 gap-y-4 items-center">
               <img src="https://i.imgur.com/nwFGGgf.png" alt="AMMI" className="h-6 object-contain object-left" />
-              <img src="/logo-06.png" alt="PLIHSA" className="h-6 object-contain object-left" />
+              <img src="https://www.plihsa.com/wp-content/uploads/2023/02/Plihsa_Logo_Azul.svg" alt="PLIHSA" className="h-6 object-contain object-left" />
               <img src="https://i.imgur.com/FpiAvCx.png" alt="PTM" className="h-6 object-contain object-left" />
               <img src="https://i.imgur.com/kAzFS5n.png" alt="MillFoods" className="h-6 object-contain object-left" />
             </div>
