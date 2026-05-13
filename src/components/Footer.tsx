@@ -1,20 +1,24 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { supabase } from '../lib/supabase';
 
 interface FooterProps {
   navigate: (to: string) => void;
 }
 
-const CATEGORIES = [
-  'Calidad e Inocuidad',
-  'Seguridad Industrial',
-  'Recursos Humanos',
-  'Operaciones',
-  'Medio Ambiente',
-  'General',
-];
-
 const Footer: React.FC<FooterProps> = ({ navigate }) => {
   const year = new Date().getFullYear();
+  const [categories, setCategories] = useState<string[]>([]);
+
+  useEffect(() => {
+    supabase
+      .from('categories')
+      .select('name')
+      .eq('is_active', true)
+      .order('name')
+      .then(({ data }) => {
+        if (data) setCategories(data.map(c => c.name));
+      });
+  }, []);
 
   return (
     <footer className="bg-[#071d38] text-white">
@@ -34,15 +38,15 @@ const Footer: React.FC<FooterProps> = ({ navigate }) => {
             </p>
           </div>
 
-          {/* Categories — 2 columns of 3 */}
+          {/* Categories — dynamic from DB */}
           <div>
             <h3 className="text-xs font-semibold uppercase tracking-widest text-blue-300 mb-3">Categorias</h3>
             <div className="grid grid-cols-2 gap-x-4 gap-y-2">
-              {CATEGORIES.map(cat => (
+              {categories.map(cat => (
                 <button
                   key={cat}
                   onClick={() => navigate(`/categoria/${encodeURIComponent(cat)}`)}
-                  className="text-xs text-slate-400 hover:text-white transition-colors text-left truncate"
+                  className="text-xs text-slate-400 hover:text-white transition-colors text-left"
                 >
                   {cat}
                 </button>
@@ -50,7 +54,7 @@ const Footer: React.FC<FooterProps> = ({ navigate }) => {
             </div>
           </div>
 
-          {/* Logos — no background, just PNG */}
+          {/* Logos */}
           <div>
             <h3 className="text-xs font-semibold uppercase tracking-widest text-blue-300 mb-3">Grupo Empresarial</h3>
             <div className="grid grid-cols-2 gap-x-6 gap-y-4 items-center">
