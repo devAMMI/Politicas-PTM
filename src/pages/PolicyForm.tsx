@@ -651,6 +651,7 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
               />
             </div>
 
+            {/* Contenido completo — oculto, disponible para reutilizar en el futuro
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1.5">Contenido completo</label>
               <p className="text-xs text-slate-400 mb-2">Puedes usar etiquetas HTML: &lt;h2&gt;, &lt;p&gt;, &lt;ul&gt;, &lt;li&gt;, &lt;strong&gt;, etc.</p>
@@ -662,6 +663,7 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
                 className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#0A2647]/20 focus:border-[#0A2647] transition-all resize-y"
               />
             </div>
+            */}
           </div>
 
           {/* Archivos adjuntos */}
