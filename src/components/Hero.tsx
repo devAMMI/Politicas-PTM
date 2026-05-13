@@ -80,6 +80,11 @@ const Hero: React.FC<HeroProps> = ({ navigate }) => {
               Accede a todas las pol&iacute;ticas, normativas y procedimientos internos de PTM.
               Documentaci&oacute;n actualizada para todos los colaboradores del grupo.
             </p>
+            {/* Ethics quote */}
+            <blockquote className="border-l-4 border-blue-400/60 pl-4 mb-6 text-blue-100/80 text-sm italic leading-relaxed max-w-lg mx-auto lg:mx-0">
+              "Actuar con ética es responsabilidad de todos. Conoce, aplica y fortalece nuestro Código de Ética en cada decisión."
+            </blockquote>
+
             <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
               <button
                 onClick={() => navigate('/codigoetica')}
