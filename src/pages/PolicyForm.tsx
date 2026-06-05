@@ -76,7 +76,7 @@ const PreviewModal: React.FC<PreviewModalProps> = ({
   form, policyNumber, coverPreview, existingCoverUrl, docFile, existingDocName,
   onConfirm, onBack,
 }) => {
-  const numLabel = policyNumber ? `POL-${String(policyNumber).padStart(4, '0')}` : '—';
+  const numLabel = policyNumber ? `POL-${String(policyNumber).padStart(5, '0')}` : '—';
   const coverSrc = coverPreview ?? existingCoverUrl ?? null;
   const docName  = docFile?.name ?? existingDocName ?? null;
 
@@ -481,7 +481,7 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ editId, navigate }) => {
     setForm(prev => ({ ...prev, [field]: e.target.value }));
   };
 
-  const numLabel = policyNumber ? `POL-${String(policyNumber).padStart(4, '0')}` : '—';
+  const numLabel = policyNumber ? `POL-${String(policyNumber).padStart(5, '0')}` : '—';
 
   return (
     <div className="min-h-screen bg-slate-50">

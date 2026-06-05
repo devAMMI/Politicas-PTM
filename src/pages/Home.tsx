@@ -232,7 +232,7 @@ const Home: React.FC<HomeProps> = ({ navigate, initialCategory = 'Todas', showBa
                             </span>
                             {policy.policy_number && (
                               <span className="text-xs font-bold font-mono bg-slate-100 text-slate-500 px-2 py-0.5 rounded-md">
-                                POL-{String(policy.policy_number).padStart(4, '0')}
+                                POL-{String(policy.policy_number).padStart(5, '0')}
                               </span>
                             )}
                             {policy.document_url && (

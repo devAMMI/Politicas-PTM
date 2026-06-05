@@ -429,7 +429,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ navigate }) => {
                     {/* Number */}
                     {policy.policy_number ? (
                       <span className="hidden sm:block font-mono text-xs font-bold text-slate-400 flex-shrink-0 w-20">
-                        POL-{String(policy.policy_number).padStart(4, '0')}
+                        POL-{String(policy.policy_number).padStart(5, '0')}
                       </span>
                     ) : (
                       <span className="hidden sm:block w-20" />

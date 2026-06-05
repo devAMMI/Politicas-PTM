@@ -62,7 +62,7 @@ const PolicyCard: React.FC<PolicyCardProps> = ({ policy, navigate }) => {
           <div className="flex items-center gap-1.5">
             {policy.policy_number && (
               <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-bold font-mono bg-slate-100 text-slate-500">
-                POL-{String(policy.policy_number).padStart(4, '0')}
+                POL-{String(policy.policy_number).padStart(5, '0')}
               </span>
             )}
             {policy.document_url && (

@@ -113,7 +113,7 @@ const SendEmailModal: React.FC<Props> = ({ policy, notificationType, onClose }) 
     setSending(true);
     setError('');
 
-    const policyNumber = `POL-${String(policy.policy_number).padStart(4, '0')}`;
+    const policyNumber = `POL-${String(policy.policy_number).padStart(5, '0')}`;
     const supabaseUrl  = import.meta.env.VITE_SUPABASE_URL as string;
 
     try {
@@ -204,7 +204,7 @@ const SendEmailModal: React.FC<Props> = ({ policy, notificationType, onClose }) 
                 </span>
               </div>
               <p className="text-xs text-slate-400 mt-0.5 truncate max-w-xs">
-                {policy.title} &middot; POL-{String(policy.policy_number).padStart(4, '0')}
+                {policy.title} &middot; POL-{String(policy.policy_number).padStart(5, '0')}
               </p>
               <p className="text-xs text-slate-500 mt-0.5">{meta.description}</p>
             </div>

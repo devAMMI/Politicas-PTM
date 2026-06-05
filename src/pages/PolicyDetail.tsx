@@ -147,7 +147,7 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
               </span>
               {policy.policy_number && (
                 <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-white/15 text-white font-mono">
-                  POL-{String(policy.policy_number).padStart(4, '0')}
+                  POL-{String(policy.policy_number).padStart(5, '0')}
                 </span>
               )}
               {policy.version && (

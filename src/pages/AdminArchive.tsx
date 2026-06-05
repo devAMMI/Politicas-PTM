@@ -36,7 +36,7 @@ function fmt(d: string) {
   return new Date(d).toLocaleDateString('es-GT', { year: 'numeric', month: 'short', day: 'numeric' });
 }
 function polNum(n: number) {
-  return `POL-${String(n).padStart(4, '0')}`;
+  return `POL-${String(n).padStart(5, '0')}`;
 }
 
 const AdminArchive: React.FC<AdminArchiveProps> = ({ navigate }) => {
