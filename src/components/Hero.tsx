@@ -99,19 +99,19 @@ const Hero: React.FC<HeroProps> = ({ navigate }) => {
           {/* Right: PTM logo + category cards */}
           <div className="flex-1 flex flex-col items-center lg:items-end gap-4 w-full">
             {/* Logo */}
-            <div className="relative flex items-center justify-center gap-4 sm:gap-6 rounded-3xl border border-white/70 bg-[#fff8f2]/95 px-5 py-4 shadow-[0_18px_45px_rgba(20,35,80,0.32)] backdrop-blur-md">
-              <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-white via-white/70 to-[#F6A800]/15" />
+            <div className="relative flex items-center justify-center gap-4 sm:gap-6 rounded-3xl border border-white/35 bg-[#dfe7f0]/95 px-5 py-3 shadow-[0_18px_45px_rgba(20,35,80,0.32)] backdrop-blur-md">
+              <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-white/55 via-[#dfe7f0]/70 to-[#F6A800]/20" />
               <div className="absolute -inset-2 rounded-[2rem] bg-[#F6A800]/20 blur-xl -z-10" />
               <img
                 src="https://i.imgur.com/FpiAvCx.png"
                 alt="PTM"
-                className="relative h-20 sm:h-24 lg:h-32 w-auto object-contain drop-shadow-[0_8px_12px_rgba(25,35,70,0.28)]"
+                className="relative h-14 sm:h-16 lg:h-24 w-[7rem] sm:w-[8rem] lg:w-[9rem] object-contain drop-shadow-[0_8px_12px_rgba(25,35,70,0.28)]"
               />
-              <div className="relative h-16 sm:h-20 lg:h-28 w-px bg-white/30" />
+              <div className="relative h-12 sm:h-14 lg:h-20 w-px bg-slate-500/35" />
               <img
                 src="https://i.imgur.com/sMMeJrA.png"
                 alt="Metálicos Punto de Venta"
-                className="relative h-20 sm:h-24 lg:h-32 w-auto max-w-[8rem] object-contain mix-blend-multiply drop-shadow-[0_8px_12px_rgba(25,35,70,0.28)]"
+                className="relative h-14 sm:h-16 lg:h-24 w-[7rem] sm:w-[8rem] lg:w-[9rem] object-contain mix-blend-multiply drop-shadow-[0_8px_12px_rgba(25,35,70,0.28)]"
               />
             </div>
 
