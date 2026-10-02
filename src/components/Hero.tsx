@@ -104,13 +104,13 @@ const Hero: React.FC<HeroProps> = ({ navigate }) => {
               <img
                 src="https://i.imgur.com/FpiAvCx.png"
                 alt="PTM"
-                className="relative h-14 sm:h-16 lg:h-24 w-[7rem] sm:w-[8rem] lg:w-[9rem] object-contain drop-shadow-[0_8px_12px_rgba(25,35,70,0.28)]"
+                className="relative h-14 sm:h-16 lg:h-24 w-[7rem] sm:w-[8rem] lg:w-[9rem] object-contain brightness-0 invert drop-shadow-[0_8px_12px_rgba(25,35,70,0.28)]"
               />
               <div className="relative h-12 sm:h-14 lg:h-20 w-px bg-slate-500/35" />
               <img
                 src="https://i.imgur.com/sMMeJrA.png"
                 alt="Metálicos Punto de Venta"
-                className="relative h-14 sm:h-16 lg:h-24 w-[7rem] sm:w-[8rem] lg:w-[9rem] object-contain mix-blend-multiply drop-shadow-[0_8px_12px_rgba(25,35,70,0.28)]"
+                className="relative h-14 sm:h-16 lg:h-24 w-[7rem] sm:w-[8rem] lg:w-[9rem] object-contain brightness-0 invert drop-shadow-[0_8px_12px_rgba(25,35,70,0.28)]"
               />
             </div>
 
