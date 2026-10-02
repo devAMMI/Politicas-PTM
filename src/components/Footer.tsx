@@ -62,6 +62,11 @@ const Footer: React.FC<FooterProps> = ({ navigate }) => {
               <img src="https://www.plihsa.com/wp-content/uploads/2023/02/Plihsa_Logo_Azul.svg" alt="PLIHSA" className="h-6 object-contain object-left" />
               <img src="https://i.imgur.com/FpiAvCx.png" alt="PTM" className="h-6 object-contain object-left" />
               <img src="https://i.imgur.com/kAzFS5n.png" alt="MillFoods" className="h-6 object-contain object-left" />
+              <img
+                src="https://i.imgur.com/sMMeJrA.png"
+                alt="Metálicos Punto de Venta"
+                className="col-span-2 h-12 w-full object-contain object-right drop-shadow-[0_4px_10px_rgba(0,0,0,0.25)]"
+              />
             </div>
           </div>
         </div>
