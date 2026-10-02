@@ -56,8 +56,8 @@ const Footer: React.FC<FooterProps> = ({ navigate }) => {
 
           {/* Logos */}
           <div>
-            <h3 className="text-xs font-semibold uppercase tracking-widest text-[#F6A800] mb-3">Grupo Empresarial</h3>
-            <div className="flex w-full flex-nowrap items-center justify-between gap-2 overflow-hidden">
+            <h3 className="text-center text-xs font-semibold uppercase tracking-widest text-[#F6A800] mb-3">Grupo Empresarial</h3>
+            <div className="mt-2 flex w-full flex-nowrap items-center justify-between gap-2 overflow-hidden">
               <img src="https://i.imgur.com/nwFGGgf.png" alt="AMMI" className="h-5 w-auto max-w-[22%] object-contain" />
               <img src="https://www.plihsa.com/wp-content/uploads/2023/02/Plihsa_Logo_Azul.svg" alt="PLIHSA" className="h-5 w-auto max-w-[22%] object-contain" />
               <img src="https://i.imgur.com/FpiAvCx.png" alt="PTM" className="h-5 w-auto max-w-[18%] object-contain" />
