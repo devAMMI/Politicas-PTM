@@ -108,7 +108,7 @@ const Hero: React.FC<HeroProps> = ({ navigate }) => {
                 className="relative h-24 lg:h-32 object-contain"
                 style={{
                   filter:
-                    'drop-shadow(0 0 18px rgba(246,168,0,0.55)) drop-shadow(0 0 40px rgba(239,83,48,0.35))',
+                    'brightness(0) invert(1) drop-shadow(0 0 18px rgba(246,168,0,0.55)) drop-shadow(0 0 40px rgba(239,83,48,0.35))',
                 }}
               />
             </div>
