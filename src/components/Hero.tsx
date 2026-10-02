@@ -99,23 +99,19 @@ const Hero: React.FC<HeroProps> = ({ navigate }) => {
           {/* Right: PTM logo + category cards */}
           <div className="flex-1 flex flex-col items-center lg:items-end gap-4 w-full">
             {/* Logo */}
-            <div className="relative flex items-center justify-center gap-4 sm:gap-6 rounded-3xl border border-white/20 bg-[#5f1020]/60 px-5 py-4 shadow-[0_16px_40px_rgba(60,5,15,0.35)] backdrop-blur-md">
-              <div className="absolute inset-0 rounded-3xl bg-[#F6A800]/20 blur-2xl scale-110" />
-              <div className="absolute inset-0 rounded-3xl border border-white/10 bg-gradient-to-br from-white/5 to-transparent" />
+            <div className="relative flex items-center justify-center gap-4 sm:gap-6 rounded-3xl border border-white/70 bg-[#fff8f2]/95 px-5 py-4 shadow-[0_18px_45px_rgba(20,35,80,0.32)] backdrop-blur-md">
+              <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-white via-white/70 to-[#F6A800]/15" />
+              <div className="absolute -inset-2 rounded-[2rem] bg-[#F6A800]/20 blur-xl -z-10" />
               <img
                 src="https://i.imgur.com/FpiAvCx.png"
                 alt="PTM"
-                className="relative h-20 sm:h-24 lg:h-32 w-auto object-contain"
-                style={{
-                  filter:
-                    'brightness(0) invert(1) drop-shadow(0 0 18px rgba(246,168,0,0.55)) drop-shadow(0 0 40px rgba(239,83,48,0.35))',
-                }}
+                className="relative h-20 sm:h-24 lg:h-32 w-auto object-contain drop-shadow-[0_8px_12px_rgba(25,35,70,0.28)]"
               />
               <div className="relative h-16 sm:h-20 lg:h-28 w-px bg-white/30" />
               <img
                 src="https://i.imgur.com/sMMeJrA.png"
                 alt="Metálicos Punto de Venta"
-                className="relative h-20 sm:h-24 lg:h-32 w-auto max-w-[7rem] object-contain mix-blend-multiply drop-shadow-[0_6px_12px_rgba(0,0,0,0.3)]"
+                className="relative h-20 sm:h-24 lg:h-32 w-auto max-w-[8rem] object-contain mix-blend-multiply drop-shadow-[0_8px_12px_rgba(25,35,70,0.28)]"
               />
             </div>
 
