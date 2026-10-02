@@ -99,9 +99,9 @@ const Hero: React.FC<HeroProps> = ({ navigate }) => {
           {/* Right: PTM logo + category cards */}
           <div className="flex-1 flex flex-col items-center lg:items-end gap-4 w-full">
             {/* Logo */}
-            <div className="relative flex items-center justify-center gap-4 sm:gap-6">
-              <div className="absolute inset-0 rounded-3xl bg-[#F6A800]/25 blur-2xl scale-110" />
-              <div className="absolute inset-0 rounded-3xl bg-white/10 blur-xl scale-105" />
+            <div className="relative flex items-center justify-center gap-4 sm:gap-6 rounded-3xl border border-white/20 bg-[#5f1020]/60 px-5 py-4 shadow-[0_16px_40px_rgba(60,5,15,0.35)] backdrop-blur-md">
+              <div className="absolute inset-0 rounded-3xl bg-[#F6A800]/20 blur-2xl scale-110" />
+              <div className="absolute inset-0 rounded-3xl border border-white/10 bg-gradient-to-br from-white/5 to-transparent" />
               <img
                 src="https://i.imgur.com/FpiAvCx.png"
                 alt="PTM"
@@ -115,7 +115,7 @@ const Hero: React.FC<HeroProps> = ({ navigate }) => {
               <img
                 src="https://i.imgur.com/sMMeJrA.png"
                 alt="Metálicos Punto de Venta"
-                className="relative h-20 sm:h-24 lg:h-32 w-auto max-w-[7rem] object-contain drop-shadow-[0_0_14px_rgba(255,255,255,0.2)]"
+                className="relative h-20 sm:h-24 lg:h-32 w-auto max-w-[7rem] object-contain mix-blend-multiply drop-shadow-[0_6px_12px_rgba(0,0,0,0.3)]"
               />
             </div>
 
