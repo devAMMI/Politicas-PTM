@@ -70,10 +70,12 @@ const AppContent: React.FC = () => {
     );
   }
 
+  const isHomePage = page.name === 'home';
+
   return (
-    <>
+    <div className={`min-h-screen flex flex-col ${isHomePage ? 'bg-[#E84A2A]' : 'bg-[#FFF8F4]'}`}>
       <Header navigate={navigate} currentPage={page.name} />
-      <div className="pt-14">
+      <div className="flex-1 pt-14">
         {page.name === 'home' && (
           <Hero navigate={navigate} />
         )}
@@ -91,7 +93,7 @@ const AppContent: React.FC = () => {
         )}
       </div>
       <Footer navigate={navigate} />
-    </>
+    </div>
   );
 };
 
