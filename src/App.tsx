@@ -44,8 +44,8 @@ const AppContent: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F8F9FC] flex items-center justify-center">
-        <div className="w-10 h-10 border-4 border-[#0A2647]/20 border-t-[#0A2647] rounded-full animate-spin" />
+      <div className="min-h-screen bg-[#FFF8F4] flex items-center justify-center">
+        <div className="w-10 h-10 border-4 border-[#D71920]/20 border-t-[#D71920] rounded-full animate-spin" />
       </div>
     );
   }

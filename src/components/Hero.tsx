@@ -49,7 +49,7 @@ const Hero: React.FC<HeroProps> = ({ navigate }) => {
   }, []);
 
   return (
-    <section className="relative bg-gradient-to-br from-[#0A2647] via-[#144272] to-[#205295] overflow-hidden">
+    <section className="relative bg-gradient-to-br from-[#7A0C14] via-[#B5121B] to-[#E84A2A] overflow-hidden">
       {/* Background decorations */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-0 right-0 w-[600px] h-[600px] rounded-full bg-white -translate-y-1/2 translate-x-1/3" />
@@ -74,21 +74,21 @@ const Hero: React.FC<HeroProps> = ({ navigate }) => {
             </div>
             <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-tight mb-4">
               Pol&iacute;ticas Internas
-              <div className="h-px my-2 bg-gradient-to-r from-blue-400/80 via-blue-300/40 to-transparent rounded-full" />
+              <div className="h-px my-2 bg-gradient-to-r from-[#F6A800]/90 via-[#FFB36B]/50 to-transparent rounded-full" />
             </h1>
-            <p className="text-blue-100 text-base lg:text-lg max-w-lg leading-relaxed mb-6 mx-auto lg:mx-0">
+            <p className="text-[#FFE5DB] text-base lg:text-lg max-w-lg leading-relaxed mb-6 mx-auto lg:mx-0">
               Accede a todas las pol&iacute;ticas, normativas y procedimientos internos de PTM.
               Documentaci&oacute;n actualizada para todos los colaboradores del grupo.
             </p>
             {/* Ethics quote */}
-            <blockquote className="border-l-4 border-blue-400/60 pl-4 mb-6 text-blue-100/80 text-sm italic leading-relaxed max-w-lg mx-auto lg:mx-0">
+            <blockquote className="border-l-4 border-[#F6A800] pl-4 mb-6 text-[#FFE5DB]/90 text-sm italic leading-relaxed max-w-lg mx-auto lg:mx-0">
               "Actuar con ética es responsabilidad de todos. Conoce, aplica y fortalece nuestro Código de Ética en cada decisión."
             </blockquote>
 
             <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
               <button
                 onClick={() => navigate('/codigoetica')}
-                className="inline-flex items-center justify-center gap-2 bg-white text-[#0A2647] font-semibold px-6 py-3 rounded-xl hover:bg-blue-50 transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5"
+                className="inline-flex items-center justify-center gap-2 bg-white text-[#8F1018] font-semibold px-6 py-3 rounded-xl hover:bg-[#FFF4EC] transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5"
               >
                 <FileText size={18} />
                 Ver C&oacute;digo de &Eacute;tica
@@ -100,7 +100,7 @@ const Hero: React.FC<HeroProps> = ({ navigate }) => {
           <div className="flex-1 flex flex-col items-center lg:items-end gap-4 w-full">
             {/* Logo */}
             <div className="relative flex items-center justify-center">
-              <div className="absolute inset-0 rounded-3xl bg-blue-400/20 blur-2xl scale-110" />
+              <div className="absolute inset-0 rounded-3xl bg-[#F6A800]/25 blur-2xl scale-110" />
               <div className="absolute inset-0 rounded-3xl bg-white/10 blur-xl scale-105" />
               <img
                 src="https://i.imgur.com/FpiAvCx.png"
@@ -108,7 +108,7 @@ const Hero: React.FC<HeroProps> = ({ navigate }) => {
                 className="relative h-24 lg:h-32 object-contain"
                 style={{
                   filter:
-                    'drop-shadow(0 0 18px rgba(147,197,253,0.6)) drop-shadow(0 0 40px rgba(96,165,250,0.35))',
+                    'drop-shadow(0 0 18px rgba(246,168,0,0.55)) drop-shadow(0 0 40px rgba(239,83,48,0.35))',
                 }}
               />
             </div>
@@ -149,7 +149,7 @@ const Hero: React.FC<HeroProps> = ({ navigate }) => {
         </div>
       </div>
 
-      <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-[#F8F9FC] to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-[#FFF8F4] to-transparent" />
     </section>
   );
 };

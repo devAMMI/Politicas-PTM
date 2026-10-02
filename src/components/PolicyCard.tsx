@@ -10,8 +10,8 @@ interface PolicyCardProps {
 const CATEGORY_COLORS: Record<string, { bg: string; text: string; dot: string }> = {
   'Calidad e Inocuidad': { bg: 'bg-emerald-50', text: 'text-emerald-700', dot: 'bg-emerald-500' },
   'Seguridad Industrial': { bg: 'bg-amber-50', text: 'text-amber-700', dot: 'bg-amber-500' },
-  'Recursos Humanos': { bg: 'bg-blue-50', text: 'text-blue-700', dot: 'bg-blue-500' },
-  'Operaciones': { bg: 'bg-violet-50', text: 'text-violet-700', dot: 'bg-violet-500' },
+  'Recursos Humanos': { bg: 'bg-orange-50', text: 'text-orange-700', dot: 'bg-orange-500' },
+  'Operaciones': { bg: 'bg-red-50', text: 'text-red-700', dot: 'bg-red-500' },
   'Medio Ambiente': { bg: 'bg-teal-50', text: 'text-teal-700', dot: 'bg-teal-500' },
   'General': { bg: 'bg-slate-50', text: 'text-slate-700', dot: 'bg-slate-400' },
 };
@@ -49,7 +49,7 @@ const PolicyCard: React.FC<PolicyCardProps> = ({ policy, navigate }) => {
       )}
 
       {!policy.cover_image_url && (
-        <div className="h-2 bg-gradient-to-r from-[#0A2647] to-[#205295]" />
+        <div className="h-2 bg-gradient-to-r from-[#8F1018] via-[#D71920] to-[#F04E23]" />
       )}
 
       <div className="p-6">
@@ -74,7 +74,7 @@ const PolicyCard: React.FC<PolicyCardProps> = ({ policy, navigate }) => {
           </div>
         </div>
 
-        <h3 className="text-[#0A2647] font-bold text-lg leading-snug mb-3 group-hover:text-[#205295] transition-colors line-clamp-2">
+        <h3 className="text-[#8F1018] font-bold text-lg leading-snug mb-3 group-hover:text-[#D71920] transition-colors line-clamp-2">
           {policy.title}
         </h3>
 

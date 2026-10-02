@@ -96,7 +96,7 @@ const Home: React.FC<HomeProps> = ({ navigate, initialCategory = 'Todas', showBa
   }
 
   return (
-    <main className="min-h-screen bg-[#F8F9FC]">
+    <main className="min-h-screen bg-[#FFF8F4]">
       <ScrollToTop />
       <div id="politicas" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
         {/* Header */}
@@ -104,13 +104,13 @@ const Home: React.FC<HomeProps> = ({ navigate, initialCategory = 'Todas', showBa
           {showBackButton && (
             <button
               onClick={() => navigate('/')}
-              className="inline-flex items-center gap-2 text-slate-500 hover:text-[#0A2647] text-sm font-medium mb-5 transition-colors group"
+              className="inline-flex items-center gap-2 text-slate-500 hover:text-[#8F1018] text-sm font-medium mb-5 transition-colors group"
             >
               <ArrowLeft size={15} className="group-hover:-translate-x-1 transition-transform" />
               Volver al inicio
             </button>
           )}
-          <h2 className="text-2xl font-bold text-[#0A2647] mb-1">
+          <h2 className="text-2xl font-bold text-[#8F1018] mb-1">
             {initialCategory !== 'Todas' ? initialCategory : 'Políticas Publicadas'}
           </h2>
           <p className="text-slate-500 text-sm">
@@ -129,7 +129,7 @@ const Home: React.FC<HomeProps> = ({ navigate, initialCategory = 'Todas', showBa
               placeholder="Buscar politica..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full pl-11 pr-4 py-3 bg-white border border-gray-200 rounded-xl text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0A2647]/20 focus:border-[#0A2647] transition-all"
+              className="w-full pl-11 pr-4 py-3 bg-white border border-gray-200 rounded-xl text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#8F1018]/20 focus:border-[#8F1018] transition-all"
             />
           </div>
           <div className="flex items-center gap-1.5 flex-wrap">
@@ -140,8 +140,8 @@ const Home: React.FC<HomeProps> = ({ navigate, initialCategory = 'Todas', showBa
                 onClick={() => setActiveCategory(cat)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${
                   activeCategory === cat
-                    ? 'bg-[#0A2647] text-white shadow-sm'
-                    : 'bg-white text-slate-600 border border-gray-200 hover:border-[#0A2647]/30 hover:text-[#0A2647]'
+                    ? 'bg-[#8F1018] text-white shadow-sm'
+                    : 'bg-white text-slate-600 border border-gray-200 hover:border-[#8F1018]/30 hover:text-[#8F1018]'
                 }`}
               >
                 {cat}
@@ -171,14 +171,14 @@ const Home: React.FC<HomeProps> = ({ navigate, initialCategory = 'Todas', showBa
                 <button
                   onClick={() => setViewMode('grid')}
                   title="Vista tarjetas"
-                  className={`p-1.5 rounded-md transition-all ${viewMode === 'grid' ? 'bg-[#0A2647] text-white shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                  className={`p-1.5 rounded-md transition-all ${viewMode === 'grid' ? 'bg-[#8F1018] text-white shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
                 >
                   <LayoutGrid size={15} />
                 </button>
                 <button
                   onClick={() => setViewMode('list')}
                   title="Vista lista"
-                  className={`p-1.5 rounded-md transition-all ${viewMode === 'list' ? 'bg-[#0A2647] text-white shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                  className={`p-1.5 rounded-md transition-all ${viewMode === 'list' ? 'bg-[#8F1018] text-white shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
                 >
                   <List size={15} />
                 </button>
@@ -203,7 +203,7 @@ const Home: React.FC<HomeProps> = ({ navigate, initialCategory = 'Todas', showBa
                     <article
                       key={policy.id}
                       onClick={() => navigate(`/politicas/${policy.slug}`)}
-                      className="group bg-white border border-gray-100 rounded-xl shadow-sm hover:shadow-md hover:border-[#0A2647]/20 transition-all duration-200 cursor-pointer flex gap-0 overflow-hidden"
+                      className="group bg-white border border-gray-100 rounded-xl shadow-sm hover:shadow-md hover:border-[#8F1018]/20 transition-all duration-200 cursor-pointer flex gap-0 overflow-hidden"
                     >
                       {/* Cover thumbnail */}
                       {policy.cover_image_url ? (
@@ -215,7 +215,7 @@ const Home: React.FC<HomeProps> = ({ navigate, initialCategory = 'Todas', showBa
                           />
                         </div>
                       ) : (
-                        <div className="w-1.5 flex-shrink-0 bg-gradient-to-b from-[#0A2647] to-[#205295]" />
+                        <div className="w-1.5 flex-shrink-0 bg-gradient-to-b from-[#8F1018] to-[#D71920]" />
                       )}
 
                       <div className="flex-1 flex flex-col sm:flex-row sm:items-center gap-3 px-5 py-4">
@@ -242,7 +242,7 @@ const Home: React.FC<HomeProps> = ({ navigate, initialCategory = 'Todas', showBa
                               </span>
                             )}
                           </div>
-                          <h3 className="text-[#0A2647] font-bold text-base leading-snug group-hover:text-[#205295] transition-colors line-clamp-1">
+                          <h3 className="text-[#8F1018] font-bold text-base leading-snug group-hover:text-[#D71920] transition-colors line-clamp-1">
                             {policy.title}
                           </h3>
                           {policy.summary && (
@@ -257,7 +257,7 @@ const Home: React.FC<HomeProps> = ({ navigate, initialCategory = 'Todas', showBa
                             {formatDate(policy.published_at)}
                           </div>
                           <div className="hidden sm:block text-xs text-slate-400">{formatTime(policy.published_at)}</div>
-                          <ChevronRight size={16} className="text-[#205295] opacity-0 group-hover:opacity-100 transition-opacity ml-auto sm:ml-0" />
+                          <ChevronRight size={16} className="text-[#D71920] opacity-0 group-hover:opacity-100 transition-opacity ml-auto sm:ml-0" />
                         </div>
                       </div>
                     </article>
@@ -272,7 +272,7 @@ const Home: React.FC<HomeProps> = ({ navigate, initialCategory = 'Todas', showBa
                 <button
                   onClick={() => setPage(p => Math.max(1, p - 1))}
                   disabled={safePage === 1}
-                  className="flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 bg-white border border-gray-200 hover:border-[#0A2647]/30 hover:text-[#0A2647] disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                  className="flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 bg-white border border-gray-200 hover:border-[#8F1018]/30 hover:text-[#8F1018] disabled:opacity-40 disabled:cursor-not-allowed transition-all"
                 >
                   <ChevronLeft size={15} />
                   Anterior
@@ -288,8 +288,8 @@ const Home: React.FC<HomeProps> = ({ navigate, initialCategory = 'Todas', showBa
                         onClick={() => setPage(n as number)}
                         className={`w-9 h-9 rounded-lg text-sm font-semibold transition-all duration-150 ${
                           safePage === n
-                            ? 'bg-[#0A2647] text-white shadow-sm'
-                            : 'bg-white text-slate-600 border border-gray-200 hover:border-[#0A2647]/30 hover:text-[#0A2647]'
+                            ? 'bg-[#8F1018] text-white shadow-sm'
+                            : 'bg-white text-slate-600 border border-gray-200 hover:border-[#8F1018]/30 hover:text-[#8F1018]'
                         }`}
                       >
                         {n}
@@ -301,7 +301,7 @@ const Home: React.FC<HomeProps> = ({ navigate, initialCategory = 'Todas', showBa
                 <button
                   onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                   disabled={safePage === totalPages}
-                  className="flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 bg-white border border-gray-200 hover:border-[#0A2647]/30 hover:text-[#0A2647] disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                  className="flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 bg-white border border-gray-200 hover:border-[#8F1018]/30 hover:text-[#8F1018] disabled:opacity-40 disabled:cursor-not-allowed transition-all"
                 >
                   Siguiente
                   <ChevronRight size={15} />

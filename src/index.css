@@ -43,7 +43,7 @@
 .prose h2 {
   font-size: 1.15rem;
   font-weight: 700;
-  color: #0A2647;
+  color: #8F1018;
   margin-top: 1.75rem;
   margin-bottom: 0.75rem;
 }
@@ -51,7 +51,7 @@
 .prose h3 {
   font-size: 1rem;
   font-weight: 600;
-  color: #144272;
+  color: #B5121B;
   margin-top: 1.25rem;
   margin-bottom: 0.5rem;
 }
@@ -86,6 +86,6 @@
 }
 
 .prose a {
-  color: #205295;
+  color: #D71920;
   text-decoration: underline;
 }

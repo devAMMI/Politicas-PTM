@@ -42,10 +42,10 @@ const CodigoEtica: React.FC<CodigoEticaProps> = ({ navigate }) => {
   return (
     <>
       <ScrollToTop />
-      <div className="min-h-screen bg-[#F8F9FC]">
+      <div className="min-h-screen bg-[#FFF8F4]">
 
         {/* Page header */}
-        <div className="bg-gradient-to-r from-[#0A2647] to-[#144272] text-white">
+        <div className="bg-gradient-to-r from-[#8F1018] to-[#B5121B] text-white">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex items-center gap-4">
             <button
               onClick={() => navigate('/')}
@@ -64,11 +64,11 @@ const CodigoEtica: React.FC<CodigoEticaProps> = ({ navigate }) => {
           {/* Title row */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-xl bg-[#0A2647]/10 flex items-center justify-center">
-                <FileText size={20} className="text-[#0A2647]" />
+              <div className="w-11 h-11 rounded-xl bg-[#8F1018]/10 flex items-center justify-center">
+                <FileText size={20} className="text-[#8F1018]" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-[#0A2647]">Código de Ética</h1>
+                <h1 className="text-xl font-bold text-[#8F1018]">Código de Ética</h1>
                 <p className="text-slate-500 text-sm">PTM · Advanced Plastic Solutions</p>
               </div>
             </div>
@@ -94,7 +94,7 @@ const CodigoEtica: React.FC<CodigoEticaProps> = ({ navigate }) => {
                 <a
                   href={pdfUrl}
                   download="codigo-de-etica-ptm.pdf"
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#0A2647] text-white hover:bg-[#144272] transition text-sm font-medium"
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#8F1018] text-white hover:bg-[#B5121B] transition text-sm font-medium"
                 >
                   <Download size={15} />
                   Descargar
@@ -104,8 +104,8 @@ const CodigoEtica: React.FC<CodigoEticaProps> = ({ navigate }) => {
           </div>
 
           {/* Quote banner */}
-          <div className="mb-6 bg-[#0A2647]/5 border-l-4 border-[#0A2647] rounded-r-xl px-5 py-4">
-            <p className="text-[#0A2647] text-sm font-medium leading-relaxed italic">
+          <div className="mb-6 bg-[#F04E23]/10 border-l-4 border-[#D71920] rounded-r-xl px-5 py-4">
+            <p className="text-[#8F1018] text-sm font-medium leading-relaxed italic">
               "Actuar con ética es responsabilidad de todos. Conoce, aplica y fortalece nuestro Código de Ética en cada decisión."
             </p>
           </div>
@@ -118,7 +118,7 @@ const CodigoEtica: React.FC<CodigoEticaProps> = ({ navigate }) => {
               {pdfUrl && (
                 <button
                   onClick={() => setFullscreen(true)}
-                  className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-[#0A2647] transition-colors"
+                  className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-[#8F1018] transition-colors"
                 >
                   <Maximize2 size={14} />
                   Pantalla completa
@@ -130,7 +130,7 @@ const CodigoEtica: React.FC<CodigoEticaProps> = ({ navigate }) => {
             <div className="relative" style={{ height: '75vh', minHeight: '480px' }}>
               {loading && (
                 <div className="absolute inset-0 flex items-center justify-center bg-white">
-                  <Loader2 size={28} className="text-[#0A2647]/40 animate-spin" />
+                  <Loader2 size={28} className="text-[#8F1018]/40 animate-spin" />
                 </div>
               )}
               {!loading && !pdfUrl && (
@@ -155,7 +155,7 @@ const CodigoEtica: React.FC<CodigoEticaProps> = ({ navigate }) => {
       {/* Fullscreen overlay */}
       {fullscreen && viewerSrc && (
         <div className="fixed inset-0 z-50 bg-black/90 flex flex-col">
-          <div className="flex items-center justify-between px-4 py-3 bg-[#0A2647]">
+          <div className="flex items-center justify-between px-4 py-3 bg-[#8F1018]">
             <span className="text-white font-semibold text-sm">Código de Ética — PTM</span>
             <div className="flex items-center gap-2">
               <button

@@ -88,18 +88,18 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
     } catch { window.open(url, '_blank'); }
   };
 
-  if (loading) return <main className="min-h-screen bg-[#F8F9FC] pt-6"><LoadingSpinner message="Cargando politica..." /></main>;
+  if (loading) return <main className="min-h-screen bg-[#FFF8F4] pt-6"><LoadingSpinner message="Cargando politica..." /></main>;
 
   if (!policy) {
     return (
-      <main className="min-h-screen bg-[#F8F9FC]">
+      <main className="min-h-screen bg-[#FFF8F4]">
         <div className="max-w-4xl mx-auto px-4 py-20 text-center">
           <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <FileText size={24} className="text-slate-400" />
           </div>
           <h2 className="text-xl font-bold text-slate-700 mb-2">Politica no encontrada</h2>
           <p className="text-slate-500 text-sm mb-6">La politica que buscas no existe o no esta disponible.</p>
-          <button onClick={() => navigate('/')} className="inline-flex items-center gap-2 bg-[#0A2647] text-white px-5 py-2.5 rounded-xl hover:bg-[#144272] transition-colors">
+          <button onClick={() => navigate('/')} className="inline-flex items-center gap-2 bg-[#8F1018] text-white px-5 py-2.5 rounded-xl hover:bg-[#B5121B] transition-colors">
             <ArrowLeft size={16} /> Volver al inicio
           </button>
         </div>
@@ -115,7 +115,7 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
   const isInternal = policy.is_internal === true;
 
   return (
-    <main className="min-h-screen bg-[#F8F9FC]">
+    <main className="min-h-screen bg-[#FFF8F4]">
       <ScrollToTop />
 
       {lightboxOpen && policy.cover_image_url && (
@@ -131,7 +131,7 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
         <div className="flex items-center gap-3 mb-8">
           <button
             onClick={() => navigate(session ? '/admin' : '/')}
-            className="inline-flex items-center gap-2 text-slate-500 hover:text-[#0A2647] text-sm font-medium transition-colors group"
+            className="inline-flex items-center gap-2 text-slate-500 hover:text-[#8F1018] text-sm font-medium transition-colors group"
           >
             <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
             {session ? 'Volver al Panel Admin' : 'Volver a Políticas'}
@@ -140,7 +140,7 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
 
         <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
           {/* Hero */}
-          <div className="bg-gradient-to-r from-[#0A2647] to-[#205295] p-8 md:p-10">
+          <div className="bg-gradient-to-r from-[#8F1018] to-[#D71920] p-8 md:p-10">
             <div className="flex flex-wrap items-center gap-2 mb-4">
               <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ${colors.bg} ${colors.text}`}>
                 <Tag size={10} />{policy.category}
@@ -151,18 +151,18 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
                 </span>
               )}
               {policy.version && (
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-white/10 text-blue-200">
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-white/10 text-[#FFD6C7]">
                   v{policy.version}
                 </span>
               )}
               {policy.department && (
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-white/10 text-blue-200">
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-white/10 text-[#FFD6C7]">
                   {policy.department}
                 </span>
               )}
             </div>
             <h1 className="text-lg md:text-xl font-bold text-white leading-snug mb-4 max-w-2xl">{policy.title}</h1>
-            {policy.summary && <p className="text-blue-200 text-sm leading-relaxed max-w-2xl">{policy.summary}</p>}
+            {policy.summary && <p className="text-[#FFD6C7] text-sm leading-relaxed max-w-2xl">{policy.summary}</p>}
           </div>
 
           {/* Meta */}
@@ -198,13 +198,13 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
             <div className="px-8 md:px-10 py-8">
               <div className="relative">
                 <div
-                  className="prose prose-slate max-w-none prose-headings:text-[#0A2647] prose-headings:font-bold prose-p:text-slate-600 prose-p:leading-relaxed prose-li:text-slate-600 prose-strong:text-slate-800 prose-sm overflow-hidden"
+                  className="prose prose-slate max-w-none prose-headings:text-[#8F1018] prose-headings:font-bold prose-p:text-slate-600 prose-p:leading-relaxed prose-li:text-slate-600 prose-strong:text-slate-800 prose-sm overflow-hidden"
                   style={contentExpanded ? undefined : { display: '-webkit-box', WebkitLineClamp: CONTENT_LINE_CLAMP, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
                   dangerouslySetInnerHTML={{ __html: policy.content }}
                 />
                 {!contentExpanded && <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-white to-transparent pointer-events-none" />}
               </div>
-              <button onClick={() => setContentExpanded(p => !p)} className="mt-3 text-sm font-semibold text-[#0A2647] hover:text-[#144272] transition-colors flex items-center gap-1.5">
+              <button onClick={() => setContentExpanded(p => !p)} className="mt-3 text-sm font-semibold text-[#8F1018] hover:text-[#B5121B] transition-colors flex items-center gap-1.5">
                 {contentExpanded ? 'Ver menos' : 'Ver mas...'}
               </button>
             </div>
@@ -233,7 +233,7 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
                         </button>
                       </>
                     )}
-                    <button onClick={() => setPdfFullscreen(true)} className="inline-flex items-center gap-1.5 bg-[#0A2647] text-white text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-[#144272] transition-all">
+                    <button onClick={() => setPdfFullscreen(true)} className="inline-flex items-center gap-1.5 bg-[#8F1018] text-white text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-[#B5121B] transition-all">
                       <Maximize2 size={13} /><span className="hidden sm:inline">Pantalla completa</span>
                     </button>
                   </div>
@@ -255,7 +255,7 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
       {/* PDF Fullscreen */}
       {pdfFullscreen && docUrl && (
         <div className="fixed inset-0 z-50 bg-black/95 flex flex-col">
-          <div className="flex items-center justify-between px-5 py-3 bg-[#0A2647] flex-shrink-0 flex-wrap gap-2">
+          <div className="flex items-center justify-between px-5 py-3 bg-[#8F1018] flex-shrink-0 flex-wrap gap-2">
             <div className="flex items-center gap-2.5">
               <div className="w-7 h-7 bg-red-500/20 rounded-lg flex items-center justify-center">
                 <FileText size={13} className="text-red-400" />
