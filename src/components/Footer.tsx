@@ -55,18 +55,18 @@ const Footer: React.FC<FooterProps> = ({ navigate }) => {
           </div>
 
           {/* Logos */}
-          <div>
+          <div className="md:col-span-2">
             <h3 className="text-xs font-semibold uppercase tracking-widest text-[#F6A800] mb-3">Grupo Empresarial</h3>
-            <div className="grid grid-cols-2 gap-x-6 gap-y-4 items-center">
-              <img src="https://i.imgur.com/nwFGGgf.png" alt="AMMI" className="h-6 object-contain object-left" />
-              <img src="https://www.plihsa.com/wp-content/uploads/2023/02/Plihsa_Logo_Azul.svg" alt="PLIHSA" className="h-6 object-contain object-left" />
-              <img src="https://i.imgur.com/FpiAvCx.png" alt="PTM" className="h-6 object-contain object-left brightness-0 invert opacity-90" />
+            <div className="flex flex-nowrap items-center gap-5 overflow-x-auto pb-1">
+              <img src="https://i.imgur.com/nwFGGgf.png" alt="AMMI" className="h-6 w-auto shrink-0 object-contain" />
+              <img src="https://www.plihsa.com/wp-content/uploads/2023/02/Plihsa_Logo_Azul.svg" alt="PLIHSA" className="h-6 w-auto shrink-0 object-contain" />
+              <img src="https://i.imgur.com/FpiAvCx.png" alt="PTM" className="h-6 w-auto shrink-0 object-contain" />
               <img
                 src="https://i.imgur.com/sMMeJrA.png"
                 alt="Metálicos Punto de Venta"
-                className="h-8 object-contain object-left drop-shadow-[0_4px_10px_rgba(0,0,0,0.25)]"
+                className="h-8 w-auto shrink-0 object-contain drop-shadow-[0_4px_10px_rgba(0,0,0,0.25)]"
               />
-              <img src="https://i.imgur.com/kAzFS5n.png" alt="MillFoods" className="h-6 object-contain object-left" />
+              <img src="https://i.imgur.com/kAzFS5n.png" alt="MillFoods" className="h-6 w-auto shrink-0 object-contain" />
             </div>
           </div>
         </div>
