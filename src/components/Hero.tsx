@@ -113,7 +113,7 @@ const Hero: React.FC<HeroProps> = ({ navigate }) => {
               />
               <div className="relative h-16 sm:h-20 lg:h-28 w-px bg-white/30" />
               <img
-                src="/METALICOS_PUNTO_DE_VENTA_A_COLOR_.png"
+                src="https://i.imgur.com/sMMeJrA.png"
                 alt="Metálicos Punto de Venta"
                 className="relative h-20 sm:h-24 lg:h-32 w-auto max-w-[7rem] object-contain drop-shadow-[0_0_14px_rgba(255,255,255,0.2)]"
               />
