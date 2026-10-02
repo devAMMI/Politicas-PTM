@@ -99,17 +99,23 @@ const Hero: React.FC<HeroProps> = ({ navigate }) => {
           {/* Right: PTM logo + category cards */}
           <div className="flex-1 flex flex-col items-center lg:items-end gap-4 w-full">
             {/* Logo */}
-            <div className="relative flex items-center justify-center">
+            <div className="relative flex items-center justify-center gap-4 sm:gap-6">
               <div className="absolute inset-0 rounded-3xl bg-[#F6A800]/25 blur-2xl scale-110" />
               <div className="absolute inset-0 rounded-3xl bg-white/10 blur-xl scale-105" />
               <img
                 src="https://i.imgur.com/FpiAvCx.png"
                 alt="PTM"
-                className="relative h-24 lg:h-32 object-contain"
+                className="relative h-20 sm:h-24 lg:h-32 w-auto object-contain"
                 style={{
                   filter:
                     'brightness(0) invert(1) drop-shadow(0 0 18px rgba(246,168,0,0.55)) drop-shadow(0 0 40px rgba(239,83,48,0.35))',
                 }}
+              />
+              <div className="relative h-16 sm:h-20 lg:h-28 w-px bg-white/30" />
+              <img
+                src="/METALICOS_PUNTO_DE_VENTA_A_COLOR_.png"
+                alt="Metálicos Punto de Venta"
+                className="relative h-20 sm:h-24 lg:h-32 w-auto max-w-[7rem] object-contain drop-shadow-[0_0_14px_rgba(255,255,255,0.2)]"
               />
             </div>
 
