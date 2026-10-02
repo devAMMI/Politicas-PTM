@@ -55,7 +55,7 @@ const Footer: React.FC<FooterProps> = ({ navigate }) => {
           </div>
 
           {/* Logos */}
-          <div className="md:col-span-2">
+          <div>
             <h3 className="text-xs font-semibold uppercase tracking-widest text-[#F6A800] mb-3">Grupo Empresarial</h3>
             <div className="flex flex-nowrap items-center gap-5 overflow-x-auto pb-1">
               <img src="https://i.imgur.com/nwFGGgf.png" alt="AMMI" className="h-6 w-auto shrink-0 object-contain" />
