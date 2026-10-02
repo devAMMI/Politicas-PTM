@@ -99,9 +99,8 @@ const Hero: React.FC<HeroProps> = ({ navigate }) => {
           {/* Right: PTM logo + category cards */}
           <div className="flex-1 flex flex-col items-center lg:items-end gap-4 w-full">
             {/* Logo */}
-            <div className="relative flex items-center justify-center gap-4 sm:gap-6 rounded-3xl border border-white/35 bg-[#dfe7f0]/95 px-5 py-3 shadow-[0_18px_45px_rgba(20,35,80,0.32)] backdrop-blur-md">
-              <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-white/55 via-[#dfe7f0]/70 to-[#F6A800]/20" />
-              <div className="absolute -inset-2 rounded-[2rem] bg-[#F6A800]/20 blur-xl -z-10" />
+            <div className="relative flex items-center justify-center gap-4 sm:gap-6 px-5 py-3">
+              <div className="pointer-events-none absolute -inset-4 rounded-[2rem] bg-[#F6A800]/12 blur-2xl" />
               <img
                 src="https://i.imgur.com/FpiAvCx.png"
                 alt="PTM"
