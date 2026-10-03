@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Lock, Mail, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Lock, Mail, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 interface AdminLoginProps {
@@ -111,6 +111,15 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ navigate }) => {
               )}
             </button>
           </form>
+
+          <button
+            type="button"
+            onClick={() => navigate('/')}
+            className="w-full mt-4 inline-flex items-center justify-center gap-2 text-sm font-medium text-slate-500 hover:text-[#0A2647] transition-colors"
+          >
+            <ArrowLeft size={15} />
+            Volver a las políticas
+          </button>
         </div>
 
         <p className="text-center text-blue-200/50 text-xs mt-6">

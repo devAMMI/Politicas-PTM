@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { BarChart3, Clock3, Download, Eye, FileText, RefreshCw, ScrollText, Users } from 'lucide-react';
+import { BarChart3, CalendarDays, Clock3, Download, Eye, FileText, RefreshCw, ScrollText, Users } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 interface AdminAnalyticsProps {
@@ -21,6 +21,14 @@ interface AnalyticsEvent {
   duration_seconds: number | null;
   scroll_percent: number | null;
   created_at: string;
+}
+
+interface DailyMetric {
+  date: string;
+  visitors: number;
+  views: number;
+  downloads: number;
+  avgSeconds: number;
 }
 
 interface PolicyMetric {
@@ -67,6 +75,32 @@ const AdminAnalytics: React.FC<AdminAnalyticsProps> = () => {
   };
 
   useEffect(() => { void fetchEvents(); }, [range]);
+
+  const dailyMetrics = useMemo<DailyMetric[]>(() => {
+    const byDay = new Map<string, { visitors: Set<string>; views: number; downloads: number; durations: Map<string, number> }>();
+    events.forEach(event => {
+      const date = event.created_at.slice(0, 10);
+      const metric = byDay.get(date) ?? { visitors: new Set<string>(), views: 0, downloads: 0, durations: new Map<string, number>() };
+      if (event.event_type === 'page_view' && event.policy_id) {
+        metric.views += 1;
+        metric.visitors.add(event.visitor_id);
+      }
+      if (event.event_type === 'download') metric.downloads += 1;
+      if (event.event_type === 'engagement' && event.policy_id && event.duration_seconds !== null) {
+        const key = `${event.policy_id}:${event.session_id}`;
+        metric.durations.set(key, Math.max(metric.durations.get(key) ?? 0, event.duration_seconds));
+      }
+      byDay.set(date, metric);
+    });
+
+    return [...byDay.entries()].map(([date, metric]) => ({
+      date,
+      visitors: metric.visitors.size,
+      views: metric.views,
+      downloads: metric.downloads,
+      avgSeconds: metric.durations.size ? [...metric.durations.values()].reduce((sum, value) => sum + value, 0) / metric.durations.size : 0,
+    })).sort((a, b) => b.date.localeCompare(a.date));
+  }, [events]);
 
   const policyMetrics = useMemo<PolicyMetric[]>(() => {
     const byPolicy = new Map<string, { title: string; category: string; views: number; visitors: Set<string>; downloads: number; durationBySession: Map<string, number>; scrollBySession: Map<string, number> }>();
@@ -184,6 +218,44 @@ const AdminAnalytics: React.FC<AdminAnalyticsProps> = () => {
               <p className="text-xs text-slate-500 mt-1 leading-relaxed">{label}</p>
             </div>
           ))}
+        </div>
+
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden mb-6">
+          <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+            <div>
+              <h2 className="text-sm font-bold text-slate-800">Actividad diaria</h2>
+              <p className="text-xs text-slate-400 mt-0.5">Una lectura rápida de cómo evoluciona el uso del portal.</p>
+            </div>
+            <CalendarDays size={18} className="text-slate-300" />
+          </div>
+          {loading ? (
+            <div className="px-5 py-14 text-center text-sm text-slate-400">Cargando actividad...</div>
+          ) : dailyMetrics.length === 0 ? (
+            <div className="px-5 py-14 text-center text-sm text-slate-500">Todavía no hay actividad diaria registrada.</div>
+          ) : (
+            <div className="p-5 space-y-3">
+              {dailyMetrics.map(metric => {
+                const maxViews = Math.max(...dailyMetrics.map(item => item.views), 1);
+                const label = new Date(`${metric.date}T12:00:00`).toLocaleDateString('es-GT', { weekday: 'short', day: 'numeric', month: 'short' });
+                return (
+                  <div key={metric.date} className="grid grid-cols-[78px_1fr] sm:grid-cols-[110px_1fr_auto] items-center gap-3">
+                    <p className="text-xs font-semibold text-slate-500 capitalize">{label}</p>
+                    <div className="min-w-0">
+                      <div className="h-8 bg-slate-50 rounded-lg overflow-hidden relative">
+                        <div className="h-full rounded-lg bg-gradient-to-r from-[#0A2647] to-[#2B5B91] transition-all" style={{ width: `${Math.max(4, (metric.views / maxViews) * 100)}%` }} />
+                        <span className="absolute inset-y-0 left-3 flex items-center text-[11px] font-semibold text-white drop-shadow-sm">{metric.views} visitas</span>
+                      </div>
+                    </div>
+                    <div className="col-span-2 sm:col-span-1 flex items-center gap-3 sm:gap-4 text-[11px] text-slate-400 pl-[78px] sm:pl-0 whitespace-nowrap">
+                      <span><strong className="text-slate-700">{metric.visitors}</strong> personas</span>
+                      <span>{formatDuration(metric.avgSeconds)} medio</span>
+                      <span><strong className="text-slate-700">{metric.downloads}</strong> PDF</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
