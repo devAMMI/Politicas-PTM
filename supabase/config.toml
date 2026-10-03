@@ -1,0 +1,2 @@
+[functions.send-policy-notification]
+verify_jwt = true

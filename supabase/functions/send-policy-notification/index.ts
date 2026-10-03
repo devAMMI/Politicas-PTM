@@ -58,7 +58,7 @@ async function sendMail(
   html: string,
   attachments: { name: string; contentBytes: string; contentType: string }[] = []
 ): Promise<void> {
-  const sender = Deno.env.get("MS365_SENDER_EMAIL") ?? "helpdesk@ammi.com";
+  const sender = Deno.env.get("MS365_SENDER_EMAIL")?.trim() || "compliance.ptm@ptm.mx";
 
   const res = await fetch(
     `https://graph.microsoft.com/v1.0/users/${sender}/sendMail`,
