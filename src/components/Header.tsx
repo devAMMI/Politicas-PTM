@@ -8,7 +8,7 @@ const Header: React.FC<HeaderProps> = ({ navigate, currentPage }) => {
   return (
     <header className="fixed top-0 left-0 right-0 z-50">
       <div className="bg-[#8F1018] text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-10">
           <div className="flex items-center justify-between h-14">
             <div className="flex items-center gap-6">
               <img src="https://i.imgur.com/nwFGGgf.png" alt="AMMI" className="h-8 object-contain opacity-90" />

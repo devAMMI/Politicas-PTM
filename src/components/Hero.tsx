@@ -63,8 +63,8 @@ const Hero: React.FC<HeroProps> = ({ navigate }) => {
         }}
       />
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-10 lg:pt-10 lg:pb-12">
-        <div className="flex flex-col lg:flex-row items-start gap-8">
+      <div className="relative max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-10 pt-8 pb-10 lg:pt-10 lg:pb-12">
+        <div className="flex flex-col lg:flex-row items-start gap-8 lg:gap-12">
 
           {/* Left: text content */}
           <div className="flex-1 text-center lg:text-left">
@@ -115,7 +115,7 @@ const Hero: React.FC<HeroProps> = ({ navigate }) => {
             </div>
 
             {/* Category grid */}
-            <div className="grid grid-cols-2 gap-3 w-full max-w-sm">
+            <div className="grid grid-cols-2 gap-4 w-full max-w-lg">
               {loading ? (
                 <div className="col-span-2 flex items-center justify-center py-10">
                   <Loader2 size={24} className="text-white/50 animate-spin" />
@@ -126,7 +126,7 @@ const Hero: React.FC<HeroProps> = ({ navigate }) => {
                     <button
                       key={cat.id}
                       onClick={() => navigate(`/politicas-publicadas/${encodeURIComponent(cat.name)}`)}
-                      className="border border-white/15 rounded-2xl p-4 flex flex-col items-center text-center gap-2 backdrop-blur-sm hover:border-white/35 hover:scale-105 hover:brightness-110 transition-all duration-300 cursor-pointer"
+                      className="border border-white/15 rounded-2xl p-5 flex flex-col items-center text-center gap-3 backdrop-blur-sm hover:border-white/35 hover:scale-105 hover:brightness-110 transition-all duration-300 cursor-pointer"
                       style={{ background: `linear-gradient(135deg, ${colorToGradient(cat.color)}, ${cat.color}22)` }}
                     >
                       <div className="text-white/85">{categoryIcon(cat.slug)}</div>
@@ -137,7 +137,7 @@ const Hero: React.FC<HeroProps> = ({ navigate }) => {
                   {/* "Todas las Políticas" always last */}
                   <button
                     onClick={() => navigate('/politicas-publicadas')}
-                    className="border border-white/20 rounded-2xl p-4 flex flex-col items-center text-center gap-2 backdrop-blur-sm hover:border-white/40 hover:scale-105 hover:brightness-110 transition-all duration-300 cursor-pointer bg-white/10"
+                    className="border border-white/20 rounded-2xl p-5 flex flex-col items-center text-center gap-3 backdrop-blur-sm hover:border-white/40 hover:scale-105 hover:brightness-110 transition-all duration-300 cursor-pointer bg-white/10"
                   >
                     <div className="text-white/85"><LayoutGrid size={22} /></div>
                     <span className="text-white/85 text-xs font-medium leading-snug">Todas las Pol&iacute;ticas</span>
