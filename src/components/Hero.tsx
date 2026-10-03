@@ -64,7 +64,7 @@ const Hero: React.FC<HeroProps> = ({ navigate }) => {
       />
 
       <div className="relative h-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-10 py-8 lg:py-10 flex items-center">
-        <div className="flex flex-col lg:flex-row items-start gap-8 lg:gap-12">
+        <div className="w-full max-w-[1280px] mx-auto flex flex-col lg:flex-row items-center gap-8 lg:gap-16">
 
           {/* Left: text content */}
           <div className="flex-1 text-center lg:text-left">
@@ -72,7 +72,7 @@ const Hero: React.FC<HeroProps> = ({ navigate }) => {
               <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               <span className="text-white/90 text-xs font-medium uppercase tracking-widest">Portal Interno PTM</span>
             </div>
-            <h1 className="text-4xl lg:text-5xl xl:text-7xl font-bold text-white leading-tight mb-5">
+            <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-tight mb-5 lg:whitespace-nowrap">
               Pol&iacute;ticas Internas
               <div className="h-px my-2 bg-gradient-to-r from-[#F6A800]/90 via-[#FFB36B]/50 to-transparent rounded-full" />
             </h1>
@@ -97,7 +97,7 @@ const Hero: React.FC<HeroProps> = ({ navigate }) => {
           </div>
 
           {/* Right: PTM logo + category cards */}
-          <div className="flex-1 flex flex-col items-center lg:items-end gap-4 w-full">
+          <div className="flex-1 flex flex-col items-center gap-4 w-full">
             {/* Logo */}
             <div className="relative flex items-center justify-center gap-4 sm:gap-6 px-5 py-3">
               <div className="pointer-events-none absolute -inset-4 rounded-[2rem] bg-[#F6A800]/12 blur-2xl" />
@@ -115,7 +115,7 @@ const Hero: React.FC<HeroProps> = ({ navigate }) => {
             </div>
 
             {/* Category grid */}
-            <div className="grid grid-cols-2 gap-4 w-full max-w-lg">
+            <div className="grid grid-cols-2 gap-4 w-full max-w-xl">
               {loading ? (
                 <div className="col-span-2 flex items-center justify-center py-10">
                   <Loader2 size={24} className="text-white/50 animate-spin" />
