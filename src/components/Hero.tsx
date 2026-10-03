@@ -150,7 +150,6 @@ const Hero: React.FC<HeroProps> = ({ navigate }) => {
         </div>
       </div>
 
-      <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-[#FFF8F4] to-transparent" />
     </section>
   );
 };
