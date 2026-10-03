@@ -28,11 +28,19 @@ const Footer: React.FC<FooterProps> = ({ navigate }) => {
 
           {/* Brand */}
           <div>
-            <img
-              src="https://i.imgur.com/FpiAvCx.png"
-              alt="PTM"
-              className="h-8 object-contain mb-3 brightness-0 invert opacity-80"
-            />
+            <div className="flex items-center gap-5 mb-3">
+              <img
+                src="https://i.imgur.com/FpiAvCx.png"
+                alt="PTM"
+                className="h-8 w-auto object-contain brightness-0 invert opacity-80"
+              />
+              <span className="h-7 w-px bg-white/20" aria-hidden="true" />
+              <img
+                src="/METALICOS_PUNTO_DE_VENTA_A_COLOR_.png"
+                alt="Metálicos Punto de Venta"
+                className="h-9 w-auto max-w-[150px] object-contain"
+              />
+            </div>
             <p className="text-[#F8C9BE] text-xs leading-relaxed max-w-xs">
               Portal de Políticas Internas de PTM. Consulta y gestion de documentos normativos para todos los colaboradores.
             </p>
