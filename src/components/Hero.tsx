@@ -49,7 +49,7 @@ const Hero: React.FC<HeroProps> = ({ navigate }) => {
   }, []);
 
   return (
-    <section className="relative bg-gradient-to-br from-[#7A0C14] via-[#B5121B] to-[#E84A2A] overflow-hidden">
+    <section className="relative flex-1 bg-gradient-to-br from-[#7A0C14] via-[#B5121B] to-[#E84A2A] overflow-hidden">
       {/* Background decorations */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-0 right-0 w-[600px] h-[600px] rounded-full bg-white -translate-y-1/2 translate-x-1/3" />
