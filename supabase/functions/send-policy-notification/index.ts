@@ -58,10 +58,10 @@ async function sendMail(
   html: string,
   attachments: { name: string; contentBytes: string; contentType: string }[] = []
 ): Promise<void> {
-  const sender = Deno.env.get("MS365_SENDER_EMAIL")?.trim() || "helpdesk@ammi.com";
+  const sender = "compliance.ptm@ptm.mx";
 
   const res = await fetch(
-    `https://graph.microsoft.com/v1.0/users/${sender}/sendMail`,
+    "https://graph.microsoft.com/v1.0/users/compliance.ptm@ptm.mx/sendMail",
     {
       method: "POST",
       headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
