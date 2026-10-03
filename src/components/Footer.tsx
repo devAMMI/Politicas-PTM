@@ -36,7 +36,7 @@ const Footer: React.FC<FooterProps> = ({ navigate }) => {
               />
               <span className="h-7 w-px bg-white/20" aria-hidden="true" />
               <img
-                src="/METALICOS_PUNTO_DE_VENTA_A_COLOR_.png"
+                src="https://i.imgur.com/sMMeJrA.png"
                 alt="Metálicos Punto de Venta"
                 className="h-9 w-auto max-w-[150px] object-contain"
               />
