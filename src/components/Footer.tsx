@@ -32,13 +32,13 @@ const Footer: React.FC<FooterProps> = ({ navigate }) => {
               <img
                 src="https://i.imgur.com/FpiAvCx.png"
                 alt="PTM"
-                className="h-8 w-auto object-contain brightness-0 invert opacity-80"
+                className="h-[35.2px] w-auto object-contain brightness-0 invert opacity-80"
               />
               <span className="h-7 w-px bg-white/20" aria-hidden="true" />
               <img
                 src="https://i.imgur.com/sMMeJrA.png"
                 alt="Metálicos Punto de Venta"
-                className="h-9 w-auto max-w-[150px] object-contain"
+                className="h-[39.6px] w-auto max-w-[150px] object-contain"
               />
             </div>
             <p className="text-[#F8C9BE] text-xs leading-relaxed max-w-xs">
