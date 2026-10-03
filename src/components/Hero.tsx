@@ -18,7 +18,7 @@ interface HeroProps {
 
 // Maps category slug → lucide icon
 function categoryIcon(slug: string): React.ReactNode {
-  const size = 22;
+  const size = 26;
   if (slug.includes('comunidad') || slug.includes('terceros')) return <Globe size={size} />;
   if (slug.includes('administracion') || slug.includes('operacion')) return <Briefcase size={size} />;
   if (slug.includes('gente') || slug.includes('rrhh') || slug.includes('humanos')) return <Users size={size} />;
@@ -63,7 +63,7 @@ const Hero: React.FC<HeroProps> = ({ navigate }) => {
         }}
       />
 
-      <div className="relative max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-10 pt-8 pb-10 lg:pt-10 lg:pb-12">
+      <div className="relative h-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-10 py-8 lg:py-10 flex items-center">
         <div className="flex flex-col lg:flex-row items-start gap-8 lg:gap-12">
 
           {/* Left: text content */}
@@ -72,7 +72,7 @@ const Hero: React.FC<HeroProps> = ({ navigate }) => {
               <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               <span className="text-white/90 text-xs font-medium uppercase tracking-widest">Portal Interno PTM</span>
             </div>
-            <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-tight mb-4">
+            <h1 className="text-4xl lg:text-5xl xl:text-7xl font-bold text-white leading-tight mb-5">
               Pol&iacute;ticas Internas
               <div className="h-px my-2 bg-gradient-to-r from-[#F6A800]/90 via-[#FFB36B]/50 to-transparent rounded-full" />
             </h1>
@@ -104,13 +104,13 @@ const Hero: React.FC<HeroProps> = ({ navigate }) => {
               <img
                 src="https://i.imgur.com/FpiAvCx.png"
                 alt="PTM"
-                className="relative h-14 sm:h-16 lg:h-24 w-[7rem] sm:w-[8rem] lg:w-[9rem] object-contain brightness-0 invert drop-shadow-[0_8px_12px_rgba(25,35,70,0.28)]"
+                className="relative h-16 sm:h-20 lg:h-28 w-[8rem] sm:w-[9rem] lg:w-[10rem] object-contain brightness-0 invert drop-shadow-[0_8px_12px_rgba(25,35,70,0.28)]"
               />
               <div className="relative h-12 sm:h-14 lg:h-20 w-px bg-slate-500/35" />
               <img
                 src="https://i.imgur.com/sMMeJrA.png"
                 alt="Metálicos Punto de Venta"
-                className="relative h-14 sm:h-16 lg:h-24 w-[7rem] sm:w-[8rem] lg:w-[9rem] object-contain brightness-0 invert drop-shadow-[0_8px_12px_rgba(25,35,70,0.28)]"
+                className="relative h-16 sm:h-20 lg:h-28 w-[8rem] sm:w-[9rem] lg:w-[10rem] object-contain brightness-0 invert drop-shadow-[0_8px_12px_rgba(25,35,70,0.28)]"
               />
             </div>
 
