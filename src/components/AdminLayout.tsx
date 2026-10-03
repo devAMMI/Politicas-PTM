@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FolderOpen, Settings, Users, LogOut, ExternalLink, X, Menu, Plus, LayoutGrid, CircleUser as UserCircle, Send } from 'lucide-react';
+import { FolderOpen, Settings, Users, LogOut, ExternalLink, X, Menu, Plus, LayoutGrid, CircleUser as UserCircle, Send, BarChart3 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 interface AdminLayoutProps {
@@ -19,6 +19,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ navigate, currentPage, childr
 
   const navItems = [
     { key: 'admin-dashboard',   label: 'Políticas',     icon: <LayoutGrid size={16} />, path: '/admin' },
+    { key: 'admin-analytics',  label: 'Analítica',     icon: <BarChart3 size={16} />, path: '/admin/analitica' },
     { key: 'admin-archive',     label: 'Archivo',       icon: <FolderOpen size={16} />, path: '/admin/archivo' },
     { key: 'admin-categories',  label: 'Categorias',    icon: <Settings size={16} />,   path: '/admin/categorias' },
     { key: 'admin-users',       label: 'Usuarios',      icon: <Users size={16} />,      path: '/admin/usuarios' },
@@ -27,6 +28,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ navigate, currentPage, childr
 
   const allPageLabels: Record<string, string> = {
     'admin-dashboard':   'Políticas',
+    'admin-analytics':  'Analítica',
     'admin-archive':     'Archivo',
     'admin-categories':  'Categorias',
     'admin-users':       'Usuarios',

@@ -8,6 +8,7 @@ function parsePath(pathname: string): Page {
   if (path === 'codigoetica') return { name: 'codigo-etica' };
   if (path === 'login') return { name: 'admin-login' };
   if (path === 'admin') return { name: 'admin-dashboard' };
+  if (path === 'admin/analitica') return { name: 'admin-analytics' };
   if (path === 'admin/nueva') return { name: 'admin-create' };
   if (path === 'admin/usuarios') return { name: 'admin-users' };
   if (path === 'admin/archivo') return { name: 'admin-archive' };

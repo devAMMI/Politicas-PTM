@@ -5,6 +5,7 @@ import { Policy } from '../types';
 import PolicyCard from '../components/PolicyCard';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ScrollToTop from '../components/ScrollToTop';
+import { usePageAnalytics } from '../hooks/useAnalytics';
 
 interface HomeProps {
   navigate: (to: string) => void;
@@ -36,6 +37,11 @@ const Home: React.FC<HomeProps> = ({ navigate, initialCategory = 'Todas', showBa
   const [activeCategory, setActiveCategory] = useState<string>(initialCategory);
   const [viewMode, setViewMode]             = useState<'grid' | 'list'>('grid');
   const [page, setPage]                     = useState(1);
+
+  usePageAnalytics({
+    route: initialCategory === 'Todas' ? '/politicas-publicadas' : `/categoria/${encodeURIComponent(initialCategory)}`,
+    category: initialCategory === 'Todas' ? null : initialCategory,
+  });
 
   useEffect(() => {
     setActiveCategory(initialCategory);

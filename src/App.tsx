@@ -9,6 +9,7 @@ import Home from './pages/Home';
 import PolicyDetail from './pages/PolicyDetail';
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
+import AdminAnalytics from './pages/AdminAnalytics';
 import PolicyForm from './pages/PolicyForm';
 import UserManagement from './pages/UserManagement';
 import AdminArchive from './pages/AdminArchive';
@@ -18,7 +19,7 @@ import EmailRecipients from './pages/EmailRecipients';
 import CodigoEtica from './pages/CodigoEtica';
 
 const ADMIN_PAGES = new Set([
-  'admin-dashboard', 'admin-create', 'admin-edit',
+  'admin-dashboard', 'admin-analytics', 'admin-create',
   'admin-users', 'admin-archive', 'admin-categories',
   'admin-profile', 'admin-recipients',
 ]);
@@ -59,6 +60,7 @@ const AppContent: React.FC = () => {
     return (
       <AdminLayout navigate={navigate} currentPage={page.name}>
         {page.name === 'admin-dashboard' && <AdminDashboard navigate={navigate} />}
+        {page.name === 'admin-analytics' && <AdminAnalytics navigate={navigate} />}
         {page.name === 'admin-create' && <PolicyForm navigate={navigate} />}
         {page.name === 'admin-edit' && <PolicyForm editId={page.id} navigate={navigate} />}
         {page.name === 'admin-users' && <UserManagement navigate={navigate} />}

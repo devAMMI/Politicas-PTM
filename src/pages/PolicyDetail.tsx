@@ -8,6 +8,8 @@ import { Policy, buildDocCleanUrl } from '../types';
 import { useAuth } from '../context/AuthContext';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ScrollToTop from '../components/ScrollToTop';
+import { usePageAnalytics } from '../hooks/useAnalytics';
+import { trackAnalyticsEvent } from '../lib/analytics';
 
 interface PolicyDetailProps {
   slug: string;
@@ -45,6 +47,15 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
   const inlineIframeRef     = React.useRef<HTMLIFrameElement>(null);
   const fullscreenIframeRef = React.useRef<HTMLIFrameElement>(null);
 
+  usePageAnalytics({
+    route: `/politicas/${slug}`,
+    category: policy?.category,
+    policyId: policy?.id,
+    policySlug: policy?.slug ?? slug,
+    policyTitle: policy?.title,
+    enabled: Boolean(policy),
+  });
+
   useEffect(() => {
     const fetchPolicy = async () => {
       setLoading(true);
@@ -61,6 +72,18 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
   }, [slug]);
 
   useEffect(() => {
+    if (!policy || !policy.document_url && !policy.document_clean_path) return;
+    trackAnalyticsEvent({
+      eventType: 'pdf_open',
+      route: `/politicas/${slug}`,
+      category: policy.category,
+      policyId: policy.id,
+      policySlug: policy.slug,
+      policyTitle: policy.title,
+    });
+  }, [policy, slug]);
+
+  useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         if (pdfFullscreen) setPdfFullscreen(false);
@@ -72,11 +95,27 @@ const PolicyDetail: React.FC<PolicyDetailProps> = ({ slug, navigate }) => {
   }, [lightboxOpen, pdfFullscreen]);
 
   const handlePrint = (fromFullscreen: boolean) => {
+    trackAnalyticsEvent({
+      eventType: 'print',
+      route: `/politicas/${slug}`,
+      category: policy.category,
+      policyId: policy.id,
+      policySlug: policy.slug,
+      policyTitle: policy.title,
+    });
     const iframe = fromFullscreen ? fullscreenIframeRef.current : inlineIframeRef.current;
     if (iframe?.contentWindow) { iframe.contentWindow.focus(); iframe.contentWindow.print(); }
   };
 
   const handleDownload = async (url: string, filename: string) => {
+    trackAnalyticsEvent({
+      eventType: 'download',
+      route: `/politicas/${slug}`,
+      category: policy.category,
+      policyId: policy.id,
+      policySlug: policy.slug,
+      policyTitle: policy.title,
+    });
     try {
       const res  = await fetch(url);
       const blob = await res.blob();

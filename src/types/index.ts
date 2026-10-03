@@ -131,6 +131,7 @@ export type Page =
   | { name: 'policy'; slug: string }
   | { name: 'admin-login' }
   | { name: 'admin-dashboard' }
+  | { name: 'admin-analytics' }
   | { name: 'admin-create' }
   | { name: 'admin-edit'; id: string }
   | { name: 'admin-users' }
