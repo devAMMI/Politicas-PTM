@@ -58,10 +58,10 @@ async function sendMail(
   html: string,
   attachments: { name: string; contentBytes: string; contentType: string }[] = []
 ): Promise<void> {
-  const sender = "compliance.ptm@ptm.mx";
+  const sender = "Helpdesk@ammi.com";
 
   const res = await fetch(
-    "https://graph.microsoft.com/v1.0/users/compliance.ptm@ptm.mx/sendMail",
+    "https://graph.microsoft.com/v1.0/users/Helpdesk@ammi.com/sendMail",
     {
       method: "POST",
       headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
@@ -88,7 +88,7 @@ async function sendMail(
   if (!res.ok) {
     const details = await res.text();
     if (details.includes("ErrorMailboxConfiguration")) {
-      throw new Error("Microsoft 365 no reconoce compliance.ptm@ptm.mx como un buzón habilitado para enviar correos.");
+      throw new Error(`Microsoft 365 no reconoce ${sender} como un buzón habilitado para enviar correos.`);
     }
     throw new Error(`SendMail error to ${to}: ${details}`);
   }
