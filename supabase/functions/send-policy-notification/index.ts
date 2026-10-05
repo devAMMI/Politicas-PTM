@@ -70,7 +70,6 @@ async function sendMail(
           subject,
           body: { contentType: "HTML", content: html },
           toRecipients: [{ emailAddress: { address: to } }],
-          from: { emailAddress: { address: sender, name: "PTM · Gobierno Corporativo" } },
           ...(attachments.length > 0
             ? {
                 attachments: attachments.map(a => ({
@@ -86,7 +85,13 @@ async function sendMail(
       }),
     }
   );
-  if (!res.ok) throw new Error(`SendMail error to ${to}: ${await res.text()}`);
+  if (!res.ok) {
+    const details = await res.text();
+    if (details.includes("ErrorMailboxConfiguration")) {
+      throw new Error("Microsoft 365 no reconoce compliance.ptm@ptm.mx como un buzón habilitado para enviar correos.");
+    }
+    throw new Error(`SendMail error to ${to}: ${details}`);
+  }
 }
 
 async function fetchPdfAsBase64(url: string): Promise<string | null> {
