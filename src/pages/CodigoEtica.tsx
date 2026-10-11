@@ -10,7 +10,7 @@ interface CodigoEticaProps {
 }
 
 const CodigoEtica: React.FC<CodigoEticaProps> = ({ navigate }) => {
-  const pdfUrl = '/CodigodeEtica-Ammi-Digital.pdf';
+  const pdfUrl = '/CodigodeEtica-Ammi-Digital%20copy.pdf';
   const [fullscreen, setFullscreen]   = useState(false);
   const inlineRef                     = useRef<HTMLIFrameElement>(null);
   const fullscreenRef                 = useRef<HTMLIFrameElement>(null);
