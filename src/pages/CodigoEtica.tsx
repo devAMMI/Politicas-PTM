@@ -1,8 +1,9 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   ArrowLeft, Download, Maximize2, Minimize2, Printer, ExternalLink,
-  FileText,
+  FileText, Loader2, AlertCircle,
 } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 import ScrollToTop from '../components/ScrollToTop';
 
 interface CodigoEticaProps {
@@ -10,12 +11,27 @@ interface CodigoEticaProps {
 }
 
 const CodigoEtica: React.FC<CodigoEticaProps> = ({ navigate }) => {
-  const pdfUrl = '/CodigodeEtica-Ammi-Digital%20copy.pdf';
+  const [pdfUrl, setPdfUrl]           = useState<string | null>(null);
+  const [loading, setLoading]         = useState(true);
   const [fullscreen, setFullscreen]   = useState(false);
   const inlineRef                     = useRef<HTMLIFrameElement>(null);
   const fullscreenRef                 = useRef<HTMLIFrameElement>(null);
 
-  const viewerSrc = `${pdfUrl}#toolbar=0&navpanes=0&scrollbar=1&view=FitH`;
+  useEffect(() => {
+    supabase
+      .from('app_settings')
+      .select('value')
+      .eq('key', 'codigo_etica_url')
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data?.value) {
+          setPdfUrl(`/docs/${data.value}`);
+        }
+        setLoading(false);
+      });
+  }, []);
+
+  const viewerSrc = pdfUrl ? `${pdfUrl}#toolbar=0&navpanes=0&scrollbar=1&view=FitH` : null;
 
   const handlePrint = () => {
     const ref = fullscreen ? fullscreenRef.current : inlineRef.current;
@@ -56,7 +72,8 @@ const CodigoEtica: React.FC<CodigoEticaProps> = ({ navigate }) => {
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            {pdfUrl && (
+              <div className="flex items-center gap-2">
                 <button
                   onClick={handlePrint}
                   className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition text-sm"
@@ -81,7 +98,8 @@ const CodigoEtica: React.FC<CodigoEticaProps> = ({ navigate }) => {
                   <Download size={15} />
                   Descargar
                 </a>
-            </div>
+              </div>
+            )}
           </div>
 
           {/* Quote banner */}
@@ -96,23 +114,38 @@ const CodigoEtica: React.FC<CodigoEticaProps> = ({ navigate }) => {
             {/* Toolbar */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 bg-slate-50">
               <span className="text-xs text-slate-500 font-medium uppercase tracking-wide">Visor de documento</span>
-              <button
-                onClick={() => setFullscreen(true)}
-                className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-[#8F1018] transition-colors"
-              >
-                <Maximize2 size={14} />
-                Pantalla completa
-              </button>
+              {pdfUrl && (
+                <button
+                  onClick={() => setFullscreen(true)}
+                  className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-[#8F1018] transition-colors"
+                >
+                  <Maximize2 size={14} />
+                  Pantalla completa
+                </button>
+              )}
             </div>
 
             {/* Content */}
             <div className="relative" style={{ height: '75vh', minHeight: '480px' }}>
-              <iframe
-                ref={inlineRef}
-                src={viewerSrc}
-                className="w-full h-full border-0"
-                title="Código de Ética PTM"
-              />
+              {loading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-white">
+                  <Loader2 size={28} className="text-[#8F1018]/40 animate-spin" />
+                </div>
+              )}
+              {!loading && !pdfUrl && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-slate-400">
+                  <AlertCircle size={36} />
+                  <p className="text-sm">Documento no disponible</p>
+                </div>
+              )}
+              {!loading && viewerSrc && (
+                <iframe
+                  ref={inlineRef}
+                  src={viewerSrc}
+                  className="w-full h-full border-0"
+                  title="Código de Ética PTM"
+                />
+              )}
             </div>
           </div>
         </div>
